@@ -5,8 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CCshop - Acceso Exclusivo</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='text' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23ff0000'/><stop offset='100%' stop-color='%23cc0000'/></linearGradient></defs><path d='M8 8 L24 8 L24 24 L8 24 Z' transform='rotate(45 16 16)' fill='none' stroke='%23ff0000' stroke-width='1.5'/><text x='12' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text><text x='20' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text></svg>">
-
+    
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -898,7 +897,7 @@
             
             <div class="security-title">Iniciar Sesión Segura</div>
             
-            <button class="google-button" id="googleButton" onclick="signInWithGoogle()">
+            <button class="google-button" id="googleButton" onclick="initiateGoogleSignIn()">
                 <svg class="google-icon" viewBox="0 0 24 24">
                     <path fill="white" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                     <path fill="white" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -912,9 +911,16 @@
 
     <button class="enter-button" id="enterButton" onclick="enterPage()">Acceder a la Tienda</button>
 
-    <!-- CONFIGURACIÓN FIREBASE DIRECTA -->
+    <script src="firebase-config.js"></script>
+
     <script>
-        // Configuración Firebase DIRECTA en index.html
+        // =======================================================
+        // CONFIGURACIÓN
+        // =======================================================
+        const MODO_PRODUCCION = true; // CAMBIAR A true CUANDO ESTÉ EN PRODUCCIÓN
+
+        /*
+        // Configuración Firebase - ELIMINADA y cargada desde firebase-config.js
         const firebaseConfig = {
             apiKey: "AIzaSyD2tvQjJzh7ukTSyxzIQSo7GSpz7L8z11I",
             authDomain: "ccshop-realtime.firebaseapp.com",
@@ -924,15 +930,10 @@
             messagingSenderId: "795626673305",
             appId: "1:795626673305:web:094dc265de1d4d1bc7d408"
         };
-    </script>
-
-    <script>
-        // =======================================================
-        // CONFIGURACIÓN
-        // =======================================================
-        const MODO_PRODUCCION = true;
+        */
 
         // Inicializar Firebase
+        // La variable 'firebaseConfig' es accesible gracias al script anterior.
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.database();
@@ -1040,7 +1041,31 @@
             popup.style.display = 'none';
         }
 
-        // INICIAR SESIÓN CON GOOGLE - CON POPUP FUNCIONAL
+        // INICIAR SESIÓN CON GOOGLE - FLUJO MEJORADO
+        async function initiateGoogleSignIn() {
+            const button = document.getElementById('googleButton');
+            
+            // Ya no es necesario verificar el modo desarrollo/acceso local
+            
+            try {
+                // Crear una ventana de prueba para detectar bloqueo
+                const testPopup = window.open('', '_blank', 'width=100,height=100');
+                
+                if (!testPopup || testPopup.closed || typeof testPopup.closed === 'undefined') {
+                    testPopup?.close();
+                    showPopupInstructions();
+                    return;
+                }
+                
+                testPopup.close();
+                await signInWithGoogle();
+                
+            } catch (error) {
+                console.log('Error verificando ventanas emergentes:', error);
+                showPopupInstructions();
+            }
+        }
+
         async function signInWithGoogle() {
             const button = document.getElementById('googleButton');
             
@@ -1053,7 +1078,6 @@
                 const provider = new firebase.auth.GoogleAuthProvider();
                 provider.setCustomParameters({ prompt: 'select_account' });
                 
-                // USAR POPUP - funciona mejor en Pages
                 const result = await auth.signInWithPopup(provider);
                 currentUser = result.user;
                 
@@ -1281,3 +1305,4 @@
     </script>
 </body>
 </html>
+
