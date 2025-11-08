@@ -1,17 +1,15 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CCshop - Acceso Exclusivo</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='text' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23ff0000'/><stop offset='100%' stop-color='%23cc0000'/></linearGradient></defs><path d='M8 8 L24 8 L24 24 L8 24 Z' transform='rotate(45 16 16)' fill='none' stroke='%23ff0000' stroke-width='1.5'/><text x='12' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text><text x='20' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text></svg>">
-    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='text' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23ff0000'/><stop offset='100%' stop-color='%23cc0000'/></linearGradient></defs><path d='M8 8 L24 8 L24 24 L8 24 Z' transform='rotate(45 16 16)' fill='none' stroke='%23ff0000' stroke-width='1.5'/><text x='12' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text><text x='20' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text></svg>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-  
+    
     <style>
         * { 
             margin: 0; 
@@ -695,7 +693,8 @@
             }
         }
 
-        /* INSTRUCCIONES PARA VENTANA EMERGENTE */
+        /* INSTRUCCIONES PARA VENTANA EMERGENTE - ELIMINADO EL CÓDIGO DE VISUALIZACIÓN */
+        /* ... el CSS para popup-instructions, popup-content, etc. se mantiene por si se usa en otro lugar, pero no es funcional */
         .popup-instructions {
             position: fixed;
             top: 0;
@@ -868,7 +867,7 @@
                 3. Vuelve a hacer clic en "Continuar con Google"<br><br>
                 Esta ventana se cerrará automáticamente en <span id="countdown">10</span> segundos.
             </div>
-            <button class="popup-button" onclick="closePopupInstructions()">Entendido</button>
+            <button class="popup-button">Entendido</button>
         </div>
     </div>
 
@@ -899,7 +898,7 @@
             
             <div class="security-title">Iniciar Sesión Segura</div>
             
-            <button class="google-button" id="googleButton" onclick="initiateGoogleSignIn()">
+            <button class="google-button" id="googleButton" onclick="signInWithGoogle()">
                 <svg class="google-icon" viewBox="0 0 24 24">
                     <path fill="white" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                     <path fill="white" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -913,30 +912,54 @@
 
     <button class="enter-button" id="enterButton" onclick="enterPage()">Acceder a la Tienda</button>
 
-<script>
-    // =======================================================
-    // CONFIGURACIÓN
-    // =======================================================
-    const MODO_PRODUCCION = true;
+    <script src="firebase-config.js"></script>
 
-    // CONFIGURACIÓN FIREBASE DIRECTA EN EL HTML
-    const firebaseConfig = {
-        apiKey: "AIzaSyD2tvQjJzh7ukTSyxzIQSo7GSpz7L8z11I",
-        authDomain: "ccshop-realtime.firebaseapp.com",
-        databaseURL: "https://ccshop-realtime-default-rtdb.firebaseio.com",
-        projectId: "ccshop-realtime",
-        storageBucket: "ccshop-realtime.firebasestorage.app",
-        messagingSenderId: "795626673305",
-        appId: "1:795626673305:web:094dc265de1d4d1bc7d408"
-    };
+    <script>
+        // =======================================================
+        // CONFIGURACIÓN
+        // =======================================================
+        const MODO_PRODUCCION = true; // CAMBIAR A true CUANDO ESTÉ EN PRODUCCIÓN
 
-    // Inicializar Firebase
-    firebase.initializeApp(firebaseConfig);
+        // Inicializar Firebase
+        // La variable 'firebaseConfig' es accesible gracias al script anterior.
+        firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.database();
 
         let currentUser = null;
         let popupCountdown = 10;
+
+        // AGREGADO: Manejar redirección después del login (getRedirectResult)
+        auth.getRedirectResult().then((result) => {
+            if (result.user) {
+                currentUser = result.user;
+                // Ocultar animación (en caso de que estuviera visible)
+                document.getElementById('loginAnimation').style.display = 'none'; 
+                
+                crearUsuarioEnBaseDatos(currentUser);
+                showSuccessNotification();
+                showDashboard();
+                updateUserInfo(currentUser);
+            }
+        }).catch((error) => {
+            console.error('Error en redirect:', error);
+            // Mostrar login principal y notificar error si es necesario
+            document.getElementById('mainContainer').style.display = 'block';
+            document.getElementById('loginAnimation').style.display = 'none';
+            showErrorNotification('Error al iniciar sesión por redirección: ' + error.message);
+
+            const button = document.getElementById('googleButton');
+            button.classList.remove('loading');
+            button.innerHTML = `
+                <svg class="google-icon" viewBox="0 0 24 24">
+                    <path fill="white" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="white" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="white" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43-.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="white" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Continuar con Google
+            `;
+        });
 
         // =======================================================
         // SISTEMA DE SEGURIDAD SIMPLIFICADO
@@ -1012,57 +1035,13 @@
             }, 4000);
         }
 
-        // Mostrar instrucciones para ventana emergente
-        function showPopupInstructions() {
-            const popup = document.getElementById('popupInstructions');
-            popup.style.display = 'flex';
-            popupCountdown = 10;
-            
-            const countdownElement = document.getElementById('countdown');
-            countdownElement.textContent = popupCountdown;
-            
-            const countdownInterval = setInterval(() => {
-                popupCountdown--;
-                countdownElement.textContent = popupCountdown;
-                
-                if (popupCountdown <= 0) {
-                    clearInterval(countdownInterval);
-                    closePopupInstructions();
-                }
-            }, 1000);
-        }
+        // ELIMINADA: function showPopupInstructions() {}
 
-        // Cerrar instrucciones para ventana emergente
-        function closePopupInstructions() {
-            const popup = document.getElementById('popupInstructions');
-            popup.style.display = 'none';
-        }
+        // ELIMINADA: function closePopupInstructions() {}
 
-        // INICIAR SESIÓN CON GOOGLE - FLUJO MEJORADO
-        async function initiateGoogleSignIn() {
-            const button = document.getElementById('googleButton');
-            
-            // Ya no es necesario verificar el modo desarrollo/acceso local
-            
-            try {
-                // Crear una ventana de prueba para detectar bloqueo
-                const testPopup = window.open('', '_blank', 'width=100,height=100');
-                
-                if (!testPopup || testPopup.closed || typeof testPopup.closed === 'undefined') {
-                    testPopup?.close();
-                    showPopupInstructions();
-                    return;
-                }
-                
-                testPopup.close();
-                await signInWithGoogle();
-                
-            } catch (error) {
-                console.log('Error verificando ventanas emergentes:', error);
-                showPopupInstructions();
-            }
-        }
+        // ELIMINADA: function initiateGoogleSignIn() {}
 
+        // MODIFICADA: INICIAR SESIÓN CON GOOGLE - FLUJO DE REDIRECCIÓN
         async function signInWithGoogle() {
             const button = document.getElementById('googleButton');
             
@@ -1075,28 +1054,11 @@
                 const provider = new firebase.auth.GoogleAuthProvider();
                 provider.setCustomParameters({ prompt: 'select_account' });
                 
-                const result = await auth.signInWithPopup(provider);
-                currentUser = result.user;
+                // CAMBIO PRINCIPAL: Usar signInWithRedirect en lugar de PopUp
+                await auth.signInWithRedirect(provider);
                 
-                // Crear/actualizar usuario en Realtime Database
-                await crearUsuarioEnBaseDatos(currentUser);
-                
-                // Ocultar animación y restaurar botón
-                document.getElementById('loginAnimation').style.display = 'none';
-                button.classList.remove('loading');
-                button.innerHTML = `
-                    <svg class="google-icon" viewBox="0 0 24 24">
-                        <path fill="white" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                        <path fill="white" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                        <path fill="white" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43-.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                        <path fill="white" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                    </svg>
-                    Continuar con Google
-                `;
-                
-                showSuccessNotification();
-                showDashboard();
-                updateUserInfo(currentUser);
+                // El flujo de la aplicación se detiene aquí y se reanuda
+                // en auth.getRedirectResult() después de la redirección.
                 
             } catch (error) {
                 console.error('Error en login:', error);
@@ -1112,13 +1074,7 @@
                     Continuar con Google
                 `;
                 
-                if (error.code === 'auth/popup-blocked') {
-                    showPopupInstructions();
-                } else if (error.code === 'auth/popup-closed-by-user') {
-                    showInfoNotification('El inicio de sesión fue cancelado');
-                } else {
-                    showErrorNotification('Error al verificar identidad: ' + error.message);
-                }
+                showErrorNotification('Error al iniciar sesión: ' + error.message);
             }
         }
 
@@ -1248,6 +1204,11 @@
         
         // Observador de autenticación de Firebase
         auth.onAuthStateChanged((user) => {
+            // Este observador se activa también después de getRedirectResult,
+            // pero la lógica principal de post-login se maneja en getRedirectResult().
+            // Aquí solo aseguramos el estado inicial si el usuario ya está logueado
+            // (e.g., al recargar después de un getRedirectResult exitoso o al cargar
+            // una página subsiguiente donde se usará el authStateChanged).
             if (user) {
                 currentUser = user;
                 console.log('✅ Usuario autenticado:', user.email);
