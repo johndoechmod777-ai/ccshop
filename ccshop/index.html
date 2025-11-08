@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CCshop - Acceso Exclusivo</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='text' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23ff0000'/><stop offset='100%' stop-color='%23cc0000'/></linearGradient></defs><path d='M8 8 L24 8 L24 24 L8 24 Z' transform='rotate(45 16 16)' fill='none' stroke='%23ff0000' stroke-width='1.5'/><text x='12' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text><text x='20' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text></svg>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='text' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23ff0000'/><stop offset='100%' stop-color='%23cc0000'/></linearGradient></defs><path d='M8 8 L24 8 L24 24 L8 24 Z' transform='rotate(45 16 16)' fill='none' stroke='%23ff0000' stroke-width='1.5'/><text x='12' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text><text x='20' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text></svg>">
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -558,7 +558,7 @@
         }
 
         .success-notification::before {
-            content: '✓';
+            content: 'Checkmark';
             margin-right: 8px;
             font-size: 16px;
         }
@@ -693,8 +693,7 @@
             }
         }
 
-        /* INSTRUCCIONES PARA VENTANA EMERGENTE - ELIMINADO EL CÓDIGO DE VISUALIZACIÓN */
-        /* ... el CSS para popup-instructions, popup-content, etc. se mantiene por si se usa en otro lugar, pero no es funcional */
+        /* INSTRUCCIONES PARA VENTANA EMERGENTE */
         .popup-instructions {
             position: fixed;
             top: 0;
@@ -880,7 +879,7 @@
     <div class="user-info" id="userInfo">
         <span class="user-name" id="userName"></span>
         <button class="logout-button" onclick="logout()">
-            🚪 Cerrar Sesión
+            Cerrar Sesión
         </button>
     </div>
 
@@ -912,16 +911,27 @@
 
     <button class="enter-button" id="enterButton" onclick="enterPage()">Acceder a la Tienda</button>
 
-    <script src="firebase-config.js"></script>
+    <!-- CONFIGURACIÓN FIREBASE DIRECTA (ELIMINADO firebase-config.js) -->
+    <script>
+        // Configuración Firebase DIRECTA en index.html
+        const firebaseConfig = {
+            apiKey: "AIzaSyD2tvQjJzh7ukTSyxzIQSo7GSpz7L8z11I",
+            authDomain: "ccshop-realtime.firebaseapp.com",
+            databaseURL: "https://ccshop-realtime-default-rtdb.firebaseio.com",
+            projectId: "ccshop-realtime",
+            storageBucket: "ccshop-realtime.firebasestorage.app",
+            messagingSenderId: "795626673305",
+            appId: "1:795626673305:web:094dc265de1d4d1bc7d408"
+        };
+    </script>
 
     <script>
         // =======================================================
         // CONFIGURACIÓN
         // =======================================================
-        const MODO_PRODUCCION = true; // CAMBIAR A true CUANDO ESTÉ EN PRODUCCIÓN
+        const MODO_PRODUCCION = true;
 
         // Inicializar Firebase
-        // La variable 'firebaseConfig' es accesible gracias al script anterior.
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.database();
@@ -929,13 +939,11 @@
         let currentUser = null;
         let popupCountdown = 10;
 
-        // AGREGADO: Manejar redirección después del login (getRedirectResult)
+        // Manejar redirección después del login
         auth.getRedirectResult().then((result) => {
             if (result.user) {
                 currentUser = result.user;
-                // Ocultar animación (en caso de que estuviera visible)
                 document.getElementById('loginAnimation').style.display = 'none'; 
-                
                 crearUsuarioEnBaseDatos(currentUser);
                 showSuccessNotification();
                 showDashboard();
@@ -943,7 +951,6 @@
             }
         }).catch((error) => {
             console.error('Error en redirect:', error);
-            // Mostrar login principal y notificar error si es necesario
             document.getElementById('mainContainer').style.display = 'block';
             document.getElementById('loginAnimation').style.display = 'none';
             showErrorNotification('Error al iniciar sesión por redirección: ' + error.message);
@@ -966,86 +973,59 @@
         // =======================================================
         function inicializarSeguridad() {
             document.getElementById('mainContainer').style.display = 'block';
-            console.log('🚀 Sistema listo - Firebase Auth activo');
+            console.log('Sistema listo - Firebase Auth activo');
         }
 
         // =======================================================
-        // FUNCIONES PRINCIPALES MEJORADAS
+        // FUNCIONES PRINCIPALES
         // =======================================================
         function esUsuarioAdmin(user) {
             return user && user.email === 'johndoechmod777@gmail.com';
         }
 
-        // Sistema de líneas animadas
         function crearLineasAnimadas() {
             const linesContainer = document.getElementById('linesEffect');
             const lineCount = 6;
-            
             for (let i = 0; i < lineCount; i++) {
                 const line = document.createElement('div');
                 line.className = 'line';
-                
                 const width = Math.random() * 2 + 1;
                 const height = Math.random() * 80 + 40;
                 line.style.width = `${width}px`;
                 line.style.height = `${height}px`;
-                
                 line.style.top = `${Math.random() * 100}%`;
                 line.style.left = `${Math.random() * 100}%`;
-                
                 line.style.animationDelay = `${Math.random() * 5}s`;
                 line.style.animationDuration = `${Math.random() * 10 + 10}s`;
-                
                 linesContainer.appendChild(line);
             }
         }
 
-        // Mostrar notificación de éxito
         function showSuccessNotification(message = 'Identidad verificada con éxito') {
             const successNotification = document.getElementById('successNotification');
             successNotification.textContent = message;
             successNotification.style.display = 'block';
-            
-            setTimeout(() => {
-                successNotification.style.display = 'none';
-            }, 4000);
+            setTimeout(() => { successNotification.style.display = 'none'; }, 4000);
         }
 
-        // Mostrar notificación de error
         function showErrorNotification(message) {
             const notification = document.getElementById('notification');
             notification.textContent = message;
             notification.className = 'notification error';
             notification.style.display = 'block';
-            
-            setTimeout(() => {
-                notification.style.display = 'none';
-            }, 4000);
+            setTimeout(() => { notification.style.display = 'none'; }, 4000);
         }
 
-        // Mostrar notificación informativa
         function showInfoNotification(message) {
             const notification = document.getElementById('notification');
             notification.textContent = message;
             notification.className = 'notification info';
             notification.style.display = 'block';
-            
-            setTimeout(() => {
-                notification.style.display = 'none';
-            }, 4000);
+            setTimeout(() => { notification.style.display = 'none'; }, 4000);
         }
 
-        // ELIMINADA: function showPopupInstructions() {}
-
-        // ELIMINADA: function closePopupInstructions() {}
-
-        // ELIMINADA: function initiateGoogleSignIn() {}
-
-        // MODIFICADA: INICIAR SESIÓN CON GOOGLE - FLUJO DE REDIRECCIÓN
         async function signInWithGoogle() {
             const button = document.getElementById('googleButton');
-            
-            // Mostrar animación de login
             document.getElementById('loginAnimation').style.display = 'flex';
             button.classList.add('loading');
             button.innerHTML = '<div class="spinner"></div> Verificando...';
@@ -1053,13 +1033,7 @@
             try {
                 const provider = new firebase.auth.GoogleAuthProvider();
                 provider.setCustomParameters({ prompt: 'select_account' });
-                
-                // CAMBIO PRINCIPAL: Usar signInWithRedirect en lugar de PopUp
                 await auth.signInWithRedirect(provider);
-                
-                // El flujo de la aplicación se detiene aquí y se reanuda
-                // en auth.getRedirectResult() después de la redirección.
-                
             } catch (error) {
                 console.error('Error en login:', error);
                 document.getElementById('loginAnimation').style.display = 'none';
@@ -1073,17 +1047,14 @@
                     </svg>
                     Continuar con Google
                 `;
-                
                 showErrorNotification('Error al iniciar sesión: ' + error.message);
             }
         }
 
-        // Crear usuario en Realtime Database
         async function crearUsuarioEnBaseDatos(user) {
             try {
                 const userRef = db.ref('users/' + user.uid);
                 const snapshot = await userRef.once('value');
-                
                 if (!snapshot.exists()) {
                     await userRef.set({
                         email: user.email,
@@ -1093,50 +1064,40 @@
                         ultimoAcceso: Date.now(),
                         esAdmin: esUsuarioAdmin(user)
                     });
-                    console.log('✅ Nuevo usuario creado en la base de datos');
+                    console.log('Nuevo usuario creado');
                 } else {
                     await userRef.update({
                         ultimoAcceso: Date.now(),
                         esAdmin: esUsuarioAdmin(user)
                     });
-                    console.log('✅ Usuario actualizado en la base de datos');
+                    console.log('Usuario actualizado');
                 }
-                
             } catch (error) {
                 console.error('Error creando usuario:', error);
-                showErrorNotification('Error al guardar datos de usuario');
+                showErrorNotification('Error al guardar datos');
             }
         }
 
-        // MOSTRAR DASHBOARD DESPUÉS DE LOGIN
         function showDashboard() {
             document.getElementById('mainContainer').style.display = 'none';
             document.getElementById('bgVideo').style.display = 'block';
             document.getElementById('enterButton').style.display = 'block';
-            
-            // Mostrar botón admin SOLO si es el admin específico
             if (currentUser && esUsuarioAdmin(currentUser)) {
                 document.getElementById('adminButton').style.display = 'block';
-                console.log('👑 Usuario admin detectado - Botón admin visible');
-                showSuccessNotification('👑 Modo administrador activado');
+                showSuccessNotification('Modo administrador activado');
             } else {
                 document.getElementById('adminButton').style.display = 'none';
             }
         }
 
-        // ENTRAR A TIENDA
         function enterPage() {
             if (!currentUser) {
                 showErrorNotification('Identificación requerida');
                 return;
             }
-            
-            // Agregar efecto de transición suave
             document.body.style.opacity = '0.8';
             document.body.style.transition = 'opacity 0.6s ease';
-            
-            showInfoNotification('🔄 Redirigiendo a la tienda...');
-            
+            showInfoNotification('Redirigiendo a la tienda...');
             setTimeout(() => {
                 window.location.href = 'verificacion.html';
             }, 800);
@@ -1145,21 +1106,15 @@
         function updateUserInfo(user) {
             const userInfo = document.getElementById('userInfo');
             const userName = document.getElementById('userName');
-            
             let displayName = user.displayName || 'Usuario Verificado';
-            if (displayName.length > 18) {
-                displayName = displayName.substring(0, 16) + '...';
-            }
-            
-            // Verificar si es admin y mostrar indicador
+            if (displayName.length > 18) displayName = displayName.substring(0, 16) + '...';
             if (esUsuarioAdmin(user)) {
-                userName.textContent = `👑 ${displayName} (Admin)`;
+                userName.textContent = ` ${displayName} (Admin)`;
                 userName.classList.add('admin');
             } else {
-                userName.textContent = `👤 ${displayName}`;
+                userName.textContent = ` ${displayName}`;
                 userName.classList.remove('admin');
             }
-            
             userInfo.style.display = 'block';
         }
 
@@ -1167,99 +1122,52 @@
             try {
                 await auth.signOut();
                 currentUser = null;
-                localStorage.removeItem('uid');
-                showSuccessNotification('Sesión finalizada correctamente');
-                
-                setTimeout(() => {
-                    location.reload();
-                }, 1200);
-                
+                showSuccessNotification('Sesión finalizada');
+                setTimeout(() => { location.reload(); }, 1200);
             } catch (error) {
-                console.error('Error al cerrar sesión:', error);
-                showErrorNotification('Error al salir de la sesión');
+                showErrorNotification('Error al salir');
             }
         }
 
         function adminAccess() {
-            if (!currentUser) {
-                showErrorNotification('Identificación requerida');
+            if (!currentUser || !esUsuarioAdmin(currentUser)) {
+                showErrorNotification('Acceso denegado');
                 return;
             }
-            
-            if (!esUsuarioAdmin(currentUser)) {
-                showErrorNotification('Acceso denegado. Solo administradores pueden acceder.');
-                return;
-            }
-            
-            showSuccessNotification('🔄 Redirigiendo al panel de administración...');
-            
-            setTimeout(() => {
-                window.location.href = 'admin.html';
-            }, 1000);
+            showSuccessNotification('Redirigiendo al panel...');
+            setTimeout(() => { window.location.href = 'admin.html'; }, 1000);
         }
 
-        // =======================================================
-        // INICIALIZACIÓN Y EVENT LISTENERS
-        // =======================================================
-        
-        // Observador de autenticación de Firebase
+        // Observador de autenticación
         auth.onAuthStateChanged((user) => {
-            // Este observador se activa también después de getRedirectResult,
-            // pero la lógica principal de post-login se maneja en getRedirectResult().
-            // Aquí solo aseguramos el estado inicial si el usuario ya está logueado
-            // (e.g., al recargar después de un getRedirectResult exitoso o al cargar
-            // una página subsiguiente donde se usará el authStateChanged).
             if (user) {
                 currentUser = user;
-                console.log('✅ Usuario autenticado:', user.email);
                 showDashboard();
                 updateUserInfo(user);
-            } else {
-                console.log('❌ No hay usuario autenticado');
-                // No hacer nada, mantener la interfaz de login
             }
         });
 
-        // Efectos de carga inicial
+        // Inicialización
         window.addEventListener('load', () => {
-            console.log('🚀 Inicializando aplicación CCSHOP...');
-            
+            console.log('Inicializando CCSHOP...');
             document.body.style.opacity = '0';
             document.body.style.transition = 'opacity 0.8s ease';
-            
             setTimeout(() => {
                 document.body.style.opacity = '1';
                 crearLineasAnimadas();
                 inicializarSeguridad();
-                
-                // Mostrar información del modo actual
-                if (MODO_PRODUCCION) {
-                    console.log('🌐 MODO: PRODUCCIÓN - Listo para usuarios');
-                } else {
-                    console.log('🔧 MODO: DESARROLLO - Listo para desarrollo (sin seguridad de contraseña)');
-                }
+                if (MODO_PRODUCCION) console.log('MODO: PRODUCCIÓN');
+                else console.log('MODO: DESARROLLO');
             }, 100);
         });
 
-        // Manejar errores no capturados
-        window.addEventListener('error', (e) => {
-            console.error('Error no capturado:', e.error);
-            showErrorNotification('Error en la aplicación. Recarga la página.');
+        // Seguridad básica
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', e => {
+            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) e.preventDefault();
         });
 
-        // Prevenir acciones no deseadas
-        document.addEventListener('contextmenu', (e) => {
-            e.preventDefault();
-        });
-
-        document.addEventListener('keydown', (e) => {
-            // Prevenir F12, Ctrl+Shift+I, etc.
-            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
-                e.preventDefault();
-            }
-        });
-
-        console.log('✅ CCSHOP - Sistema de seguridad inicializado');
+        console.log('CCSHOP - Sistema inicializado');
     </script>
 </body>
 </html>
