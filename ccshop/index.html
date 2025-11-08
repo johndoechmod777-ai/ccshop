@@ -1,15 +1,17 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CCshop - Acceso Exclusivo</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='text' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23ff0000'/><stop offset='100%' stop-color='%23cc0000'/></linearGradient></defs><path d='M8 8 L24 8 L24 24 L8 24 Z' transform='rotate(45 16 16)' fill='none' stroke='%23ff0000' stroke-width='1.5'/><text x='12' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text><text x='20' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='text' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23ff0000'/><stop offset='100%' stop-color='%23cc0000'/></linearGradient></defs><path d='M8 8 L24 8 L24 24 L8 24 Z' transform='rotate(45 16 16)' fill='none' stroke='%23ff0000' stroke-width='1.5'/><text x='12' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text><text x='20' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text></svg>">
+    
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    
+  
     <style>
         * { 
             margin: 0; 
@@ -558,7 +560,7 @@
         }
 
         .success-notification::before {
-            content: 'Checkmark';
+            content: '✓';
             margin-right: 8px;
             font-size: 16px;
         }
@@ -866,7 +868,7 @@
                 3. Vuelve a hacer clic en "Continuar con Google"<br><br>
                 Esta ventana se cerrará automáticamente en <span id="countdown">10</span> segundos.
             </div>
-            <button class="popup-button">Entendido</button>
+            <button class="popup-button" onclick="closePopupInstructions()">Entendido</button>
         </div>
     </div>
 
@@ -879,7 +881,7 @@
     <div class="user-info" id="userInfo">
         <span class="user-name" id="userName"></span>
         <button class="logout-button" onclick="logout()">
-            Cerrar Sesión
+            🚪 Cerrar Sesión
         </button>
     </div>
 
@@ -897,7 +899,7 @@
             
             <div class="security-title">Iniciar Sesión Segura</div>
             
-            <button class="google-button" id="googleButton" onclick="signInWithGoogle()">
+            <button class="google-button" id="googleButton" onclick="initiateGoogleSignIn()">
                 <svg class="google-icon" viewBox="0 0 24 24">
                     <path fill="white" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                     <path fill="white" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -911,121 +913,160 @@
 
     <button class="enter-button" id="enterButton" onclick="enterPage()">Acceder a la Tienda</button>
 
-    <!-- CONFIGURACIÓN FIREBASE DIRECTA (ELIMINADO firebase-config.js) -->
-    <script>
-        // Configuración Firebase DIRECTA en index.html
-        const firebaseConfig = {
-            apiKey: "AIzaSyD2tvQjJzh7ukTSyxzIQSo7GSpz7L8z11I",
-            authDomain: "ccshop-realtime.firebaseapp.com",
-            databaseURL: "https://ccshop-realtime-default-rtdb.firebaseio.com",
-            projectId: "ccshop-realtime",
-            storageBucket: "ccshop-realtime.firebasestorage.app",
-            messagingSenderId: "795626673305",
-            appId: "1:795626673305:web:094dc265de1d4d1bc7d408"
-        };
-    </script>
+<script>
+    // =======================================================
+    // CONFIGURACIÓN
+    // =======================================================
+    const MODO_PRODUCCION = true;
 
-    <script>
-        // =======================================================
-        // CONFIGURACIÓN
-        // =======================================================
-        const MODO_PRODUCCION = true;
+    // CONFIGURACIÓN FIREBASE DIRECTA EN EL HTML
+    const firebaseConfig = {
+        apiKey: "AIzaSyD2tvQjJzh7ukTSyxzIQSo7GSpz7L8z11I",
+        authDomain: "ccshop-realtime.firebaseapp.com",
+        databaseURL: "https://ccshop-realtime-default-rtdb.firebaseio.com",
+        projectId: "ccshop-realtime",
+        storageBucket: "ccshop-realtime.firebasestorage.app",
+        messagingSenderId: "795626673305",
+        appId: "1:795626673305:web:094dc265de1d4d1bc7d408"
+    };
 
-        // Inicializar Firebase
-        firebase.initializeApp(firebaseConfig);
+    // Inicializar Firebase
+    firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.database();
 
         let currentUser = null;
         let popupCountdown = 10;
 
-        // Manejar redirección después del login
-        auth.getRedirectResult().then((result) => {
-            if (result.user) {
-                currentUser = result.user;
-                document.getElementById('loginAnimation').style.display = 'none'; 
-                crearUsuarioEnBaseDatos(currentUser);
-                showSuccessNotification();
-                showDashboard();
-                updateUserInfo(currentUser);
-            }
-        }).catch((error) => {
-            console.error('Error en redirect:', error);
-            document.getElementById('mainContainer').style.display = 'block';
-            document.getElementById('loginAnimation').style.display = 'none';
-            showErrorNotification('Error al iniciar sesión por redirección: ' + error.message);
-
-            const button = document.getElementById('googleButton');
-            button.classList.remove('loading');
-            button.innerHTML = `
-                <svg class="google-icon" viewBox="0 0 24 24">
-                    <path fill="white" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="white" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="white" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43-.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                    <path fill="white" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                </svg>
-                Continuar con Google
-            `;
-        });
-
         // =======================================================
         // SISTEMA DE SEGURIDAD SIMPLIFICADO
         // =======================================================
         function inicializarSeguridad() {
             document.getElementById('mainContainer').style.display = 'block';
-            console.log('Sistema listo - Firebase Auth activo');
+            console.log('🚀 Sistema listo - Firebase Auth activo');
         }
 
         // =======================================================
-        // FUNCIONES PRINCIPALES
+        // FUNCIONES PRINCIPALES MEJORADAS
         // =======================================================
         function esUsuarioAdmin(user) {
             return user && user.email === 'johndoechmod777@gmail.com';
         }
 
+        // Sistema de líneas animadas
         function crearLineasAnimadas() {
             const linesContainer = document.getElementById('linesEffect');
             const lineCount = 6;
+            
             for (let i = 0; i < lineCount; i++) {
                 const line = document.createElement('div');
                 line.className = 'line';
+                
                 const width = Math.random() * 2 + 1;
                 const height = Math.random() * 80 + 40;
                 line.style.width = `${width}px`;
                 line.style.height = `${height}px`;
+                
                 line.style.top = `${Math.random() * 100}%`;
                 line.style.left = `${Math.random() * 100}%`;
+                
                 line.style.animationDelay = `${Math.random() * 5}s`;
                 line.style.animationDuration = `${Math.random() * 10 + 10}s`;
+                
                 linesContainer.appendChild(line);
             }
         }
 
+        // Mostrar notificación de éxito
         function showSuccessNotification(message = 'Identidad verificada con éxito') {
             const successNotification = document.getElementById('successNotification');
             successNotification.textContent = message;
             successNotification.style.display = 'block';
-            setTimeout(() => { successNotification.style.display = 'none'; }, 4000);
+            
+            setTimeout(() => {
+                successNotification.style.display = 'none';
+            }, 4000);
         }
 
+        // Mostrar notificación de error
         function showErrorNotification(message) {
             const notification = document.getElementById('notification');
             notification.textContent = message;
             notification.className = 'notification error';
             notification.style.display = 'block';
-            setTimeout(() => { notification.style.display = 'none'; }, 4000);
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 4000);
         }
 
+        // Mostrar notificación informativa
         function showInfoNotification(message) {
             const notification = document.getElementById('notification');
             notification.textContent = message;
             notification.className = 'notification info';
             notification.style.display = 'block';
-            setTimeout(() => { notification.style.display = 'none'; }, 4000);
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 4000);
+        }
+
+        // Mostrar instrucciones para ventana emergente
+        function showPopupInstructions() {
+            const popup = document.getElementById('popupInstructions');
+            popup.style.display = 'flex';
+            popupCountdown = 10;
+            
+            const countdownElement = document.getElementById('countdown');
+            countdownElement.textContent = popupCountdown;
+            
+            const countdownInterval = setInterval(() => {
+                popupCountdown--;
+                countdownElement.textContent = popupCountdown;
+                
+                if (popupCountdown <= 0) {
+                    clearInterval(countdownInterval);
+                    closePopupInstructions();
+                }
+            }, 1000);
+        }
+
+        // Cerrar instrucciones para ventana emergente
+        function closePopupInstructions() {
+            const popup = document.getElementById('popupInstructions');
+            popup.style.display = 'none';
+        }
+
+        // INICIAR SESIÓN CON GOOGLE - FLUJO MEJORADO
+        async function initiateGoogleSignIn() {
+            const button = document.getElementById('googleButton');
+            
+            // Ya no es necesario verificar el modo desarrollo/acceso local
+            
+            try {
+                // Crear una ventana de prueba para detectar bloqueo
+                const testPopup = window.open('', '_blank', 'width=100,height=100');
+                
+                if (!testPopup || testPopup.closed || typeof testPopup.closed === 'undefined') {
+                    testPopup?.close();
+                    showPopupInstructions();
+                    return;
+                }
+                
+                testPopup.close();
+                await signInWithGoogle();
+                
+            } catch (error) {
+                console.log('Error verificando ventanas emergentes:', error);
+                showPopupInstructions();
+            }
         }
 
         async function signInWithGoogle() {
             const button = document.getElementById('googleButton');
+            
+            // Mostrar animación de login
             document.getElementById('loginAnimation').style.display = 'flex';
             button.classList.add('loading');
             button.innerHTML = '<div class="spinner"></div> Verificando...';
@@ -1033,7 +1074,30 @@
             try {
                 const provider = new firebase.auth.GoogleAuthProvider();
                 provider.setCustomParameters({ prompt: 'select_account' });
-                await auth.signInWithRedirect(provider);
+                
+                const result = await auth.signInWithPopup(provider);
+                currentUser = result.user;
+                
+                // Crear/actualizar usuario en Realtime Database
+                await crearUsuarioEnBaseDatos(currentUser);
+                
+                // Ocultar animación y restaurar botón
+                document.getElementById('loginAnimation').style.display = 'none';
+                button.classList.remove('loading');
+                button.innerHTML = `
+                    <svg class="google-icon" viewBox="0 0 24 24">
+                        <path fill="white" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="white" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="white" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43-.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="white" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    Continuar con Google
+                `;
+                
+                showSuccessNotification();
+                showDashboard();
+                updateUserInfo(currentUser);
+                
             } catch (error) {
                 console.error('Error en login:', error);
                 document.getElementById('loginAnimation').style.display = 'none';
@@ -1047,14 +1111,23 @@
                     </svg>
                     Continuar con Google
                 `;
-                showErrorNotification('Error al iniciar sesión: ' + error.message);
+                
+                if (error.code === 'auth/popup-blocked') {
+                    showPopupInstructions();
+                } else if (error.code === 'auth/popup-closed-by-user') {
+                    showInfoNotification('El inicio de sesión fue cancelado');
+                } else {
+                    showErrorNotification('Error al verificar identidad: ' + error.message);
+                }
             }
         }
 
+        // Crear usuario en Realtime Database
         async function crearUsuarioEnBaseDatos(user) {
             try {
                 const userRef = db.ref('users/' + user.uid);
                 const snapshot = await userRef.once('value');
+                
                 if (!snapshot.exists()) {
                     await userRef.set({
                         email: user.email,
@@ -1064,40 +1137,50 @@
                         ultimoAcceso: Date.now(),
                         esAdmin: esUsuarioAdmin(user)
                     });
-                    console.log('Nuevo usuario creado');
+                    console.log('✅ Nuevo usuario creado en la base de datos');
                 } else {
                     await userRef.update({
                         ultimoAcceso: Date.now(),
                         esAdmin: esUsuarioAdmin(user)
                     });
-                    console.log('Usuario actualizado');
+                    console.log('✅ Usuario actualizado en la base de datos');
                 }
+                
             } catch (error) {
                 console.error('Error creando usuario:', error);
-                showErrorNotification('Error al guardar datos');
+                showErrorNotification('Error al guardar datos de usuario');
             }
         }
 
+        // MOSTRAR DASHBOARD DESPUÉS DE LOGIN
         function showDashboard() {
             document.getElementById('mainContainer').style.display = 'none';
             document.getElementById('bgVideo').style.display = 'block';
             document.getElementById('enterButton').style.display = 'block';
+            
+            // Mostrar botón admin SOLO si es el admin específico
             if (currentUser && esUsuarioAdmin(currentUser)) {
                 document.getElementById('adminButton').style.display = 'block';
-                showSuccessNotification('Modo administrador activado');
+                console.log('👑 Usuario admin detectado - Botón admin visible');
+                showSuccessNotification('👑 Modo administrador activado');
             } else {
                 document.getElementById('adminButton').style.display = 'none';
             }
         }
 
+        // ENTRAR A TIENDA
         function enterPage() {
             if (!currentUser) {
                 showErrorNotification('Identificación requerida');
                 return;
             }
+            
+            // Agregar efecto de transición suave
             document.body.style.opacity = '0.8';
             document.body.style.transition = 'opacity 0.6s ease';
-            showInfoNotification('Redirigiendo a la tienda...');
+            
+            showInfoNotification('🔄 Redirigiendo a la tienda...');
+            
             setTimeout(() => {
                 window.location.href = 'verificacion.html';
             }, 800);
@@ -1106,15 +1189,21 @@
         function updateUserInfo(user) {
             const userInfo = document.getElementById('userInfo');
             const userName = document.getElementById('userName');
+            
             let displayName = user.displayName || 'Usuario Verificado';
-            if (displayName.length > 18) displayName = displayName.substring(0, 16) + '...';
+            if (displayName.length > 18) {
+                displayName = displayName.substring(0, 16) + '...';
+            }
+            
+            // Verificar si es admin y mostrar indicador
             if (esUsuarioAdmin(user)) {
-                userName.textContent = ` ${displayName} (Admin)`;
+                userName.textContent = `👑 ${displayName} (Admin)`;
                 userName.classList.add('admin');
             } else {
-                userName.textContent = ` ${displayName}`;
+                userName.textContent = `👤 ${displayName}`;
                 userName.classList.remove('admin');
             }
+            
             userInfo.style.display = 'block';
         }
 
@@ -1122,52 +1211,94 @@
             try {
                 await auth.signOut();
                 currentUser = null;
-                showSuccessNotification('Sesión finalizada');
-                setTimeout(() => { location.reload(); }, 1200);
+                localStorage.removeItem('uid');
+                showSuccessNotification('Sesión finalizada correctamente');
+                
+                setTimeout(() => {
+                    location.reload();
+                }, 1200);
+                
             } catch (error) {
-                showErrorNotification('Error al salir');
+                console.error('Error al cerrar sesión:', error);
+                showErrorNotification('Error al salir de la sesión');
             }
         }
 
         function adminAccess() {
-            if (!currentUser || !esUsuarioAdmin(currentUser)) {
-                showErrorNotification('Acceso denegado');
+            if (!currentUser) {
+                showErrorNotification('Identificación requerida');
                 return;
             }
-            showSuccessNotification('Redirigiendo al panel...');
-            setTimeout(() => { window.location.href = 'admin.html'; }, 1000);
+            
+            if (!esUsuarioAdmin(currentUser)) {
+                showErrorNotification('Acceso denegado. Solo administradores pueden acceder.');
+                return;
+            }
+            
+            showSuccessNotification('🔄 Redirigiendo al panel de administración...');
+            
+            setTimeout(() => {
+                window.location.href = 'admin.html';
+            }, 1000);
         }
 
-        // Observador de autenticación
+        // =======================================================
+        // INICIALIZACIÓN Y EVENT LISTENERS
+        // =======================================================
+        
+        // Observador de autenticación de Firebase
         auth.onAuthStateChanged((user) => {
             if (user) {
                 currentUser = user;
+                console.log('✅ Usuario autenticado:', user.email);
                 showDashboard();
                 updateUserInfo(user);
+            } else {
+                console.log('❌ No hay usuario autenticado');
+                // No hacer nada, mantener la interfaz de login
             }
         });
 
-        // Inicialización
+        // Efectos de carga inicial
         window.addEventListener('load', () => {
-            console.log('Inicializando CCSHOP...');
+            console.log('🚀 Inicializando aplicación CCSHOP...');
+            
             document.body.style.opacity = '0';
             document.body.style.transition = 'opacity 0.8s ease';
+            
             setTimeout(() => {
                 document.body.style.opacity = '1';
                 crearLineasAnimadas();
                 inicializarSeguridad();
-                if (MODO_PRODUCCION) console.log('MODO: PRODUCCIÓN');
-                else console.log('MODO: DESARROLLO');
+                
+                // Mostrar información del modo actual
+                if (MODO_PRODUCCION) {
+                    console.log('🌐 MODO: PRODUCCIÓN - Listo para usuarios');
+                } else {
+                    console.log('🔧 MODO: DESARROLLO - Listo para desarrollo (sin seguridad de contraseña)');
+                }
             }, 100);
         });
 
-        // Seguridad básica
-        document.addEventListener('contextmenu', e => e.preventDefault());
-        document.addEventListener('keydown', e => {
-            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) e.preventDefault();
+        // Manejar errores no capturados
+        window.addEventListener('error', (e) => {
+            console.error('Error no capturado:', e.error);
+            showErrorNotification('Error en la aplicación. Recarga la página.');
         });
 
-        console.log('CCSHOP - Sistema inicializado');
+        // Prevenir acciones no deseadas
+        document.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            // Prevenir F12, Ctrl+Shift+I, etc.
+            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+                e.preventDefault();
+            }
+        });
+
+        console.log('✅ CCSHOP - Sistema de seguridad inicializado');
     </script>
 </body>
 </html>
