@@ -2290,7 +2290,7 @@ async function inicializarContadorFirebase() {
         // VALOR INICIAL EMPIEZA DESDE 250 (mínimo)
         const valorInicial = 0;
         
-        const usuariosRef = firebase.database().ref('estadisticas/usuariosActivos');
+        const usuariosRef = rtdb.ref('estadisticas/usuariosActivos');
         
         // LISTENER EN TIEMPO REAL
         usuariosRef.on('value', (snapshot) => {
@@ -2679,7 +2679,7 @@ window.addEventListener('beforeunload', () => {
     if (ticketsListener) ticketsListener();
     
     // Limpiar listener de usuarios activos
-    const usuariosRef = firebase.database().ref('estadisticas/usuariosActivos');
+    const usuariosRef = rtdb.ref('estadisticas/usuariosActivos');
     usuariosRef.off();
 });
 
