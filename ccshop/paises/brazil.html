@@ -832,7 +832,7 @@
 
             try {
                 // LECTURA de la tarjeta
-                const doc = await db.collection("paises").doc("brasil").collection("cards").doc(idCard).get();
+                const doc = await db.collection("paises").doc("brazil").collection("cards").doc(idCard).get();
                 const tarjetaData = doc.data();
 
                 let nombreCompleto = tarjetaData.nombre;
@@ -842,7 +842,7 @@
                 }
                 
                 // ACTUALIZACIÓN de la tarjeta como vendida (Colección 'brasil')
-                await db.collection("paises").doc("brasil").collection("cards").doc(idCard)
+                await db.collection("paises").doc("brazil").collection("cards").doc(idCard)
                   .update({ 
                       vendida: true, 
                       comprador: usuarioActual.uid,

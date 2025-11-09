@@ -847,7 +847,7 @@
 
             try {
                 // *** COLECCIÓN ADAPTADA A "PUERTO RICO" ***
-                const doc = await db.collection("paises").doc("puerto_rico").collection("cards").doc(idCard).get();
+                const doc = await db.collection("paises").doc("puertorico").collection("cards").doc(idCard).get();
                 const tarjetaData = doc.data();
 
                 let nombreCompleto = tarjetaData.nombre;
@@ -858,7 +858,7 @@
                 }
                 
                 // *** COLECCIÓN ADAPTADA A "PUERTO RICO" ***
-                await db.collection("paises").doc("puerto_rico").collection("cards").doc(idCard)
+                await db.collection("paises").doc("puertorico").collection("cards").doc(idCard)
                   .update({ 
                       vendida: true, 
                       comprador: usuarioActual.uid,
@@ -1050,3 +1050,5 @@
     </script>
 </body>
 </html>
+
+

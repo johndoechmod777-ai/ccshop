@@ -819,7 +819,7 @@
 
             try {
                 // *** COLECCIÓN ADAPTADA A "COSTA RICA" ***
-                const doc = await db.collection("paises").doc("costa_rica").collection("cards").doc(idCard).get();
+                const doc = await db.collection("paises").doc("costarica").collection("cards").doc(idCard).get();
                 const tarjetaData = doc.data();
 
                 let nombreCompleto = tarjetaData.nombre;
@@ -830,7 +830,7 @@
                 }
                 
                 // *** COLECCIÓN ADAPTADA A "COSTA RICA" ***
-                await db.collection("paises").doc("costa_rica").collection("cards").doc(idCard)
+                await db.collection("paises").doc("costarica").collection("cards").doc(idCard)
                   .update({ 
                       vendida: true, 
                       comprador: usuarioActual.uid,
@@ -1024,4 +1024,6 @@
     </script>
 </body>
 </html>
+
+
 
