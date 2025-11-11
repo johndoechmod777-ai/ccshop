@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Tarjetas Chile – Mira</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='text' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23ff0000'/><stop offset='100%' stop-color='%23cc0000'/></linearGradient></defs><path d='M8 8 L24 8 L24 24 L8 24 Z' transform='rotate(45 16 16)' fill='none' stroke='%23ff0000' stroke-width='1.5'/><text x='12' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text><text x='20' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text></svg>">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
+    <style>
+        /* --- ESTILOS GENERALES Y LAYOUT --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        #videoFondo {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: -1;
+        }
+        
+        body {
+            background: #111;
+            color: #fff;
+            font-family: 'Arial', sans-serif;
+            padding: 20px;
+            position: relative;
+            min-height: 100vh;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: rgba(0, 0, 0, 0.85);
+            margin-bottom: 30px;
+            border-bottom: 2px solid #0032A0; /* Color azul de Chile */
+            border-radius: 12px;
+            backdrop-filter: blur(15px);
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .back-button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #0032A0, #0047AB); /* Azul Chile */
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 15px;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 50, 160, 0.5);
+        }
+        
+        #btnSaldo {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #00a86b, #00c853);
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(0, 200, 83, 0.4);
+            transition: all 0.3s ease;
+        }
+        
+        h1 {
+            color: #00ffcc; 
+            margin: 0;
+            font-size: 30px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+        }
+
+        /* --- ESTILOS DE LISTA Y TARJETA --- */
+        #listaTarjetas {
+            padding: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+            min-height: 1200px; 
+        }
+        
+        .card-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .card {
+            width: 400px;
+            height: 240px;
+            background: #DC381F; /* Color base Chile (Rojo) */
+            border-radius: 16px;
+            padding: 15px;
+            position: relative;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(0, 50, 160, 0.6); /* Borde azul de Chile */
+            overflow: hidden;
+            font-family: 'Courier New', monospace;
+            backdrop-filter: blur(5px);
+        }
+        
+        .card::before {
+            content: '🇨🇱'; /* Bandera de Chile */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 60px;
+            opacity: 0.3;
+            z-index: 0;
+        }
+        
+        .card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.35);
+            z-index: 1;
+        }
+        
+        .card-content {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .chip-real {
+            width: 55px;
+            height: 42px;
+            background: linear-gradient(135deg, #FFD700, #FFA500, #FFD700);
+            border-radius: 6px;
+            border: 1px solid rgba(0, 114, 206, 0.8);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.6);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card-logo {
+            width: 85px;
+            height: 55px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
+        }
+
+        .visa-logo { background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/800px-Visa_Inc._logo.svg.png'); }
+        .mastercard-logo { background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/800px-Mastercard-logo.svg.png'); }
+        .diners-logo { background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/Diners_Club_Logo3.svg/800px-Diners_Club_Logo3.svg.png'); }
+        .discover-logo { background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Discover_Card_logo.svg/800px-Discover_Card_logo.svg.png'); }
+
+        .card-number {
+            font-size: 22px;
+            letter-spacing: 3px;
+            font-weight: bold;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+            margin: 8px 0;
+            color: #00ffcc; 
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            background: rgba(0, 50, 160, 0.85); /* Azul Chile */
+            padding: 6px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        .card-holder {
+            font-size: 16px;
+            margin: 5px 0;
+            color: #00ffcc; 
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: bold;
+            text-align: left;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+        }
+
+        .card-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 5px;
+        }
+
+        .bank-name, .cvv-info, .exp-label, .exp-value {
+            color: #00ffcc; 
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
+            font-weight: bold;
+        }
+
+        .card-status {
+            width: 400px;
+            padding: 12px;
+            margin-top: 10px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+        
+        .status-available {
+            background: linear-gradient(135deg, #00a86b, #00c853);
+            box-shadow: 0 4px 15px rgba(0, 200, 83, 0.4);
+            animation: pulse 2s infinite;
+        }
+        
+        .status-sold {
+            background: linear-gradient(135deg, #ff4757, #ff3742);
+            box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 4px 15px rgba(0, 200, 83, 0.4); }
+            50% { transform: scale(1.02); box-shadow: 0 6px 20px rgba(0, 200, 83, 0.6); }
+            100% { transform: scale(1); box-shadow: 0 4px 15px rgba(0, 200, 83, 0.4); }
+        }
+        
+        .buy-button {
+            width: 400px;
+            padding: 16px;
+            margin-top: 12px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 17px;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+        
+        .buy-button:disabled {
+            background: linear-gradient(135deg, #666, #888);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* --- ESTILOS DE PANTALLA DE CARGA CON ANIMACIÓN DE BANDERA CHILENA --- */
+        
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1001;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #00ffcc;
+            font-size: 28px;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.7);
+            transition: opacity 0.5s ease-out;
+        }
+
+        .flag-container {
+            width: 320px;
+            height: 220px;
+            position: relative;
+            margin-bottom: 30px;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Estructura de la Bandera de Chile */
+        .flag-strip {
+            position: absolute;
+            width: 100%;
+            transition: transform 1s ease-out;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .white-strip {
+            height: 50%;
+            background: #fff;
+            top: 0;
+            right: 0;
+            width: 70%; 
+            transform: translateX(100%);
+            animation: assemble-left 2s ease-out forwards;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .blue-square {
+            height: 50%;
+            width: 30%;
+            background: linear-gradient(135deg, #0032A0, #0047AB);
+            top: 0;
+            left: 0;
+            transform: translateY(-100%);
+            animation: assemble-down 2s ease-out forwards 0.3s;
+            border-right: 2px solid rgba(0, 0, 0, 0.1);
+            border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .red-strip {
+            height: 50%;
+            background: linear-gradient(135deg, #DC381F, #FF0000);
+            top: 50%;
+            left: 0;
+            transform: translateX(-100%);
+            animation: assemble-right 2s ease-out forwards 0.6s;
+        }
+
+        /* ESTRELLA Y ESCUDO CHILENO */
+        .white-star {
+            position: absolute;
+            top: 25%;
+            left: 15%;
+            transform: translate(-50%, -50%) scale(0) rotate(-180deg);
+            font-size: 50px;
+            color: #fff;
+            z-index: 10;
+            animation: zoom-rotate-in 1.5s ease-out forwards 1.5s;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+        }
+        
+        .coat-of-arms {
+            width: 120px;
+            height: 120px;
+            background: url('https://upload.wikimedia.org/wikipedia/commons/e/e6/Coat_of_arms_of_Chile.svg') no-repeat center center;
+            background-size: contain;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0) rotate(180deg);
+            z-index: 10;
+            animation: zoom-rotate-in 1.5s ease-out forwards 2s;
+            filter: drop-shadow(0 0 8px rgba(0, 50, 160, 0.5));
+            opacity: 0; /* Ocultar estrella para mostrar solo el escudo al final */
+        }
+        
+        /* ANIMACIONES */
+        @keyframes assemble-right {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(0); }
+        }
+        @keyframes assemble-left {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(0); }
+        }
+        @keyframes assemble-down {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(0); }
+        }
+        @keyframes zoom-rotate-in {
+            0% { 
+                transform: translate(-50%, -50%) scale(0) rotate(-180deg); 
+                opacity: 0; 
+            }
+            50% { 
+                opacity: 1; 
+            }
+            100% { 
+                transform: translate(-50%, -50%) scale(1) rotate(0deg); 
+                opacity: 1; 
+            }
+        }
+        
+        .loading-text {
+            margin-top: 20px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* --- ESTILOS DE MODAL Y PAGINACIÓN --- */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: #1a1a1a;
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            border: 2px solid #00ff00;
+            text-align: center;
+        }
+
+        .card-data {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            text-align: left;
+            color: #00ffcc; 
+        }
+
+        .data-item {
+            margin: 10px 0;
+            padding: 8px;
+            background: #333;
+            border-radius: 5px;
+        }
+
+        .data-label {
+            color: #ccc;
+            font-size: 12px;
+        }
+
+        .data-value {
+            color: #00ffcc; 
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .btn-modal {
+            padding: 12px 30px;
+            margin: 10px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .btn-success { background: #00a86b; color: white; }
+        .btn-secondary { background: #666; color: white; }
+        
+        .pagination-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            margin-top: 20px;
+            gap: 20px;
+        }
+
+        .pagination-controls button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+        }
+
+        .pagination-controls button:disabled {
+            background: #333;
+            color: #777;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .page-indicator {
+            font-size: 18px;
+            color: #00ffcc;
+            font-weight: bold;
+            min-width: 100px;
+            text-align: center;
+        }
+        
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<!-- Firebase App Check -->
+<script>
+function initializeAppCheck() {
+    if (typeof firebase !== 'undefined' && firebase.appCheck) {
+        const appCheck = firebase.appCheck();
+        appCheck.activate('6Ld0ewksAAAAAA2GM14dH2smAWCiZpGJfWymOc4C');
+        console.log('🛡️ App Check activado');
+    }
+}
+
+if (typeof firebase !== 'undefined') {
+    initializeAppCheck();
+} else {
+    document.addEventListener('firebase-ready', initializeAppCheck);
+}
+</script>
+</head>
+<body>
+    <div id="loading-screen">
+        <div class="flag-container">
+            <div class="flag-strip white-strip"></div>
+            <div class="flag-strip blue-square"></div>
+            <div class="flag-strip red-strip"></div>
+            <div class="white-star">⭐</div> 
+            <div class="coat-of-arms"></div>
+        </div>
+        <div class="loading-text">Cargando tarjetas Chile...</div>
+    </div>
+
+    <video id="videoFondo" autoplay muted loop>
+        <source src="infinito.mp4" type="video/mp4">
+        Tu navegador no soporta videos HTML5.
+    </video>
+    <div class="overlay"></div>
+
+    <div id="compraModal" class="modal">
+        <div class="modal-content">
+            <h2 class="modal-title">✅ COMPRA EXITOSA</h2>
+            <div class="card-data" id="modalCardData">
+                </div>
+            <p style="color: #ffff00; margin: 15px 0;">
+                📧 <strong>Revisa tu correo electrónico</strong><br>
+                Hemos enviado los datos completos de la tarjeta a tu email registrado.
+            </p>
+            <div>
+                <button class="btn-modal btn-success" onclick="cerrarModal()">Aceptar</button>
+                <button class="btn-modal btn-secondary" onclick="reenviarEmail()">Reenviar Email</button>
+            </div>
+        </div>
+    </div>
+
+    <header>
+        <div class="header-left">
+            <a href="../catalogo.html" class="back-button">← Volver al Catálogo</a>
+            <h1>🇨🇱 Inventario Chile</h1>
+        </div>
+        <button id="btnSaldo">Saldo USDT: <span id="saldo">0.00</span></button>
+    </header>
+
+    <main id="listaTarjetas"></main>
+
+    <div class="pagination-controls">
+        <button id="prevPage" onclick="prevPage()" disabled>← Anterior</button>
+        <div id="pageIndicator" class="page-indicator">Página 1</div>
+        <button id="nextPage" onclick="nextPage()">Siguiente →</button>
+    </div>
+
+    <script>
+        // --- CONFIGURACIÓN Y VARIABLES ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyD2tvQjJzh7ukTSyxzIQSo7GSpz7L8z11I",
+            authDomain: "ccshop-realtime.firebaseapp.com",
+            databaseURL: "https://ccshop-realtime-default-rtdb.firebaseio.com",
+            projectId: "ccshop-realtime",
+            storageBucket: "ccshop-realtime.appspot.com",
+            messagingSenderId: "795626673305",
+            appId: "1:795626673305:web:094dc265de1d4d1bc7d408"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const rtdb = firebase.database();
+        const auth = firebase.auth();
+        emailjs.init("qWfGHNJ4lphrdXcBH");
+
+        let usuarioActual = null;
+        let saldoActual = 0;
+        let tarjetaComprada = null;
+
+        const PAGE_SIZE = 30;
+        let lastVisible = null; 
+        let pageHistory = [null]; 
+        let currentPage = 1;
+
+        
+        // --- FUNCIÓN DE INICIALIZACIÓN SINCRONIZADA ---
+        document.addEventListener('DOMContentLoaded', function() {
+            const video = document.getElementById('videoFondo');
+            video.loop = true;
+            video.muted = true;
+            video.play();
+            
+            // 1. Promesa: Tiempo de la animación visual (3 segundos)
+            const animacionTerminada = new Promise(resolve => {
+                setTimeout(resolve, 3000); 
+            });
+
+            // 2. Promesa: Carga de autenticación y la primera página de tarjetas
+            const cargaDatos = new Promise(resolve => {
+                auth.onAuthStateChanged((user) => {
+                    if (user) {
+                        usuarioActual = user;
+                        cargarSaldoRealTime();
+                        // ✅ Llamamos cargarTarjetas(true) y resolvemos la promesa cuando termine
+                        cargarTarjetas(true).then(resolve).catch(resolve); 
+                    } else {
+                        console.log('❌ No hay usuario autenticado');
+                        alert('⚠️ Debes iniciar sesión primero');
+                        window.location.href = "../index.html";
+                        resolve();
+                    }
+                });
+            });
+
+            // 3. Esperar que AMBAS (animación y datos) finalicen
+            Promise.all([animacionTerminada, cargaDatos])
+                .then(() => {
+                    const loadingScreen = document.getElementById('loading-screen');
+                    // Ocultar la pantalla de carga suavemente
+                    loadingScreen.style.opacity = '0';
+                    setTimeout(() => {
+                        loadingScreen.style.display = 'none';
+                        console.log('✅ Carga finalizada y sincronizada.');
+                    }, 500); 
+                })
+                .catch(error => {
+                    console.error('❌ Error durante la carga inicial:', error);
+                    document.getElementById('loading-screen').style.display = 'none';
+                });
+        });
+
+        // --- FUNCIONES AUXILIARES ---
+
+        function cargarSaldoRealTime() {
+            if (!usuarioActual) return;
+            const saldoRef = rtdb.ref('users/' + usuarioActual.uid + '/saldo');
+            saldoRef.on('value', (snapshot) => {
+                const saldo = snapshot.val();
+                if (saldo !== null && saldo !== undefined) {
+                    saldoActual = parseFloat(saldo);
+                    document.getElementById('saldo').textContent = saldoActual.toFixed(2);
+                    // [Efecto visual de saldo]
+                    const saldoElement = document.getElementById('saldo');
+                    saldoElement.style.color = '#ffff00';
+                    saldoElement.style.fontSize = '18px';
+                    setTimeout(() => {
+                        saldoElement.style.color = '#ffffff';
+                        saldoElement.style.fontSize = '16px';
+                    }, 1000);
+                } else {
+                    crearSaldoInicial();
+                }
+            }, (error) => {
+                console.error('❌ Error cargando saldo:', error);
+                document.getElementById('saldo').textContent = 'Error';
+            });
+        }
+
+        async function crearSaldoInicial() {
+            if (!usuarioActual) return;
+            try {
+                await rtdb.ref('users/' + usuarioActual.uid).set({
+                    comprador: usuarioActual.email,
+                    nombre: usuarioActual.displayName || 'Usuario',
+                    saldo: 50.00,
+                    fechaRegistro: Date.now()
+                });
+            } catch (error) {
+                console.error('❌ Error creando saldo inicial:', error);
+            }
+        }
+
+        function formatearNombre(nombreCompleto) {
+            if (!nombreCompleto) return 'TITULAR NO DISPONIBLE';
+            // ✅ MOSTRAR EL NOMBRE COMPLETO SIN OFUSCAR
+            return nombreCompleto.toUpperCase();
+        }
+
+        function obtenerLogoMarca(marca) {
+            if (!marca) return 'visa-logo';
+            const marcaLower = marca.toLowerCase();
+            if (marcaLower === 'visa') return 'visa-logo';
+            if (marcaLower === 'mastercard') return 'mastercard-logo';
+            if (marcaLower === 'diners' || marcaLower === 'diners club') return 'diners-logo';
+            if (marcaLower === 'discover') return 'discover-logo';
+            return 'visa-logo';
+        }
+        
+        // --- FUNCIÓN DE CARGA PRINCIPAL (OPTMIZADA) ---
+        async function cargarTarjetas(isInitialLoad = false) {
+            if (!usuarioActual) return;
+
+            const cont = document.getElementById("listaTarjetas");
+            const prevButton = document.getElementById('prevPage');
+            const nextButton = document.getElementById('nextPage');
+            const pageIndicator = document.getElementById('pageIndicator');
+            
+            // Mostrar mensaje de carga SOLO si es paginación (no carga inicial)
+            if (!isInitialLoad) {
+                cont.innerHTML = '<p style="color:#00ffcc; font-size: 20px; text-align: center; padding: 50px;">Cargando página...</p>';
+            }
+
+            try {
+                // CAMBIO CLAVE: Colección 'chile'
+                let query = db.collection("paises").doc("chile").collection("cards")
+                    .where('vendida', '==', false)
+                    .orderBy('precio', 'desc')
+                    .limit(PAGE_SIZE);
+
+                if (lastVisible) {
+                    query = query.startAfter(lastVisible);
+                }
+
+                const snapshot = await query.get();
+                cont.innerHTML = "";
+
+                if (snapshot.empty) {
+                    cont.innerHTML = '<p style="color:#ff4757; font-size: 20px; text-align: center; padding: 50px;">No hay más tarjetas disponibles por el momento.</p>';
+                    lastVisible = null;
+                    nextButton.disabled = true;
+                    if(currentPage === 1) prevButton.disabled = true; 
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const c = doc.data();
+                    const marcaLogo = obtenerLogoMarca(c.marca);
+                    const estaVendida = c.vendida === true;
+                    
+                    const numeroOculto = c.numero_formateado || `${c.bin} ****** ****`;
+                    const nombreFormateado = formatearNombre(c.nombre);
+                    
+                    cont.innerHTML += `
+                        <div class="card-container">
+                            <div class="card">
+                                <div class="card-content">
+                                    <div class="card-top">
+                                        <div class="chip-real"></div>
+                                        <div class="card-logo ${marcaLogo}"></div>
+                                    </div>
+                                    <div class="card-number">${numeroOculto}</div>
+                                    <div class="card-holder">${nombreFormateado}</div>
+                                    <div class="card-info">
+                                        <div>
+                                            <div class="bank-name">${c.banco}</div>
+                                            <div class="cvv-info">CVV: ***</div>
+                                        </div>
+                                        <div class="exp-date">
+                                            <div class="exp-label">EXPIRA</div>
+                                            <div class="exp-value">${c.fecha}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-status ${estaVendida ? 'status-sold' : 'status-available'}">
+                                ${estaVendida ? '🔴 TARJETA VENDIDA' : '🟢 TARJETA DISPONIBLE'}
+                            </div>
+                            <button class="buy-button" 
+                                    onclick="comprar('${doc.id}', ${c.precio})" 
+                                    ${estaVendida ? 'disabled' : ''}>
+                                ${estaVendida ? '❌ COMPRA NO DISPONIBLE' : `💳 COMPRAR ${c.precio} USDT`}
+                            </button>
+                        </div>`;
+                });
+
+                lastVisible = snapshot.docs[snapshot.docs.length - 1];
+                nextButton.disabled = snapshot.size < PAGE_SIZE;
+                prevButton.disabled = currentPage === 1;
+                pageIndicator.textContent = `Página ${currentPage}`;
+
+            } catch (error) {
+                console.error("❌ Error al cargar tarjetas paginadas:", error);
+                cont.innerHTML = '<p style="color:#ff4757; font-size: 20px; text-align: center; padding: 50px;">Error al cargar las tarjetas. Intenta de nuevo.</p>';
+                prevButton.disabled = true;
+                nextButton.disabled = true;
+                throw error; 
+            }
+        }
+        
+        // --- FUNCIONES DE PAGINACIÓN ---
+        function nextPage() {
+            if (document.getElementById('nextPage').disabled) return;
+            if (pageHistory.length === currentPage) {
+                pageHistory.push(lastVisible);
+            }
+            currentPage++;
+            lastVisible = pageHistory[currentPage - 1]; 
+            cargarTarjetas();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function prevPage() {
+            if (currentPage <= 1 || document.getElementById('prevPage').disabled) return;
+            currentPage--;
+            lastVisible = pageHistory[currentPage - 1];
+            cargarTarjetas();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // --- FUNCIÓN DE COMPRA Y MODAL ---
+
+        async function comprar(idCard, precio) {
+            if (!usuarioActual) { 
+                alert("⚠️ Debes iniciar sesión primero");
+                window.location.href = "../index.html";
+                return; 
+            }
+
+            if (saldoActual < precio) { 
+                alert(`❌ Saldo insuficiente.\n\n💰 Tu saldo: $${saldoActual.toFixed(2)}\n💳 Precio tarjeta: $${precio}\n\nRecarga tu wallet para continuar.`);
+                window.location.href = "../pagos/wallet-usdt.html";
+                return; 
+            }
+
+            if (!confirm(`¿Confirmar compra por ${precio} USDT?\n\nLos datos completos se enviarán a tu correo electrónico.`)) {
+                return;
+            }
+
+            try {
+                // LECTURA de la tarjeta
+                const doc = await db.collection("paises").doc("chile").collection("cards").doc(idCard).get();
+                const tarjetaData = doc.data();
+
+                let nombreCompleto = tarjetaData.nombre;
+                
+                if (nombreCompleto && (nombreCompleto.includes('*') || nombreCompleto.includes('****'))) {
+                    nombreCompleto = tarjetaData.nombre_real || tarjetaData.titular_completo || tarjetaData.nombre_completo || 'NOMBRE COMPLETO NO DISPONIBLE - Contactar soporte';
+                }
+                
+                // ACTUALIZACIÓN de la tarjeta como vendida (Colección 'chile')
+                await db.collection("paises").doc("chile").collection("cards").doc(idCard)
+                  .update({ 
+                      vendida: true, 
+                      comprador: usuarioActual.uid,
+                      comprador_email: usuarioActual.email,
+                      fecha_venta: new Date()
+                  });
+
+                const nuevoSaldo = saldoActual - precio;
+                await rtdb.ref('users/' + usuarioActual.uid + '/saldo').set(nuevoSaldo);
+                
+                tarjetaComprada = {
+                    ...tarjetaData,
+                    numero_completo: tarjetaData.numero,
+                    nombre_completo: nombreCompleto,
+                    id: doc.id
+                };
+                
+                const emailEnviado = await enviarEmailConfirmacion(tarjetaComprada);
+                
+                mostrarModalConfirmacion(tarjetaComprada, nuevoSaldo, emailEnviado);
+                
+                saldoActual = nuevoSaldo;
+                document.getElementById('saldo').textContent = nuevoSaldo.toFixed(2);
+                
+                // Ocultar la tarjeta comprada
+                setTimeout(() => {
+                    const botonComprado = document.querySelector(`button[onclick*="${idCard}"]`);
+                    if (botonComprado) {
+                        const container = botonComprado.closest('.card-container');
+                        if (container) {
+                            container.style.display = 'none';
+                        }
+                    }
+                }, 100);
+                
+            } catch (error) {
+                console.error('❌ Error en la compra:', error);
+                alert("❌ Error en la compra: " + error.message);
+            }
+        }
+
+        // Función helper para obtener el país actual
+        function getPaisActual() {
+            // CAMBIO CLAVE: Retorna 'chile'
+            if (window.location.href.includes('chile')) return 'chile';
+            return 'desconocido';
+        }
+
+        async function enviarEmailConfirmacion(tarjeta) {
+            try {
+                const compraData = {
+                    usuario_id: usuarioActual.uid,
+                    usuario_email: usuarioActual.email,
+                    tarjeta_id: tarjeta.id,
+                    pais: getPaisActual(), // Usará 'chile'
+                    marca: tarjeta.marca,
+                    numero: tarjeta.numero_completo,
+                    cvv: tarjeta.cvv,
+                    fecha_vencimiento: tarjeta.fecha,
+                    titular: tarjeta.nombre_completo,
+                    banco: tarjeta.banco,
+                    precio: tarjeta.precio,
+                    fecha_compra: new Date(),
+                    estado: 'completada',
+                    email_enviado: false,
+                    bin: tarjeta.bin,
+                    final: tarjeta.final,
+                    numero_formateado: `${tarjeta.bin} ****** ${tarjeta.final}`,
+                    leido: false
+                };
+
+                const compraRef = await db.collection('compras').add(compraData);
+                
+                try {
+                    const templateParams = {
+                        to_email: usuarioActual.email,
+                        usuario_nombre: usuarioActual.displayName || 'Cliente CCSHOP',
+                        tarjeta_marca: tarjeta.marca,
+                        tarjeta_numero: tarjeta.numero_completo,
+                        tarjeta_cvv: tarjeta.cvv,
+                        tarjeta_fecha: tarjeta.fecha,
+                        tarjeta_titular: tarjeta.nombre_completo,
+                        tarjeta_banco: tarjeta.banco,
+                        tarjeta_precio: tarjeta.precio,
+                        fecha_compra: new Date().toLocaleDateString('es-ES'),
+                        compra_id: compraRef.id, 
+                        from_name: "Soporte CCSHOP",
+                        reply_to: "soporte_ccshop@proton.me"
+                    };
+
+                    const emailResult = await emailjs.send(
+                        'service_zgzl6vd', 
+                        'template_dc5a2qw', 
+                        templateParams
+                    );
+                    
+                    await compraRef.update({ 
+                        email_enviado: true,
+                        email_fecha_envio: new Date()
+                    });
+                    
+                    return true;
+                    
+                } catch (emailError) {
+                    await compraRef.update({ 
+                        email_enviado: false, 
+                        email_error: emailError.text || emailError.message,
+                        email_status: emailError.status || 'N/A'
+                    });
+                    
+                    return false;
+                }
+
+            } catch (error) {
+                return false;
+            }
+        }
+
+        function mostrarModalConfirmacion(tarjeta, nuevoSaldo, emailEnviado) {
+            const modal = document.getElementById('compraModal');
+            const modalData = document.getElementById('modalCardData');
+            
+            modalData.innerHTML = `
+                <div class="data-item">
+                    <div class="data-label">TARJETA COMPLETA</div>
+                    <div class="data-value" style="font-size: 18px; color: #00ffcc;">${tarjeta.marca} ${tarjeta.numero_completo}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">CVV</div>
+                    <div class="data-value" style="font-size: 18px; color: #00ffcc;">${tarjeta.cvv}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">TITULAR COMPLETO</div>
+                    <div class="data-value">${tarjeta.nombre_completo}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">BANCO</div>
+                    <div class="data-value">${tarjeta.banco}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">EXPIRA</div>
+                    <div class="data-value">${tarjeta.fecha}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">PRECIO</div>
+                    <div class="data-value">$${tarjeta.precio} USDT</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">NUEVO SALDO</div>
+                    <div class="data-value" style="color: #00ffcc">$${nuevoSaldo.toFixed(2)} USDT</div>
+                </div>
+            `;
+            
+            if (!emailEnviado) {
+                modalData.innerHTML += `
+                    <div style="background: #2a2a2a; padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid #ffff00;">
+                        <p style="color: #ffff00; margin: 0; text-align: center;">
+                            ⚠️ <strong>GUARDA ESTOS DATOS</strong><br>
+                            El email falló. Esta información no se mostrará nuevamente.
+                        </p>
+                    </div>
+                `;
+            }
+            
+            modal.style.display = 'flex';
+        }
+
+        function cerrarModal() {
+            document.getElementById('compraModal').style.display = 'none';
+        }
+
+        function reenviarEmail() {
+            if (tarjetaComprada) {
+                enviarEmailConfirmacion(tarjetaComprada).then(success => {
+                    if(success) {
+                        alert('📧 Email reenviado exitosamente a tu correo registrado');
+                    } else {
+                        alert('❌ Fallo al reenviar el email.');
+                    }
+                });
+            } else {
+                alert('❌ No hay datos de la última compra para reenviar el email.');
+            }
+        }
+
+    </script>
+</body>
+</html>

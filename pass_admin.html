@@ -1,0 +1,459 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificación Admin - CCSHOP</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='text' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23ff0000'/><stop offset='100%' stop-color='%23cc0000'/></linearGradient></defs><path d='M8 8 L24 8 L24 24 L8 24 Z' transform='rotate(45 16 16)' fill='none' stroke='%23ff0000' stroke-width='1.5'/><text x='12' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text><text x='20' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text></svg>">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: #000; 
+            color: white; 
+            font-family: Arial; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: radial-gradient(circle at center, #0a0a0a 0%, #000000 100%);
+        }
+        .login-container {
+            background: #1a1a1a;
+            padding: 40px;
+            border-radius: 15px;
+            border: 2px solid #00ff00;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+            width: 400px;
+            position: relative;
+            overflow: hidden;
+        }
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #00ff00, #00cc00, #009900, #00ff00);
+            background-size: 400% 400%;
+            z-index: -1;
+            border-radius: 17px;
+            animation: electricBorder 3s ease infinite;
+            opacity: 0.7;
+        }
+        h2 {
+            color: #00ff00;
+            margin-bottom: 25px;
+            font-size: 26px;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+            font-family: 'Courier New', monospace;
+        }
+        .security-level {
+            color: #00ff00;
+            font-size: 12px;
+            margin-bottom: 15px;
+            font-family: 'Courier New', monospace;
+        }
+        #passwordInput {
+            width: 100%;
+            padding: 15px;
+            margin: 15px 0;
+            border: 1px solid #00ff00;
+            border-radius: 8px;
+            background: #000;
+            color: #fff;
+            font-size: 16px;
+            text-align: center;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+        }
+        #passwordInput:focus {
+            outline: none;
+            border-color: #00ff00;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+        }
+        .btn {
+            padding: 15px 30px;
+            background: #00ff00;
+            color: black;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 15px;
+            width: 100%;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        .btn:hover::before {
+            left: 100%;
+        }
+        .btn:hover {
+            background: #00cc00;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 0, 0.4);
+        }
+        .btn-back {
+            background: #333;
+            color: white;
+            margin-top: 10px;
+        }
+        .btn-back:hover {
+            background: #444;
+        }
+        .error-msg {
+            color: #ff0000;
+            margin-top: 15px;
+            font-size: 14px;
+            min-height: 20px;
+            text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+        }
+        .attempts-counter {
+            color: #ff9900;
+            font-size: 12px;
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+        }
+        .security-notice {
+            color: #666;
+            font-size: 11px;
+            margin-top: 20px;
+            font-style: italic;
+        }
+        
+        @keyframes electricBorder {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+    </style>
+<!-- Firebase App Check -->
+<script>
+function initializeAppCheck() {
+    if (typeof firebase !== 'undefined' && firebase.appCheck) {
+        const appCheck = firebase.appCheck();
+        appCheck.activate('6Ld0ewksAAAAAA2GM14dH2smAWCiZpGJfWymOc4C');
+        console.log('🛡️ App Check activado');
+    }
+}
+
+if (typeof firebase !== 'undefined') {
+    initializeAppCheck();
+} else {
+    document.addEventListener('firebase-ready', initializeAppCheck);
+}
+</script>
+</head>
+<body>
+    <div class="login-container">
+        <h2>🔐 VERIFICACIÓN ADMIN - CCSHOP</h2>
+        <div class="security-level">NIVEL DE SEGURIDAD: MÁXIMO</div>
+        
+        <input type="password" id="passwordInput" placeholder="••••••••••••" autofocus autocomplete="off">
+        <div id="errorMsg" class="error-msg"></div>
+        <div id="attemptsCounter" class="attempts-counter"></div>
+        
+        <button id="submitBtn" class="btn">VERIFICAR IDENTIDAD</button>
+        <button id="backBtn" class="btn btn-back" onclick="location.href='tienda.html'">← VOLVER A TIENDA</button>
+        
+        <div class="security-notice">Acceso restringido a administradores autorizados</div>
+    </div>
+    
+    <script>
+        // =======================================================
+        // CONFIGURACIÓN FIREBASE
+        // =======================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyD2tvQjJzh7ukTSyxzIQSo7GSpz7L8z11I",
+            authDomain: "ccshop-realtime.firebaseapp.com",
+            projectId: "ccshop-realtime",
+            storageBucket: "ccshop-realtime.firebasestorage.app",
+            messagingSenderId: "795626673305",
+            appId: "1:795626673305:web:094dc265de1d4d1bc7d408"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        // =======================================================
+        // SISTEMA DE SEGURIDAD MEJORADO
+        // =======================================================
+        const ADMIN_PASSWORD_HASH = "b839b2070e17088b77626922572b2257008101a5d933e449a0d8c07842c75a40";
+        const ADMIN_EMAIL = "johndoechmod777@gmail.com";
+        const MAX_ATTEMPTS = 5;
+        const BLOCK_TIME = 30 * 60 * 1000;
+
+        let attempts = parseInt(localStorage.getItem('adminAttempts') || '0');
+        let lastAttemptTime = parseInt(localStorage.getItem('lastAdminAttempt') || '0');
+        let isBlocked = false;
+
+        // Referencias a elementos
+        const passwordInput = document.getElementById('passwordInput');
+        const errorMsg = document.getElementById('errorMsg');
+        const submitBtn = document.getElementById('submitBtn');
+        const attemptsCounter = document.getElementById('attemptsCounter');
+
+        // =======================================================
+        // VERIFICACIÓN INICIAL DE SEGURIDAD
+        // =======================================================
+        function initializeSecurity() {
+            updateAttemptsCounter();
+            checkBlockStatus();
+            
+            auth.onAuthStateChanged(async (user) => {
+                if (!user) {
+                    redirectToLogin();
+                    return;
+                }
+                
+                // Verificación básica de admin
+                try {
+                    const userDoc = await firebase.firestore().collection('usuarios').doc(user.uid).get();
+                    
+                    if (!userDoc.exists) {
+                        errorMsg.textContent = '❌ Usuario no autorizado.';
+                        setTimeout(() => redirectToLogin(), 2000);
+                        return;
+                    }
+                    
+                    const userData = userDoc.data();
+                    if (userData.rol !== 'admin' || userData.verificado !== true) {
+                        errorMsg.textContent = '❌ No tienes permisos de administrador.';
+                        setTimeout(() => redirectToLogin(), 2000);
+                        return;
+                    }
+                    
+                    console.log('✅ Usuario admin verificado, esperando contraseña:', user.email);
+                    
+                } catch (error) {
+                    console.error('Error verificando admin:', error);
+                    errorMsg.textContent = '❌ Error de verificación.';
+                    setTimeout(() => redirectToLogin(), 2000);
+                }
+            });
+        }
+
+        // =======================================================
+        // VERIFICACIÓN DE CONTRASEÑA CORREGIDA
+        // =======================================================
+        async function verificarContraseña() {
+            if (isBlocked) {
+                errorMsg.textContent = '❌ Demasiados intentos. Intenta más tarde.';
+                return;
+            }
+
+            const password = passwordInput.value;
+            const currentTime = Date.now();
+
+            // Verificar timeout entre intentos
+            if (currentTime - lastAttemptTime < 2000) {
+                errorMsg.textContent = '⏰ Espera 2 segundos entre intentos.';
+                return;
+            }
+
+            // Validar contraseña ingresada
+            if (!password) {
+                errorMsg.textContent = '❌ Ingresa la contraseña de administrador.';
+                return;
+            }
+
+            // Actualizar tiempo del último intento
+            lastAttemptTime = currentTime;
+            localStorage.setItem('lastAdminAttempt', currentTime.toString());
+
+            try {
+                // 1. Verificar hash de la contraseña
+                const passwordHash = await hashPassword(password);
+                
+                if (passwordHash === ADMIN_PASSWORD_HASH) {
+                    // 2. Verificar adicionalmente en Firestore
+                    const user = auth.currentUser;
+                    const userDoc = await firebase.firestore().collection('usuarios').doc(user.uid).get();
+                    
+                    if (userDoc.exists) {
+                        const userData = userDoc.data();
+                        if (userData.rol === 'admin' && userData.verificado === true) {
+                            handleSuccess();
+                        } else {
+                            errorMsg.textContent = '❌ Permisos de admin revocados.';
+                            handleFailure();
+                        }
+                    } else {
+                        errorMsg.textContent = '❌ Usuario no encontrado.';
+                        handleFailure();
+                    }
+                } else {
+                    errorMsg.textContent = '❌ Contraseña incorrecta.';
+                    handleFailure();
+                }
+                
+            } catch (error) {
+                console.error('Error en verificación:', error);
+                errorMsg.textContent = '❌ Error de conexión. Intenta nuevamente.';
+                handleFailure();
+            }
+        }
+
+        // Función para hashear contraseña
+        function hashPassword(password) {
+            return crypto.subtle.digest('SHA-256', new TextEncoder().encode(password))
+                .then(hash => {
+                    return Array.from(new Uint8Array(hash))
+                        .map(b => b.toString(16).padStart(2, '0'))
+                        .join('');
+                });
+        }
+
+        function handleSuccess() {
+            console.log('✅ Contraseña admin correcta');
+            
+            // Limpiar intentos
+            attempts = 0;
+            localStorage.removeItem('adminAttempts');
+            localStorage.removeItem('lastAdminAttempt');
+            localStorage.setItem('adminVerified', 'true');
+            
+            // Redirigir al panel admin
+            window.location.href = 'admin.html';
+        }
+
+        function handleFailure() {
+            attempts++;
+            localStorage.setItem('adminAttempts', attempts.toString());
+            
+            // Efecto visual de error
+            passwordInput.classList.add('shake');
+            setTimeout(() => passwordInput.classList.remove('shake'), 500);
+            
+            // Mensaje de error
+            const remainingAttempts = MAX_ATTEMPTS - attempts;
+            
+            if (remainingAttempts > 0) {
+                errorMsg.textContent = `❌ Acceso denegado. ${remainingAttempts} intentos restantes.`;
+            } else {
+                errorMsg.textContent = '🚫 Acceso bloqueado. Demasiados intentos fallidos.';
+                blockAccess();
+            }
+            
+            updateAttemptsCounter();
+            passwordInput.value = '';
+            passwordInput.focus();
+        }
+
+        // =======================================================
+        // SISTEMA DE BLOQUEO
+        // =======================================================
+        function checkBlockStatus() {
+            const blockUntil = parseInt(localStorage.getItem('adminBlockedUntil') || '0');
+            const currentTime = Date.now();
+            
+            if (blockUntil > currentTime) {
+                isBlocked = true;
+                const minutesLeft = Math.ceil((blockUntil - currentTime) / (60 * 1000));
+                errorMsg.textContent = `🚫 Acceso bloqueado. Intenta en ${minutesLeft} minutos.`;
+                submitBtn.disabled = true;
+            } else {
+                localStorage.removeItem('adminBlockedUntil');
+                isBlocked = false;
+                submitBtn.disabled = false;
+            }
+        }
+
+        function blockAccess() {
+            const blockUntil = Date.now() + BLOCK_TIME;
+            localStorage.setItem('adminBlockedUntil', blockUntil.toString());
+            isBlocked = true;
+            submitBtn.disabled = true;
+            
+            setTimeout(() => {
+                isBlocked = false;
+                submitBtn.disabled = false;
+                attempts = 0;
+                localStorage.removeItem('adminAttempts');
+                localStorage.removeItem('adminBlockedUntil');
+                updateAttemptsCounter();
+                errorMsg.textContent = '';
+            }, BLOCK_TIME);
+        }
+
+        function updateAttemptsCounter() {
+            if (attempts > 0) {
+                attemptsCounter.textContent = `Intentos fallidos: ${attempts}/${MAX_ATTEMPTS}`;
+            } else {
+                attemptsCounter.textContent = '';
+            }
+        }
+
+        function redirectToLogin() {
+            window.location.href = 'index.html';
+        }
+
+        // =======================================================
+        // EVENT LISTENERS Y PROTECCIÓN
+        // =======================================================
+        submitBtn.addEventListener('click', verificarContraseña);
+        
+        passwordInput.addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                verificarContraseña();
+            }
+        });
+
+        // Protección contra inspección
+        document.addEventListener('contextmenu', (e) => e.preventDefault());
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+                e.preventDefault();
+            }
+        });
+
+        // Prevenir navegación atrás
+        history.pushState(null, null, location.href);
+        window.onpopstate = function() {
+            history.go(1);
+        };
+
+        // =======================================================
+        // INICIALIZACIÓN
+        // =======================================================
+        window.addEventListener('DOMContentLoaded', initializeSecurity);
+
+        // Limpiar al cerrar
+        window.addEventListener('beforeunload', () => {
+            if (attempts < MAX_ATTEMPTS) {
+                localStorage.removeItem('adminAttempts');
+            }
+        });
+    </script>
+</body>
+</html>

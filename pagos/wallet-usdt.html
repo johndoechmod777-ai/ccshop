@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCSHOP WALLETS</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='text' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23ff0000'/><stop offset='100%' stop-color='%23cc0000'/></linearGradient></defs><path d='M8 8 L24 8 L24 24 L8 24 Z' transform='rotate(45 16 16)' fill='none' stroke='%23ff0000' stroke-width='1.5'/><text x='12' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text><text x='20' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text></svg>">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body { 
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            min-height: 100vh; 
+            color: white; 
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* PATRÓN DE FONDO DECORATIVO */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(255, 0, 0, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 85% 30%, rgba(255, 0, 0, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 50% 80%, rgba(255, 0, 0, 0.05) 0%, transparent 20%);
+            z-index: -1;
+        }
+
+        /* HEADER PROFESIONAL */
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 30px; 
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 0, 0, 0.3);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff0000, #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-volver {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border: 1px solid rgba(255, 0, 0, 0.5);
+            color: white; 
+            cursor: pointer; 
+            padding: 12px 20px;
+            font-size: 14px; 
+            border-radius: 14px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            text-decoration: none;
+        }
+
+        .btn-volver i {
+            font-size: 16px;
+            transition: transform 0.3s ease;
+        }
+
+        .btn-volver::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn-volver:hover { 
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.2), rgba(255, 0, 0, 0.1));
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 10px 30px rgba(255, 0, 0, 0.4), 0 0 0 1px rgba(255, 0, 0, 0.5);
+            border-color: rgba(255, 0, 0, 0.7);
+        }
+
+        .btn-volver:hover i {
+            transform: scale(1.1);
+        }
+
+        .btn-volver:hover::before {
+            left: 100%;
+        }
+
+        /* SECCIÓN SALDO - ESTILO PROFESIONAL */
+        .saldo { 
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
+            padding: 25px; 
+            border-radius: 16px; 
+            margin-bottom: 30px; 
+            text-align: center;
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            backdrop-filter: blur(15px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .saldo h2 { 
+            color: #ff0000; 
+            font-family: 'Courier New'; 
+            font-size: 32px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 12px rgba(255, 0, 0, 0.6);
+        }
+
+        .saldo p {
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        /* CONTENEDOR DE WALLETS */
+        .wallets-container {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* TARJETA DE WALLET - ESTILO PROFESIONAL */
+        .wallet-card {
+            background: linear-gradient(135deg, rgba(26, 26, 26, 0.98), rgba(42, 42, 42, 0.98));
+            padding: 30px;
+            border-radius: 20px;
+            border: 2px solid #ff0000; 
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(255, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .wallet-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 60px rgba(255, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .wallet-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #ff0000, #cc0000);
+        }
+
+        .wallet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .wallet-title {
+            color: #ff0000;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .wallet-badge {
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .wallet-address-container {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .wallet-address {
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            word-break: break-all;
+            color: #00ff00;
+            text-align: center;
+        }
+
+        .wallet-address-label {
+            position: absolute;
+            top: -10px;
+            left: 15px;
+            background: #ff0000;
+            color: white;
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .wallet-alert {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .wallet-alert strong {
+            color: #ff0000;
+        }
+
+        /* BOTONES DE OPCIONES DE RECARGA */
+        .btn-opcion-recarga {
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.15), rgba(255, 0, 0, 0.08));
+            border: 1px solid rgba(255, 0, 0, 0.4);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            text-align: left;
+        }
+
+        .btn-opcion-recarga i {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .btn-opcion-recarga::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn-opcion-recarga:hover {
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.25), rgba(255, 0, 0, 0.15));
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(255, 0, 0, 0.3), 0 0 0 1px rgba(255, 0, 0, 0.5);
+            border-color: rgba(255, 0, 0, 0.7);
+        }
+
+        .btn-opcion-recarga:hover::before {
+            left: 100%;
+        }
+
+        /* BOTONES */
+        .btn-copiar { 
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.2), rgba(255, 0, 0, 0.1));
+            border: 1px solid rgba(255, 0, 0, 0.5);
+            color: white; 
+            cursor: pointer; 
+            padding: 14px 30px;
+            border-radius: 12px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 16px;
+            font-weight: bold;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin: 5px;
+        }
+
+        .btn-copiar i {
+            font-size: 16px;
+            transition: transform 0.3s ease;
+        }
+
+        .btn-copiar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn-copiar:hover { 
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.3), rgba(255, 0, 0, 0.2));
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 10px 30px rgba(255, 0, 0, 0.4), 0 0 0 1px rgba(255, 0, 0, 0.5);
+            border-color: rgba(255, 0, 0, 0.7);
+        }
+
+        .btn-copiar:hover i {
+            transform: scale(1.1);
+        }
+
+        .btn-copiar:hover::before {
+            left: 100%;
+        }
+
+        /* LOADING SPINNER */
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 0, 0, 0.3);
+            border-left: 4px solid #ff0000;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* MEDIA QUERIES */
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .header { flex-direction: column; gap: 15px; text-align: center; }
+            .header h1 { font-size: 24px; }
+            .saldo h2 { font-size: 28px; }
+            .wallet-header { flex-direction: column; gap: 15px; }
+            .wallet-title { font-size: 20px; }
+            .wallet-address { font-size: 14px; }
+            .btn-opcion-recarga { font-size: 14px; padding: 14px 16px; }
+        }
+    </style>
+<!-- Firebase App Check -->
+<script>
+function initializeAppCheck() {
+    if (typeof firebase !== 'undefined' && firebase.appCheck) {
+        const appCheck = firebase.appCheck();
+        appCheck.activate('6Ld0ewksAAAAAA2GM14dH2smAWCiZpGJfWymOc4C');
+        console.log('🛡️ App Check activado');
+    }
+}
+
+if (typeof firebase !== 'undefined') {
+    initializeAppCheck();
+} else {
+    document.addEventListener('firebase-ready', initializeAppCheck);
+}
+</script>
+</head>
+<body>
+    <div id="mainContent">
+        <div class="header">
+            <h1><i class="fas fa-wallet"></i> CCSHOP WALLETS</h1>
+            <a href="../tienda.html" class="btn-volver"><i class="fas fa-arrow-left"></i> Volver al Dashboard</a>
+        </div>
+
+        <div class="saldo">
+            <h2 id="saldoActual">Cargando saldo...</h2>
+            <p>Saldo disponible en tu cuenta</p>
+        </div>
+
+        <div class="wallets-container">
+            <div class="wallet-card">
+                <div class="wallet-header">
+                    <div class="wallet-title">
+                        <i class="fab fa-usdt"></i> USDT
+                    </div>
+                    <div class="wallet-badge">ERC20</div>
+                </div>
+                
+                <div class="wallet-alert">
+                    <strong>ATENCIÓN:</strong> REVISAR QUE LA RED SEA LA CORRECTA [ERC20]
+                </div>
+                
+                <div class="wallet-address-container">
+                    <div class="wallet-address-label">Dirección de Wallet CCSHOP</div>
+                    <div class="wallet-address" id="walletAddress">
+                        0x46E94c908A1FcE9d9Dd81023f3767647b78568c5
+                    </div>
+                </div>
+                
+                <button class="btn-copiar" onclick="copiarWallet()">
+                    <i class="fas fa-copy"></i> Copiar Wallet
+                </button>
+
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255, 0, 0, 0.2);">
+                    <h3 style="color: #ff0000; margin-bottom: 20px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                        <i class="fas fa-credit-card"></i> Métodos de Recarga
+                    </h3>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <a href="wallet_vinculada.html" class="btn-opcion-recarga">
+                            <i class="fas fa-link"></i>
+                            <div>
+                                <div style="font-weight: bold;">Depositar con Wallet Vinculada</div>
+                                <div style="font-size: 12px; opacity: 0.8;">Acreditación instantánea</div>
+                            </div>
+                        </a>
+                        
+                        <a href="memo_codigo.html" class="btn-opcion-recarga">
+                            <i class="fas fa-code"></i>
+                            <div>
+                                <div style="font-weight: bold;">Recargar con Código Memo</div>
+                                <div style="font-size: 12px; opacity: 0.8;">Automático con código único</div>
+                            </div>
+                        </a>
+                        
+                        <a href="telegram_codigo.html" class="btn-opcion-recarga">
+                            <i class="fab fa-telegram"></i>
+                            <div>
+                                <div style="font-weight: bold;">Recargar vía Telegram</div>
+                                <div style="font-size: 12px; opacity: 0.8;">Contacto humano + comprobante</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                </div>
+        </div>
+    </div>
+
+    <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner"></div>
+        <p>Cargando información del usuario...</p>
+    </div>
+
+    <script>
+        // ========================================
+        // CONFIGURACIÓN FIREBASE
+        // ========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyD2tvQjJzh7ukTSyxzIQSo7GSpz7L8z11I",
+            authDomain: "ccshop-realtime.firebaseapp.com",
+            databaseURL: "https://ccshop-realtime-default-rtdb.firebaseio.com",
+            projectId: "ccshop-realtime",
+            storageBucket: "ccshop-realtime.appspot.com",
+            messagingSenderId: "795626673305",
+            appId: "1:795626673305:web:094dc265de1d4d1bc7d408"
+        };
+
+        // INICIALIZAR FIREBASE
+        firebase.initializeApp(firebaseConfig);
+        const rtdb = firebase.database();
+        const auth = firebase.auth();
+        const firestore = firebase.firestore();
+
+        // ========================================
+        // VARIABLES GLOBALES (Solo saldo)
+        // ========================================
+        let usuarioActual = null;
+        let saldoActual = 0;
+        // let walletVinculada = null; <--- ELIMINADO
+
+        // ========================================
+        // FUNCIONES DE WALLET
+        // ========================================
+        
+        // Copiar wallet de CCSHOP
+        function copiarWallet() {
+            const wallet = "0x46E94c908A1FcE9d9Dd81023f3767647b78568c5";
+            navigator.clipboard.writeText(wallet).then(() => {
+                mostrarNotificacion('✅ Wallet USDT copiada correctamente');
+            }).catch(err => {
+                console.error('Error al copiar:', err);
+                mostrarNotificacion('❌ Error al copiar la wallet');
+            });
+        }
+        
+        // Las funciones vincularWallet, desvincularWallet y actualizarInterfazWallet 
+        // y cargarWalletVinculada se han **ELIMINADO** del JavaScript.
+
+        // ========================================
+        // FUNCIONES CORREGIDAS - SOLO LECTURA
+        // ========================================
+
+        // Cargar saldo actual - SOLO LECTURA
+        function cargarSaldo() {
+            const user = auth.currentUser;
+            if (user) {
+                console.log("👤 Usuario detectado:", user.email);
+                const saldoRef = rtdb.ref('users/' + user.uid + '/saldo');
+                saldoRef.on('value', (snapshot) => {
+                    const saldo = snapshot.val();
+                    
+                    // ✅ SOLO LEE - si no existe, muestra 0
+                    if (saldo === null || saldo === undefined) {
+                        saldoActual = 0;
+                    } else {
+                        saldoActual = parseFloat(saldo);
+                    }
+                    
+                    document.getElementById('saldoActual').textContent = `$${saldoActual.toFixed(2)}`;
+                    console.log("✅ Saldo cargado:", saldoActual);
+                    
+                    // Ocultar spinner y mostrar contenido
+                    document.getElementById('loadingSpinner').style.display = 'none';
+                    document.getElementById('mainContent').style.display = 'block';
+                }, (error) => {
+                    console.error("❌ Error cargando saldo:", error);
+                    document.getElementById('saldoActual').textContent = '$0.00';
+                    document.getElementById('loadingSpinner').style.display = 'none';
+                    document.getElementById('mainContent').style.display = 'block';
+                });
+            } else {
+                console.log("❌ No hay usuario autenticado");
+                setTimeout(() => {
+                    window.location.href = '../index.html';
+                }, 2000);
+            }
+        }
+
+        // ========================================
+        // MANEJO DE AUTENTICACIÓN CORREGIDO
+        // ========================================
+
+        // Escuchar cambios de autenticación - SOLO LECTURA
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                console.log("✅ Usuario autenticado detectado:", user.email);
+                usuarioActual = user;
+                
+                // ✅ SOLO CARGAR SALDO
+                cargarSaldo();
+                
+            } else {
+                console.log("❌ No hay usuario autenticado, redirigiendo...");
+                document.getElementById('loadingSpinner').innerHTML = `
+                    <div class="spinner"></div>
+                    <p>No estás autenticado. Redirigiendo al login...</p>
+                `;
+                setTimeout(() => {
+                    window.location.href = '../index.html';
+                }, 2000);
+            }
+        });
+
+        // Función para mostrar notificaciones
+        function mostrarNotificacion(mensaje) {
+            const notificacion = document.createElement('div');
+            notificacion.textContent = mensaje;
+            notificacion.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: rgba(0, 0, 0, 0.9);
+                color: white;
+                padding: 15px 25px;
+                border-radius: 10px;
+                border-left: 4px solid #ff0000;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+                z-index: 1000;
+                font-weight: bold;
+                animation: slideIn 0.3s ease;
+            `;
+            
+            document.body.appendChild(notificacion);
+            
+            setTimeout(() => {
+                notificacion.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    document.body.removeChild(notificacion);
+                }, 300);
+            }, 3000);
+        }
+
+        // ========================================
+        // INICIALIZACIÓN
+        // ========================================
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("🔷 CCSHOP WALLETS - Página cargada");
+            
+            // Mostrar spinner inicial
+            document.getElementById('loadingSpinner').style.display = 'block';
+            document.getElementById('mainContent').style.display = 'none';
+            
+            // Agregar estilos de animación para notificaciones
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOut {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Verificar autenticación inmediatamente
+            const user = auth.currentUser;
+            if (user) {
+                console.log("👤 Usuario ya autenticado:", user.email);
+                usuarioActual = user;
+                cargarSaldo();
+            } else {
+                console.log("⏳ Esperando autenticación...");
+            }
+        });
+    </script>
+</body>
+</html>
