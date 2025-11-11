@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCshop - Mantenimiento</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='text' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23ff0000'/><stop offset='100%' stop-color='%23cc0000'/></linearGradient></defs><path d='M8 8 L24 8 L24 24 L8 24 Z' transform='rotate(45 16 16)' fill='none' stroke='%23ff0000' stroke-width='1.5'/><text x='12' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text><text x='20' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text></svg>">
+    
+    <style>
+        /* ESTILOS CSS - (Mantenido del diseño CCshop original) */
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body { 
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            min-height: 100vh; 
+            color: white; 
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Efectos de líneas animadas del archivo original */
+        .lines-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .line {
+            position: absolute;
+            background: linear-gradient(90deg, transparent, #ff0000, transparent);
+            animation: lineFlow 8s linear infinite;
+        }
+
+        @keyframes lineFlow {
+            0% {
+                transform: translateX(-100%) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.5;
+            }
+            90% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateX(100vw) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        /* Contenedor principal con efecto de desenfoque y borde rojo */
+        .container { 
+            text-align: center; 
+            width: 100%; 
+            max-width: 440px; 
+            padding: 60px 40px; /* Más padding ya que no hay contador */
+            background: rgba(10, 10, 10, 0.92);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            box-shadow: 0 20px 40px rgba(255, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+            animation: containerEntrance 1s ease-out;
+        }
+
+        @keyframes containerEntrance {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Efecto de brillo superior */
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #ff0000, #ff4444, #ff0000, transparent);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        /* Logo animado mejorado (CCshop) */
+        .logo-container { 
+            margin-bottom: 35px; 
+            position: relative;
+        }
+
+        .logo {
+            font-size: 46px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ff0000, #ff4444, #ff0000);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 40px rgba(255, 0, 0, 0.6);
+            animation: logoDance 3s ease-in-out infinite;
+            letter-spacing: 2px;
+            position: relative;
+            display: inline-block;
+        }
+
+        @keyframes logoDance {
+            0%, 100% { 
+                transform: translateY(0) rotate(0deg);
+                text-shadow: 0 0 40px rgba(255, 0, 0, 0.6);
+            }
+            25% { 
+                transform: translateY(-6px) rotate(1deg);
+                text-shadow: 0 0 50px rgba(255, 0, 0, 0.8);
+            }
+            50% { 
+                transform: translateY(3px) rotate(-1deg);
+                text-shadow: 0 0 60px rgba(255, 0, 0, 1);
+            }
+            75% { 
+                transform: translateY(-3px) rotate(0.5deg);
+                text-shadow: 0 0 50px rgba(255, 0, 0, 0.8);
+            }
+        }
+
+        .logo::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ff0000, transparent);
+            animation: pulseLine 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseLine {
+            0%, 100% { width: 80px; opacity: 0.7; }
+            50% { width: 120px; opacity: 1; }
+        }
+
+        /* Título de Mantenimiento */
+        .maintenance-title { 
+            color: #fff; 
+            font-size: 32px; /* Aumentado por quitar el contador */
+            margin-bottom: 10px; 
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
+        }
+
+        /* Subtítulo y Mensaje */
+        .maintenance-subtitle {
+            color: #ff0000;
+            font-size: 20px; /* Aumentado por quitar el contador */
+            font-weight: 500;
+            margin-bottom: 35px;
+        }
+
+        .maintenance-message {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .contact-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 25px;
+            color: #fff;
+            background-color: #ff0000;
+            text-decoration: none;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.4);
+            letter-spacing: 0.5px;
+        }
+
+        .contact-link:hover {
+            background-color: #cc0000;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 0, 0, 0.6);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .container { 
+                padding: 40px 25px; 
+                margin: 20px; 
+                max-width: 90%; 
+            }
+            .logo { 
+                font-size: 38px; 
+            }
+            .maintenance-title {
+                font-size: 28px;
+            }
+            .maintenance-subtitle {
+                font-size: 18px;
+            }
+        } 
+        
+        @media (max-width: 480px) {
+            .container { 
+                padding: 30px 20px; 
+            }
+            .logo { 
+                font-size: 32px; 
+            }
+            .maintenance-title {
+                font-size: 24px;
+            }
+            .maintenance-subtitle {
+                font-size: 16px;
+            }
+            .maintenance-message {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="lines-effect" id="linesEffect"></div>
+
+    <div class="container" id="mainContainer">
+        
+        <div class="logo-container">
+            <div class="logo">CCSHOP</div>
+        </div>
+
+        <h1 class="maintenance-title">SITIO EN MANTENIMIENTO</h1>
+        <p class="maintenance-subtitle">¡Estamos mejorando para ti!</p>
+
+        <p class="maintenance-message">
+            Estamos realizando una actualización y mantenimiento programado en nuestra plataforma. Disculpa las molestias.
+            <br>
+            Volveremos a estar en línea tan pronto como sea posible.
+        </p>
+        
+        <a href="mailto:soporte_ccshop@proton.me" class="contact-link">
+            CONTACTAR SOPORTE
+        </a>
+
+    </div>
+
+    <script>
+        // =======================================================
+        // LÓGICA DE LA PÁGINA DE MANTENIMIENTO
+        // =======================================================
+
+        // INICIALIZAR LÍNEAS ANIMADAS (del código original)
+        function crearLineasAnimadas() {
+            const container = document.getElementById('linesEffect');
+            const numLines = 15; // Número de líneas a crear
+
+            for (let i = 0; i < numLines; i++) {
+                const line = document.createElement('div');
+                line.className = 'line';
+                
+                // Posición y tamaño aleatorios
+                line.style.width = Math.random() * 200 + 50 + 'px'; 
+                line.style.height = '1px';
+                line.style.top = Math.random() * 100 + '%';
+                line.style.left = Math.random() * 100 + '%';
+                
+                // Retraso y duración de animación aleatorios
+                line.style.animationDelay = Math.random() * 8 + 's';
+                line.style.animationDuration = Math.random() * 8 + 6 + 's'; 
+                
+                // Rotación e intensidad de color
+                line.style.transform = `rotate(${Math.random() * 360}deg)`;
+                line.style.opacity = Math.random() * 0.4 + 0.1; 
+
+                container.appendChild(line);
+            }
+        }
+        
+        // INICIALIZACIÓN FINAL
+        window.addEventListener('load', () => {
+            // Animación de fade-in al cargar
+            document.body.style.opacity = '0';
+            document.body.style.transition = 'opacity 0.8s ease';
+            
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+                crearLineasAnimadas();
+            }, 100);
+        });
+
+    </script>
+</body>
+</html>
