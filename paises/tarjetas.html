@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <title>Tarjetas por país paginadas</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='text' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23ff0000'/><stop offset='100%' stop-color='%23cc0000'/></linearGradient></defs><path d='M8 8 L24 8 L24 24 L8 24 Z' transform='rotate(45 16 16)' fill='none' stroke='%23ff0000' stroke-width='1.5'/><text x='12' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text><text x='20' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text></svg>">
+    <style>
+        /* Estilos base similares a brazil.html */
+        body {
+            background: #111;
+            color: #fff;
+            font-family: 'Arial', sans-serif;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: rgba(0, 0, 0, 0.85);
+            margin-bottom: 30px;
+            border-bottom: 2px solid #ff4757;
+            border-radius: 12px;
+            backdrop-filter: blur(15px);
+        }
+        #listaTarjetas {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+        }
+        .card-container {
+            width: 400px;
+            background-color: #009B3A;
+            border-radius: 16px;
+            padding: 15px;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(254, 223, 0, 0.6);
+            font-family: 'Courier New', monospace;
+            color: #00ffcc;
+            position: relative;
+        }
+        .flag-emoji {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            font-size: 30px;
+            opacity: 0.3;
+            z-index: 2;
+        }
+        .card-number {
+            font-size: 22px;
+            font-weight: bold;
+            letter-spacing: 3px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+            margin: 8px 0;
+            background: rgba(0, 114, 206, 0.85);
+            padding: 6px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 209, 0, 0.5);
+            text-align: center;
+        }
+        .card-holder {
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .card-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .card-status {
+            margin-top: 10px;
+            text-align: center;
+            font-weight: bold;
+            padding: 6px;
+            border-radius: 6px;
+        }
+        .status-available {
+            background: linear-gradient(135deg, #00a86b, #00c853);
+            box-shadow: 0 4px 15px rgba(0, 200, 83, 0.4);
+            animation: pulse 2s infinite;
+        }
+        .status-sold {
+            background: linear-gradient(135deg, #ff4757, #ff3742);
+            box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+        .buy-button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 12px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 17px;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+        .buy-button:hover {
+            background: linear-gradient(135deg, #764ba2, #667eea);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.7);
+        }
+        .buy-button:disabled {
+            background: linear-gradient(135deg, #666, #888);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        /* Paginación */
+        .pagination {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .pagination button {
+            margin: 0 5px;
+            padding: 8px 14px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 15px;
+            background: #00a86b;
+            color: white;
+            transition: background 0.3s ease;
+        }
+        .pagination button:hover:not(:disabled) {
+            background: #007a44;
+        }
+        .pagination button:disabled {
+            cursor: default;
+            opacity: 0.6;
+        }
+        h1 {
+            color: #00ffcc;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+        }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+</head>
+<body>
+    <header>
+        <h1 id="tituloPais">Cargando...</h1>
+    </header>
+
+    <main id="listaTarjetas"></main>
+
+    <div class="pagination" id="paginacion"></div>
+
+    <script>
+        // Configuración Firebase (pone aquí tu configuración real)
+        const firebaseConfig = {
+            apiKey: "AIzaSyD2tvQjJzh7ukTSyxzIQSo7GSpz7L8z11I",
+            authDomain: "ccshop-realtime.firebaseapp.com",
+            databaseURL: "https://ccshop-realtime-default-rtdb.firebaseio.com",
+            projectId: "ccshop-realtime",
+            storageBucket: "ccshop-realtime.appspot.com",
+            messagingSenderId: "795626673305",
+            appId: "1:795626673305:web:094dc265de1d4d1bc7d408"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const rtdb = firebase.database();
+        const auth = firebase.auth();
+
+        let usuarioActual = null;
+        let saldoActual = 0;
+        let tarjetas = [];
+        let paginaActual = 1;
+        const productosPorPagina = 10;
+        let paisSeleccionado = 'brazil';
+
+        // Obtener país de la URL
+        function obtenerParametroURL(name) {
+            const params = new URLSearchParams(window.location.search);
+            return params.get(name);
+        }
+
+        // Cargar usuario y saldo actual (como en brazil.html)
+        function verificarAutenticacion() {
+            return new Promise(resolve => {
+                auth.onAuthStateChanged(user => {
+                    if(user) {
+                        usuarioActual = user;
+                        resolve(true);
+                    } else {
+                        alert('⚠️ Debes iniciar sesión primero');
+                        window.location.href = "../index.html";
+                        resolve(false);
+                    }
+                });
+            });
+        }
+
+        function cargarSaldoRealTime() {
+            if (!usuarioActual) return;
+            const saldoRef = rtdb.ref('users/' + usuarioActual.uid + '/saldo');
+            saldoRef.on('value', (snapshot) => {
+                const saldo = snapshot.val();
+                if (saldo !== null && saldo !== undefined) {
+                    saldoActual = parseFloat(saldo);
+                    console.log('Saldo:', saldoActual);
+                } else {
+                    saldoActual = 0;
+                }
+            });
+        }
+
+        function obtenerLogoMarca(marca) {
+            if (!marca) return 'visa-logo';
+            const m = marca.toLowerCase();
+            if (m === 'visa') return 'visa-logo';
+            if (m === 'mastercard') return 'mastercard-logo';
+            if (m === 'diners' || m === 'diners club') return 'diners-logo';
+            if (m === 'discover') return 'discover-logo';
+            return 'visa-logo';
+        }
+
+        // Función cargar tarjetas con paginación
+        async function cargarTarjetas(pais) {
+            const titulo = document.getElementById('tituloPais');
+            titulo.textContent = `🇺🇳 Inventario ${pais.charAt(0).toUpperCase() + pais.slice(1)}`;
+
+            const snapshot = await db.collection("paises").doc(pais).collection("cards").get();
+            tarjetas = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+            paginaActual = 1;
+            mostrarTarjetasPagina(paginaActual);
+            crearPaginacion();
+        }
+
+        // Mostrar 10 tarjetas de la página actual
+        function mostrarTarjetasPagina(pagina) {
+            const cont = document.getElementById('listaTarjetas');
+            cont.innerHTML = "";
+            const inicio = (pagina - 1) * productosPorPagina;
+            const fin = inicio + productosPorPagina;
+            const visibles = tarjetas.slice(inicio, fin);
+
+            visibles.forEach(c => {
+                const estaVendida = c.vendida === true;
+                const marcaLogo = obtenerLogoMarca(c.marca);
+
+                // Crear tarjeta (simplificada)
+                const card = document.createElement('div');
+                card.className = 'card-container';
+                card.innerHTML = `
+                    <span class="flag-emoji">${emojiPais(paisSeleccionado)}</span>
+                    <div><strong>${c.banco || "Banco"}</strong></div>
+                    <div class="card-number">${c.numero_formateado || c.bin + ' ****** ****'}</div>
+                    <div class="card-holder">${c.nombre ? formatNombre(c.nombre) : 'Titular'}</div>
+                    <div class="card-info">
+                        <div>CVV: ***</div>
+                        <div>Expira: ${c.fecha || 'MM/AA'}</div>
+                    </div>
+                    <div class="card-status ${estaVendida ? 'status-sold' : 'status-available'}">
+                        ${estaVendida ? '🔴 TARJETA VENDIDA' : '🟢 TARJETA DISPONIBLE'}
+                    </div>
+                    <button class="buy-button" 
+                            ${estaVendida ? 'disabled' : ''}
+                            onclick="comprarTarjeta('${c.id}', ${c.precio})">
+                            ${estaVendida ? 'NO DISPONIBLE' : `COMPRAR ${c.precio} USDT`}
+                    </button>
+                `;
+                cont.appendChild(card);
+            });
+        }
+
+        function crearPaginacion() {
+            const paginacion = document.getElementById('paginacion');
+            paginacion.innerHTML = "";
+            const totalPaginas = Math.ceil(tarjetas.length / productosPorPagina);
+
+            // Botón anterior
+            const btnAnt = document.createElement('button');
+            btnAnt.textContent = "Anterior";
+            btnAnt.disabled = paginaActual === 1;
+            btnAnt.onclick = () => {
+                if(paginaActual > 1) {
+                    paginaActual--;
+                    mostrarTarjetasPagina(paginaActual);
+                    crearPaginacion();
+                }
+            };
+            paginacion.appendChild(btnAnt);
+
+            // Botones numerados
+            for(let i=1; i<=totalPaginas; i++) {
+                const btn = document.createElement('button');
+                btn.textContent = i;
+                btn.disabled = i === paginaActual;
+                btn.onclick = () => {
+                    paginaActual = i;
+                    mostrarTarjetasPagina(paginaActual);
+                    crearPaginacion();
+                };
+                paginacion.appendChild(btn);
+            }
+
+            // Botón siguiente
+            const btnSig = document.createElement('button');
+            btnSig.textContent = "Siguiente";
+            btnSig.disabled = paginaActual === totalPaginas;
+            btnSig.onclick = () => {
+                if(paginaActual < totalPaginas) {
+                    paginaActual++;
+                    mostrarTarjetasPagina(paginaActual);
+                    crearPaginacion();
+                }
+            };
+            paginacion.appendChild(btnSig);
+        }
+
+        // Función para comprar tarjeta (ejemplo simplificado)
+        function comprarTarjeta(id, precio) {
+            if (!usuarioActual) {
+                alert('Debes iniciar sesión para comprar');
+                window.location.href = "../index.html";
+                return;
+            }
+            if (saldoActual < precio) {
+                alert(`Saldo insuficiente. Saldo actual: ${saldoActual.toFixed(2)} USDT`);
+                return;
+            }
+            if (!confirm(`Confirmar compra por ${precio} USDT?`)) return;
+
+            // Aquí puedes incluir la lógica real de compra, actualizaciones en Firebase, etc.
+            alert(`Compra confirmada de la tarjeta ${id} - Precio: ${precio} USDT`);
+
+            // Actualización local (simplificado)
+            // Marca tarjeta como vendida y recarga la página
+            tarjetas = tarjetas.map(t => t.id === id ? {...t, vendida: true } : t);
+            mostrarTarjetasPagina(paginaActual);
+            crearPaginacion();
+        }
+
+        // Función para formatear nombres tipo brazil.html
+        function formatNombre(nombreCompleto) {
+            if (!nombreCompleto) return 'TITULAR TAR**** *****';
+            const nombres = nombreCompleto.split(' ');
+            if (nombres.length === 1) return nombres[0] + ' ***** *****';
+            if (nombres.length === 2) return nombres[0] + ' ' + nombres[1].substring(0,3) + '*****';
+            return nombres[0] + ' ' + nombres[1].substring(0,3) + '** *****';
+        }
+
+        // Función para obtener emoji bandera por país
+        function emojiPais(pais) {
+            const map = {
+                brazil: '🇧🇷',
+                usa: '🇺🇸',
+                mexico: '🇲🇽',
+                chile: '🇨🇱',
+                ecuador: '🇪🇨',
+                panamá: '🇵🇦',
+                'puerto-rico': '🇵🇷',
+                china: '🇨🇳',
+                india: '🇮🇳',
+                costa-rica: '🇨🇷'
+            };
+            return map[pais] || '🏳️';
+        }
+
+        // Carga inicial
+        (async () => {
+            const paisUrl = obtenerParametroURL('pais');
+            paisSeleccionado = paisUrl ? paisUrl.toLowerCase() : 'brazil';
+            const validPaises = ['brazil','usa','mexico','chile','ecuador','panamá','puerto-rico','china','india','costa-rica'];
+            if (!validPaises.includes(paisSeleccionado)) paisSeleccionado = 'brazil';
+
+            const authOk = await verificarAutenticacion();
+            if (authOk) {
+                cargarSaldoRealTime();
+                cargarTarjetas(paisSeleccionado);
+            }
+        })();
+    </script>
+</body>
+</html>
