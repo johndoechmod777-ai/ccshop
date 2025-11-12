@@ -1,0 +1,1304 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCshop - Acceso Exclusivo</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='text' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23ff0000'/><stop offset='100%' stop-color='%23cc0000'/></linearGradient></defs><path d='M8 8 L24 8 L24 24 L8 24 Z' transform='rotate(45 16 16)' fill='none' stroke='%23ff0000' stroke-width='1.5'/><text x='12' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text><text x='20' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text></svg>">
+    
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body { 
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            min-height: 100vh; 
+            color: white; 
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* CAPA DE SEGURIDAD - OVERLAY DE LOGIN */
+        #securityOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.98);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            backdrop-filter: blur(20px);
+        }
+
+        #securityForm {
+            background: rgba(20, 20, 20, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            border: 2px solid #ff0000;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(255, 0, 0, 0.3);
+            max-width: 400px;
+            width: 90%;
+            animation: containerEntrance 1s ease-out;
+        }
+
+        #securityForm h2 {
+            color: #ff0000;
+            margin-bottom: 25px;
+            font-size: 24px;
+            font-weight: 700;
+            text-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+        }
+
+        #securityPassword {
+            width: 100%;
+            padding: 15px;
+            margin: 15px 0;
+            border: 1px solid rgba(255, 0, 0, 0.5);
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            font-size: 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        #securityPassword:focus {
+            outline: none;
+            border-color: #ff0000;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
+        }
+
+        #securityBtn {
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        #securityBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 0, 0, 0.4);
+        }
+
+        #securityError {
+            color: #ff4444;
+            margin-top: 15px;
+            font-size: 14px;
+            display: none;
+        }
+
+        /* Efectos de líneas animadas */
+        .lines-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .line {
+            position: absolute;
+            background: linear-gradient(90deg, transparent, #ff0000, transparent);
+            animation: lineFlow 8s linear infinite;
+        }
+
+        @keyframes lineFlow {
+            0% {
+                transform: translateX(-100%) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.5;
+            }
+            90% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateX(100vw) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .background-video { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100vw; 
+            height: 100vh; 
+            object-fit: cover; 
+            z-index: -2; 
+            display: none; 
+            opacity: 0.5;
+            filter: brightness(0.6);
+        }
+        
+        .container { 
+            text-align: center; 
+            width: 100%; 
+            max-width: 440px; 
+            padding: 45px 35px;
+            background: rgba(10, 10, 10, 0.92);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            box-shadow: 0 20px 40px rgba(255, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+            animation: containerEntrance 1s ease-out;
+        }
+
+        @keyframes containerEntrance {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #ff0000, #ff4444, #ff0000, transparent);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        /* Logo animado mejorado */
+        .logo-container { 
+            margin-bottom: 35px; 
+            position: relative;
+        }
+
+        .logo {
+            font-size: 46px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ff0000, #ff4444, #ff0000);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 40px rgba(255, 0, 0, 0.6);
+            animation: logoDance 3s ease-in-out infinite;
+            letter-spacing: 2px;
+            position: relative;
+            display: inline-block;
+        }
+
+        @keyframes logoDance {
+            0%, 100% { 
+                transform: translateY(0) rotate(0deg);
+                text-shadow: 0 0 40px rgba(255, 0, 0, 0.6);
+            }
+            25% { 
+                transform: translateY(-6px) rotate(1deg);
+                text-shadow: 0 0 50px rgba(255, 0, 0, 0.8);
+            }
+            50% { 
+                transform: translateY(3px) rotate(-1deg);
+                text-shadow: 0 0 60px rgba(255, 0, 0, 1);
+            }
+            75% { 
+                transform: translateY(-3px) rotate(0.5deg);
+                text-shadow: 0 0 50px rgba(255, 0, 0, 0.8);
+            }
+        }
+
+        .logo::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ff0000, transparent);
+            animation: pulseLine 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseLine {
+            0%, 100% { width: 80px; opacity: 0.7; }
+            50% { width: 120px; opacity: 1; }
+        }
+
+        /* ETAPA 1: LOGIN CON GOOGLE */
+        .login-container {
+            max-width: 380px;
+            margin: 0 auto;
+            display: block;
+        }
+
+        .security-video { 
+            width: 100%; 
+            height: 180px;
+            margin-bottom: 25px; 
+            object-fit: cover; 
+            border-radius: 14px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .security-video:hover {
+            transform: scale(1.02);
+            box-shadow: 0 12px 30px rgba(255, 0, 0, 0.3);
+        }
+
+        .security-title { 
+            color: #fff; 
+            font-size: 20px; 
+            margin-bottom: 25px; 
+            font-weight: 300;
+            letter-spacing: 1px;
+            position: relative;
+            animation: titleSlide 1s ease-out;
+        }
+
+        .security-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ff0000, transparent);
+        }
+
+        @keyframes titleSlide {
+            from { 
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* BOTÓN DE GOOGLE */
+        .google-button { 
+            background: linear-gradient(135deg, #4285F4, #34A853, #FBBC05, #EA4335);
+            color: white; 
+            border: none; 
+            border-radius: 14px; 
+            padding: 18px 25px; 
+            font-size: 16px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            transition: all 0.4s ease; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3); 
+            margin: 12px 0; 
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        .google-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s;
+        }
+        
+        .google-button:hover::before {
+            left: 100%;
+        }
+        
+        .google-button:hover { 
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.4);
+        }
+        
+        .google-button.loading {
+            opacity: 0.8;
+            pointer-events: none;
+        }
+        
+        .google-icon { 
+            width: 22px; 
+            height: 22px; 
+            margin-right: 12px; 
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));
+        }
+
+        .spinner {
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ANIMACIÓN DE LOGIN MEJORADA */
+        .login-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 10, 0.98);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            flex-direction: column;
+        }
+
+        .login-loader {
+            width: 70px;
+            height: 70px;
+            border: 3px solid rgba(255, 0, 0, 0.3);
+            border-top: 3px solid #ff0000;
+            border-radius: 50%;
+            animation: spin 1.5s linear infinite;
+            margin-bottom: 25px;
+        }
+
+        .login-text {
+            font-size: 22px;
+            font-weight: 300;
+            color: white;
+            text-align: center;
+            animation: pulseText 2s ease-in-out infinite;
+            margin-bottom: 30px;
+        }
+
+        @keyframes pulseText {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.03); }
+        }
+
+        .verification-steps {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .step {
+            opacity: 0;
+            transform: translateY(10px);
+            animation: stepAppear 0.8s ease forwards;
+            margin: 10px 0;
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.9);
+            padding: 8px 15px;
+            background: rgba(255, 0, 0, 0.1);
+            border-radius: 8px;
+            border-left: 3px solid #ff0000;
+        }
+
+        .step:nth-child(1) { animation-delay: 1s; }
+        .step:nth-child(2) { animation-delay: 2s; }
+        .step:nth-child(3) { animation-delay: 3s; }
+        .step:nth-child(4) { animation-delay: 4s; }
+
+        @keyframes stepAppear {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* INFO DE USUARIO MEJORADA Y MÁS PEQUEÑA */
+        .user-info { 
+            position: fixed; 
+            top: 20px; 
+            left: 20px; 
+            background: rgba(15, 15, 15, 0.95); 
+            backdrop-filter: blur(20px);
+            color: white; 
+            padding: 18px; 
+            border-radius: 14px; 
+            font-size: 13px; 
+            z-index: 1002; 
+            border: 1px solid rgba(255, 0, 0, 0.4); 
+            display: none; 
+            max-width: 240px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            animation: slideDown 0.5s ease;
+            transform-origin: top left;
+        }
+        
+        .user-name {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #fff;
+            font-size: 15px;
+            padding: 8px 12px;
+            background: rgba(255, 0, 0, 0.1);
+            border-radius: 8px;
+            border-left: 3px solid #ff0000;
+            transition: all 0.3s ease;
+        }
+
+        .user-name.admin {
+            background: rgba(0, 255, 0, 0.2) !important;
+            border-left: 3px solid #00ff00 !important;
+            color: #00ff00 !important;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+        
+        .logout-button { 
+            background: linear-gradient(135deg, #ff4444, #cc0000); 
+            color: white; 
+            border: none; 
+            padding: 10px 16px; 
+            font-size: 13px; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            transition: all 0.4s ease;
+            font-weight: 600;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logout-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .logout-button:hover::before {
+            left: 100%;
+        }
+
+        .logout-button:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 68, 68, 0.4);
+        }
+
+        /* BOTÓN ÉXITO DE LOGIN - DISEÑO COMPLETAMENTE NUEVO */
+        .success-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #00cc00, #009900);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 1004;
+            box-shadow: 0 10px 30px rgba(0, 204, 0, 0.3);
+            display: none;
+            animation: successEntrance 0.8s ease-out;
+            border-left: 4px solid #00ff00;
+            backdrop-filter: blur(10px);
+            max-width: 220px;
+        }
+
+        @keyframes successEntrance {
+            0% {
+                opacity: 0;
+                transform: translateX(100px) scale(0.8);
+            }
+            50% {
+                transform: translateX(-10px) scale(1.05);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+        }
+
+        .success-notification::before {
+            content: '✓';
+            margin-right: 8px;
+            font-size: 16px;
+        }
+
+        /* BOTÓN ENTRAR A TIENDA MÁS PEQUEÑO */
+        .enter-button { 
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.85), rgba(180, 0, 0, 0.9)); 
+            color: white; 
+            border: 2px solid rgba(255, 255, 255, 0.8); 
+            padding: 18px 45px; 
+            font-size: 20px; 
+            font-weight: 700; 
+            border-radius: 45px; 
+            cursor: pointer; 
+            text-transform: uppercase; 
+            letter-spacing: 1.5px; 
+            transition: all 0.4s ease; 
+            display: none; 
+            position: fixed; 
+            bottom: 80px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            z-index: 1000; 
+            box-shadow: 0 15px 35px rgba(255, 0, 0, 0.3);
+            animation: buttonEntrance 1s ease-out;
+            font-family: 'Segoe UI', sans-serif;
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes buttonEntrance {
+            0% {
+                opacity: 0;
+                transform: translateX(-50%) translateY(50px) scale(0.8);
+            }
+            60% {
+                transform: translateX(-50%) translateY(-10px) scale(1.05);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0) scale(1);
+            }
+        }
+
+        .enter-button::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, #ff0000, #ff4444, #ff0000);
+            border-radius: 47px;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .enter-button:hover::before {
+            opacity: 1;
+        }
+
+        .enter-button:hover { 
+            transform: translateX(-50%) scale(1.08); 
+            box-shadow: 0 20px 45px rgba(255, 0, 0, 0.5);
+            letter-spacing: 2px;
+        }
+
+        /* ADMIN BUTTON MÁS PEQUEÑO */
+        .admin-button { 
+            position: fixed; 
+            bottom: 20px; 
+            right: 20px; 
+            background: rgba(0, 255, 0, 0.15); 
+            backdrop-filter: blur(15px);
+            color: #00ff00; 
+            border: 1px solid #00ff00; 
+            padding: 10px 15px; 
+            font-size: 12px; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            z-index: 1001; 
+            transition: all 0.4s ease; 
+            font-family: 'Courier New', monospace; 
+            box-shadow: 0 6px 15px rgba(0, 255, 0, 0.15);
+            letter-spacing: 1px;
+            display: none;
+        }
+
+        .admin-button:hover {
+            background: rgba(0, 255, 0, 0.25);
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 255, 0, 0.25);
+        }
+
+        /* NOTIFICACIONES */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            z-index: 1003;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            display: none;
+            animation: slideInRight 0.6s ease;
+            max-width: 300px;
+            border-left: 4px solid;
+            backdrop-filter: blur(20px);
+            font-size: 14px;
+        }
+
+        .notification.error {
+            background: rgba(231, 76, 60, 0.9);
+            border-left-color: #c0392b;
+        }
+
+        .notification.info {
+            background: rgba(52, 152, 219, 0.9);
+            border-left-color: #2980b9;
+        }
+
+        @keyframes slideInRight {
+            from { 
+                transform: translateX(100%); 
+                opacity: 0; 
+            }
+            to { 
+                transform: translateX(0); 
+                opacity: 1; 
+            }
+        }
+
+        /* INSTRUCCIONES PARA VENTANA EMERGENTE */
+        .popup-instructions {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            flex-direction: column;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .popup-content {
+            background: rgba(20, 20, 20, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid #ff0000;
+            max-width: 500px;
+            box-shadow: 0 0 40px rgba(255, 0, 0, 0.3);
+        }
+
+        .popup-title {
+            color: #ff0000;
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .popup-text {
+            color: white;
+            font-size: 16px;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .popup-button {
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .popup-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .container {
+                padding: 35px 25px;
+                margin: 20px;
+                max-width: 90%;
+            }
+            
+            .logo {
+                font-size: 38px;
+            }
+            
+            .enter-button {
+                padding: 16px 35px;
+                font-size: 18px;
+                bottom: 70px;
+            }
+            
+            .user-info {
+                max-width: 220px;
+                left: 15px;
+                top: 15px;
+            }
+
+            .security-video {
+                height: 160px;
+            }
+
+            .google-button {
+                padding: 16px 20px;
+                font-size: 15px;
+            }
+
+            .success-notification {
+                max-width: 200px;
+                right: 15px;
+                top: 15px;
+            }
+
+            .popup-content {
+                margin: 20px;
+                padding: 20px;
+            }
+
+            #securityForm {
+                padding: 30px 25px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 30px 20px;
+            }
+            
+            .security-video {
+                height: 140px;
+            }
+            
+            .google-button {
+                padding: 14px 18px;
+                font-size: 14px;
+            }
+
+            .logo {
+                font-size: 32px;
+            }
+
+            .security-title {
+                font-size: 18px;
+            }
+
+            .enter-button {
+                padding: 14px 30px;
+                font-size: 16px;
+                bottom: 60px;
+            }
+
+            #securityForm {
+                padding: 25px 20px;
+            }
+
+            #securityForm h2 {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="lines-effect" id="linesEffect"></div>
+
+    <video class="background-video" autoplay muted loop id="bgVideo">
+        <source src="log2.mp4" type="video/mp4">
+    </video>
+
+    <div class="login-animation" id="loginAnimation">
+        <div class="login-loader"></div>
+        <div class="login-text">Verificando Identidad</div>
+        <div class="verification-steps">
+            <div class="step">Conectando con servidor seguro</div>
+            <div class="step">Validando credenciales</div>
+            <div class="step">Configurando acceso</div>
+            <div class="step">Acceso autorizado</div>
+        </div>
+    </div>
+
+    <div class="popup-instructions" id="popupInstructions">
+        <div class="popup-content">
+            <div class="popup-title">Permitir Ventana Emergente</div>
+            <div class="popup-text">
+                Para continuar con el inicio de sesión, necesitas permitir las ventanas emergentes.<br><br>
+                <strong>Pasos a seguir:</strong><br>
+                1. Busca la notificación de ventana bloqueada en tu navegador<br>
+                2. Haz clic en "Permitir ventanas emergentes" o "Always allow pop-ups"<br>
+                3. Vuelve a hacer clic en "Continuar con Google"<br><br>
+                Esta ventana se cerrará automáticamente en <span id="countdown">10</span> segundos.
+            </div>
+            <button class="popup-button" onclick="closePopupInstructions()">Entendido</button>
+        </div>
+    </div>
+
+    <div class="success-notification" id="successNotification">
+        Identidad verificada con éxito
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <div class="user-info" id="userInfo">
+        <span class="user-name" id="userName"></span>
+        <button class="logout-button" onclick="logout()">
+            🚪 Cerrar Sesión
+        </button>
+    </div>
+
+    <button class="admin-button" id="adminButton" onclick="adminAccess()">ADMIN</button>
+
+    <div class="container" id="mainContainer">
+        <div class="logo-container">
+            <div class="logo">CCSHOP</div>
+        </div>
+        
+        <div class="login-container" id="loginContainer">
+            <video class="security-video" autoplay muted loop>
+                <source src="dinero_1.mp4" type="video/mp4">
+            </video>
+            
+            <div class="security-title">Iniciar Sesión Segura</div>
+            
+            <button class="google-button" id="googleButton" onclick="initiateGoogleSignIn()">
+                <svg class="google-icon" viewBox="0 0 24 24">
+                    <path fill="white" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="white" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="white" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43-.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="white" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Continuar con Google
+            </button>
+        </div>
+    </div>
+
+    <button class="enter-button" id="enterButton" onclick="enterPage()">Acceder a la Tienda</button>
+
+<script>
+    // =======================================================
+    // CONFIGURACIÓN
+    // =======================================================
+    const MODO_PRODUCCION = true;
+
+    // CONFIGURACIÓN FIREBASE DIRECTA EN EL HTML
+    const firebaseConfig = {
+        apiKey: "AIzaSyD2tvQjJzh7ukTSyxzIQSo7GSpz7L8z11I",
+        authDomain: "ccshop-realtime.firebaseapp.com",
+        databaseURL: "https://ccshop-realtime-default-rtdb.firebaseio.com",
+        projectId: "ccshop-realtime",
+        storageBucket: "ccshop-realtime.firebasestorage.app",
+        messagingSenderId: "795626673305",
+        appId: "1:795626673305:web:094dc265de1d4d1bc7d408"
+    };
+
+    // Inicializar Firebase
+    firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        let currentUser = null;
+        let popupCountdown = 10;
+
+        // =======================================================
+        // SISTEMA DE SEGURIDAD SIMPLIFICADO
+        // =======================================================
+        function inicializarSeguridad() {
+            document.getElementById('mainContainer').style.display = 'block';
+            console.log('🚀 Sistema listo - Firebase Auth activo');
+        }
+
+        // =======================================================
+        // FUNCIONES PRINCIPALES MEJORADAS
+        // =======================================================
+        function esUsuarioAdmin(user) {
+            return user && user.email === 'johndoechmod777@gmail.com';
+        }
+
+        // Sistema de líneas animadas
+        function crearLineasAnimadas() {
+            const linesContainer = document.getElementById('linesEffect');
+            const lineCount = 6;
+            
+            for (let i = 0; i < lineCount; i++) {
+                const line = document.createElement('div');
+                line.className = 'line';
+                
+                const width = Math.random() * 2 + 1;
+                const height = Math.random() * 80 + 40;
+                line.style.width = `${width}px`;
+                line.style.height = `${height}px`;
+                
+                line.style.top = `${Math.random() * 100}%`;
+                line.style.left = `${Math.random() * 100}%`;
+                
+                line.style.animationDelay = `${Math.random() * 5}s`;
+                line.style.animationDuration = `${Math.random() * 10 + 10}s`;
+                
+                linesContainer.appendChild(line);
+            }
+        }
+
+        // Mostrar notificación de éxito
+        function showSuccessNotification(message = 'Identidad verificada con éxito') {
+            const successNotification = document.getElementById('successNotification');
+            successNotification.textContent = message;
+            successNotification.style.display = 'block';
+            
+            setTimeout(() => {
+                successNotification.style.display = 'none';
+            }, 4000);
+        }
+
+        // Mostrar notificación de error
+        function showErrorNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = 'notification error';
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 4000);
+        }
+
+        // Mostrar notificación informativa
+        function showInfoNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = 'notification info';
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 4000);
+        }
+
+        // Mostrar instrucciones para ventana emergente
+        function showPopupInstructions() {
+            const popup = document.getElementById('popupInstructions');
+            popup.style.display = 'flex';
+            popupCountdown = 10;
+            
+            const countdownElement = document.getElementById('countdown');
+            countdownElement.textContent = popupCountdown;
+            
+            const countdownInterval = setInterval(() => {
+                popupCountdown--;
+                countdownElement.textContent = popupCountdown;
+                
+                if (popupCountdown <= 0) {
+                    clearInterval(countdownInterval);
+                    closePopupInstructions();
+                }
+            }, 1000);
+        }
+
+        // Cerrar instrucciones para ventana emergente
+        function closePopupInstructions() {
+            const popup = document.getElementById('popupInstructions');
+            popup.style.display = 'none';
+        }
+
+        // INICIAR SESIÓN CON GOOGLE - FLUJO MEJORADO
+        async function initiateGoogleSignIn() {
+            const button = document.getElementById('googleButton');
+            
+            // Ya no es necesario verificar el modo desarrollo/acceso local
+            
+            try {
+                // Crear una ventana de prueba para detectar bloqueo
+                const testPopup = window.open('', '_blank', 'width=100,height=100');
+                
+                if (!testPopup || testPopup.closed || typeof testPopup.closed === 'undefined') {
+                    testPopup?.close();
+                    showPopupInstructions();
+                    return;
+                }
+                
+                testPopup.close();
+                await signInWithGoogle();
+                
+            } catch (error) {
+                console.log('Error verificando ventanas emergentes:', error);
+                showPopupInstructions();
+            }
+        }
+
+        async function signInWithGoogle() {
+            const button = document.getElementById('googleButton');
+            
+            // Mostrar animación de login
+            document.getElementById('loginAnimation').style.display = 'flex';
+            button.classList.add('loading');
+            button.innerHTML = '<div class="spinner"></div> Verificando...';
+            
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                provider.setCustomParameters({ prompt: 'select_account' });
+                
+                const result = await auth.signInWithPopup(provider);
+                currentUser = result.user;
+                
+                // Crear/actualizar usuario en Realtime Database
+                await crearUsuarioEnBaseDatos(currentUser);
+                
+                // Ocultar animación y restaurar botón
+                document.getElementById('loginAnimation').style.display = 'none';
+                button.classList.remove('loading');
+                button.innerHTML = `
+                    <svg class="google-icon" viewBox="0 0 24 24">
+                        <path fill="white" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="white" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="white" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43-.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="white" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    Continuar con Google
+                `;
+                
+                showSuccessNotification();
+                showDashboard();
+                updateUserInfo(currentUser);
+                
+            } catch (error) {
+                console.error('Error en login:', error);
+                document.getElementById('loginAnimation').style.display = 'none';
+                button.classList.remove('loading');
+                button.innerHTML = `
+                    <svg class="google-icon" viewBox="0 0 24 24">
+                        <path fill="white" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="white" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="white" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43-.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="white" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    Continuar con Google
+                `;
+                
+                if (error.code === 'auth/popup-blocked') {
+                    showPopupInstructions();
+                } else if (error.code === 'auth/popup-closed-by-user') {
+                    showInfoNotification('El inicio de sesión fue cancelado');
+                } else {
+                    showErrorNotification('Error al verificar identidad: ' + error.message);
+                }
+            }
+        }
+
+        // Crear usuario en Realtime Database
+        async function crearUsuarioEnBaseDatos(user) {
+            try {
+                const userRef = db.ref('users/' + user.uid);
+                const snapshot = await userRef.once('value');
+                
+                if (!snapshot.exists()) {
+                    await userRef.set({
+                        email: user.email,
+                        nombre: user.displayName,
+                        saldo: 0.00,
+                        fechaRegistro: Date.now(),
+                        ultimoAcceso: Date.now(),
+                        esAdmin: esUsuarioAdmin(user)
+                    });
+                    console.log('✅ Nuevo usuario creado en la base de datos');
+                } else {
+                    await userRef.update({
+                        ultimoAcceso: Date.now(),
+                        esAdmin: esUsuarioAdmin(user)
+                    });
+                    console.log('✅ Usuario actualizado en la base de datos');
+                }
+                
+            } catch (error) {
+                console.error('Error creando usuario:', error);
+                showErrorNotification('Error al guardar datos de usuario');
+            }
+        }
+
+        // MOSTRAR DASHBOARD DESPUÉS DE LOGIN
+        function showDashboard() {
+            document.getElementById('mainContainer').style.display = 'none';
+            document.getElementById('bgVideo').style.display = 'block';
+            document.getElementById('enterButton').style.display = 'block';
+            
+            // Mostrar botón admin SOLO si es el admin específico
+            if (currentUser && esUsuarioAdmin(currentUser)) {
+                document.getElementById('adminButton').style.display = 'block';
+                console.log('👑 Usuario admin detectado - Botón admin visible');
+                showSuccessNotification('👑 Modo administrador activado');
+            } else {
+                document.getElementById('adminButton').style.display = 'none';
+            }
+        }
+
+        // ENTRAR A TIENDA
+        function enterPage() {
+            if (!currentUser) {
+                showErrorNotification('Identificación requerida');
+                return;
+            }
+            
+            // Agregar efecto de transición suave
+            document.body.style.opacity = '0.8';
+            document.body.style.transition = 'opacity 0.6s ease';
+            
+            showInfoNotification('🔄 Redirigiendo a la tienda...');
+            
+            setTimeout(() => {
+                window.location.href = 'actualizacion.html';
+            }, 800);
+        }
+
+        function updateUserInfo(user) {
+            const userInfo = document.getElementById('userInfo');
+            const userName = document.getElementById('userName');
+            
+            let displayName = user.displayName || 'Usuario Verificado';
+            if (displayName.length > 18) {
+                displayName = displayName.substring(0, 16) + '...';
+            }
+            
+            // Verificar si es admin y mostrar indicador
+            if (esUsuarioAdmin(user)) {
+                userName.textContent = `👑 ${displayName} (Admin)`;
+                userName.classList.add('admin');
+            } else {
+                userName.textContent = `👤 ${displayName}`;
+                userName.classList.remove('admin');
+            }
+            
+            userInfo.style.display = 'block';
+        }
+
+        async function logout() {
+            try {
+                await auth.signOut();
+                currentUser = null;
+                localStorage.removeItem('uid');
+                showSuccessNotification('Sesión finalizada correctamente');
+                
+                setTimeout(() => {
+                    location.reload();
+                }, 1200);
+                
+            } catch (error) {
+                console.error('Error al cerrar sesión:', error);
+                showErrorNotification('Error al salir de la sesión');
+            }
+        }
+
+        function adminAccess() {
+            if (!currentUser) {
+                showErrorNotification('Identificación requerida');
+                return;
+            }
+            
+            if (!esUsuarioAdmin(currentUser)) {
+                showErrorNotification('Acceso denegado. Solo administradores pueden acceder.');
+                return;
+            }
+            
+            showSuccessNotification('🔄 Redirigiendo al panel de administración...');
+            
+            setTimeout(() => {
+                window.location.href = 'admin.html';
+            }, 1000);
+        }
+
+        // =======================================================
+        // INICIALIZACIÓN Y EVENT LISTENERS
+        // =======================================================
+        
+        // Observador de autenticación de Firebase
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                console.log('✅ Usuario autenticado:', user.email);
+                showDashboard();
+                updateUserInfo(user);
+            } else {
+                console.log('❌ No hay usuario autenticado');
+                // No hacer nada, mantener la interfaz de login
+            }
+        });
+
+        // Efectos de carga inicial
+        window.addEventListener('load', () => {
+            console.log('🚀 Inicializando aplicación CCSHOP...');
+            
+            document.body.style.opacity = '0';
+            document.body.style.transition = 'opacity 0.8s ease';
+            
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+                crearLineasAnimadas();
+                inicializarSeguridad();
+                
+                // Mostrar información del modo actual
+                if (MODO_PRODUCCION) {
+                    console.log('🌐 MODO: PRODUCCIÓN - Listo para usuarios');
+                } else {
+                    console.log('🔧 MODO: DESARROLLO - Listo para desarrollo (sin seguridad de contraseña)');
+                }
+            }, 100);
+        });
+
+        // Manejar errores no capturados
+        window.addEventListener('error', (e) => {
+            console.error('Error no capturado:', e.error);
+            showErrorNotification('Error en la aplicación. Recarga la página.');
+        });
+
+        // Prevenir acciones no deseadas
+        document.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            // Prevenir F12, Ctrl+Shift+I, etc.
+            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+                e.preventDefault();
+            }
+        });
+
+        console.log('✅ CCSHOP - Sistema de seguridad inicializado');
+    </script>
+</body>
+</html>

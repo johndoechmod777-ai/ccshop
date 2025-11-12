@@ -1,0 +1,1487 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCshop - Historial de Compras</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='text' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23ff0000'/><stop offset='100%' stop-color='%23cc0000'/></linearGradient></defs><path d='M8 8 L24 8 L24 24 L8 24 Z' transform='rotate(45 16 16)' fill='none' stroke='%23ff0000' stroke-width='1.5'/><text x='12' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text><text x='20' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text></svg>">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+    <style>
+        /* ESTILOS CSS - (MANTENER TODO IGUAL) */
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body { 
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            min-height: 100vh; 
+            color: white; 
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            background: radial-gradient(circle, rgba(255, 0, 0, 0.2) 0%, rgba(255, 0, 0, 0.05) 70%);
+            border-radius: 50%;
+            animation: float 8s infinite ease-in-out;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.1);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); opacity: 0.6; }
+            50% { transform: translateY(-30px) rotate(180deg) scale(1.1); opacity: 0.3; }
+        }
+
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 15px 25px; 
+            background: rgba(10, 10, 10, 0.98);
+            backdrop-filter: blur(25px);
+            border-bottom: 1px solid rgba(255, 0, 0, 0.4);
+            height: 70px; 
+            position: sticky; 
+            top: 0; 
+            z-index: 999;
+            box-shadow: 0 4px 40px rgba(255, 0, 0, 0.15);
+        }
+
+        .header-left { 
+            display: flex; 
+            align-items: center; 
+            gap: 20px; 
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-icon {
+            font-size: 28px;
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 12px rgba(255, 0, 0, 0.6));
+        }
+
+        .brand-text {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff0000, #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .back-btn { 
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border: 1px solid rgba(255, 0, 0, 0.5);
+            color: white; 
+            cursor: pointer; 
+            padding: 12px 18px;
+            font-size: 14px; 
+            border-radius: 14px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .back-btn:hover { 
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.2), rgba(255, 0, 0, 0.1));
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3);
+        }
+
+        .balance-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
+            padding: 12px 20px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .balance-label {
+            font-size: 14px;
+            color: #aaa;
+            font-weight: 600;
+        }
+
+        .balance { 
+            color: #ff0000; 
+            font-size: 20px; 
+            font-weight: bold; 
+            font-family: 'Courier New', monospace; 
+        }
+
+        .main-content {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .content-visible {
+            opacity: 1;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff0000, #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        }
+
+        .page-subtitle {
+            color: #aaa;
+            font-size: 16px;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(26, 26, 26, 0.9), rgba(42, 42, 42, 0.9));
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin: 0 auto 10px;
+            color: white;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00ff00;
+            margin-bottom: 5px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .stat-label {
+            color: #aaa;
+            font-size: 13px;
+        }
+
+        .compras-container {
+            background: linear-gradient(135deg, rgba(26, 26, 26, 0.9), rgba(42, 42, 42, 0.9));
+            border-radius: 12px;
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .compra-item {
+            padding: 20px;
+            border-bottom: 1px solid rgba(42, 42, 42, 0.6);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .compra-item:last-child {
+            border-bottom: none;
+        }
+
+        .compra-item:hover {
+            background: linear-gradient(135deg, rgba(61, 26, 26, 0.3), rgba(42, 13, 13, 0.3));
+        }
+
+        .compra-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .compra-marca {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+            color: #ff0000;
+        }
+
+        .compra-fecha {
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        .compra-datos {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .dato-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .dato-label {
+            color: #aaa;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .dato-value {
+            color: white;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .dato-value.obfuscated {
+            color: #ff9900;
+        }
+
+        .compra-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid rgba(42, 42, 42, 0.6);
+        }
+
+        .compra-precio {
+            color: #00ff00;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+        }
+
+        .compra-banco {
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        .empty-state {
+            padding: 60px 20px;
+            text-align: center;
+            color: #777;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+            color: #ff0000;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #aaa;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            max-width: 400px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .action-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-copy {
+            background: linear-gradient(135deg, #7a1a1a, #6a0d0d);
+            color: white;
+            border: 1px solid rgba(255, 0, 0, 0.3);
+        }
+
+        .btn-copy:hover {
+            background: linear-gradient(135deg, #9a2a2a, #8a1a1a);
+        }
+
+        .btn-export {
+            background: linear-gradient(135deg, #5f1a7a, #4d0d6a);
+            color: white;
+            border: 1px solid rgba(95, 26, 122, 0.3);
+        }
+
+        .btn-export:hover {
+            background: linear-gradient(135deg, #7f2a9a, #6d1a8a);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background: linear-gradient(135deg, #a80000, #800000);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 8px 25px rgba(168, 0, 0, 0.6);
+            z-index: 3000;
+            display: none;
+            animation: slideInRight 0.3s ease;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(26, 26, 26, 0.9); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(135deg, #ff0000, #cc0000); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: linear-gradient(135deg, #cc0000, #990000); }
+        
+        #securityLoading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0a0a0a;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 10000;
+            font-size: 1.2rem;
+            opacity: 1;
+            transition: opacity 0.5s;
+        }
+
+        #securityLoading div {
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .header { padding: 12px 15px; }
+            .brand-text { font-size: 20px; }
+            .page-title { font-size: 24px; }
+            .stats-container { grid-template-columns: repeat(2, 1fr); }
+            .compra-datos { grid-template-columns: 1fr; }
+            .compra-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .compra-footer { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .action-buttons { flex-direction: column; }
+        }
+
+        @media (max-width: 480px) {
+            .stats-container { grid-template-columns: 1fr; }
+            .header { flex-direction: column; height: auto; gap: 15px; padding: 15px; }
+            .header-left { width: 100%; justify-content: space-between; }
+            .balance-container { width: 100%; justify-content: center; }
+        }
+    </style>
+<!-- Firebase App Check -->
+<script>
+function initializeAppCheck() {
+    if (typeof firebase !== 'undefined' && firebase.appCheck) {
+        const appCheck = firebase.appCheck();
+        appCheck.activate('6Ld0ewksAAAAAA2GM14dH2smAWCiZpGJfWymOc4C');
+        console.log('🛡️ App Check activado');
+    }
+}
+
+if (typeof firebase !== 'undefined') {
+    initializeAppCheck();
+} else {
+    document.addEventListener('firebase-ready', initializeAppCheck);
+}
+</script>
+</head>
+<body>
+
+    <div id="securityLoading">
+        <i class="fas fa-lock" style="font-size:3rem; color:#ff0000;"></i>
+        <div>Verificando acceso seguro...</div>
+    </div>
+
+    <div class="particles" id="particles"></div>
+
+    <div class="header">
+        <div class="header-left">
+            <a href="tienda.html" class="back-btn" onclick="return verificarBackButton()" title="Volver al Dashboard">
+                <i class="fas fa-arrow-left"></i>
+                <span>Volver</span>
+            </a>
+            <div class="brand">
+                <div class="brand-icon"><i class="fas fa-credit-card"></i></div>
+                <div class="brand-text">CCSHOP</div>
+            </div>
+        </div>
+        
+        <div class="balance-container">
+            <div class="balance-label">Saldo:</div>
+            <div class="balance" id="saldoUsuario">Cargando...</div>
+        </div>
+    </div>
+
+    <div class="main-content" id="mainContent">
+        <div class="page-header">
+            <div class="page-title">
+                <i class="fas fa-chart-bar"></i>
+                Historial de Compras
+            </div>
+            <div class="page-subtitle">Todas tus transacciones y tarjetas compradas</div>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <div class="stat-value" id="totalCompras">0</div>
+                <div class="stat-label">Total de Compras</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="stat-value" id="totalGastado">$0.00</div>
+                <div class="stat-label">Total Gastado</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-credit-card"></i>
+                </div>
+                <div class="stat-value" id="tarjetasCompradas">0</div>
+                <div class="stat-label">Tarjetas Compradas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-calendar-day"></i>
+                </div>
+                <div class="stat-value" id="comprasEsteMes">0</div>
+                <div class="stat-label">Compras Este Mes</div>
+            </div>
+        </div>
+
+        <!-- AGREGAR FILTROS -->
+        <div class="filtros-container" style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+            <select id="filtroTipo" class="action-btn" style="background: linear-gradient(135deg, #1a1a1a, #2a2a2a); border: 1px solid rgba(255,0,0,0.3); color: white; padding: 10px 15px; border-radius: 8px; min-width: 200px;">
+                <option value="todas">Todas las compras</option>
+                <option value="tarjetas">Solo tarjetas por país</option>
+                <option value="dumps">Solo dumps</option>
+                <option value="amazon">Solo Amazon</option>
+                <option value="compras">Solo compras registradas</option>
+            </select>
+            <button class="action-btn btn-export" onclick="exportarTodoHistorial()" style="padding: 10px 20px;">
+                <i class="fas fa-download"></i> Exportar Todo
+            </button>
+        </div>
+
+        <div class="compras-container" id="listaCompras">
+            <div class="empty-state">
+                <i class="fas fa-receipt"></i>
+                <h3>No hay compras registradas</h3>
+                <p>Visita la tienda para realizar tu primera compra.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+<script>
+    // ========================================
+    // CONFIGURACIÓN FIREBASE
+    // ========================================
+    const firebaseConfig = {
+        apiKey: "AIzaSyD2tvQjJzh7ukTSyxzIQSo7GSpz7L8z11I",
+        authDomain: "ccshop-realtime.firebaseapp.com",
+        databaseURL: "https://ccshop-realtime-default-rtdb.firebaseio.com",
+        projectId: "ccshop-realtime",
+        storageBucket: "ccshop-realtime.firebasestorage.app",
+        messagingSenderId: "795626673305",
+        appId: "1:795626673305:web:094dc265de1d4d1bc7d408"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const rtdb = firebase.database();
+    const auth = firebase.auth();
+
+    // ========================================
+    // VARIABLES GLOBALES
+    // ========================================
+    let saldoActual = 0;
+    let usuarioActual = null;
+    let todasLasCompras = [];
+    let comprasFiltradas = [];
+    const ADMIN_EMAIL = 'johndoechmod777@gmail.com';
+
+    // ========================================
+    // FUNCIONES DE SEGURIDAD (MANTENER IGUAL)
+    // ========================================
+    
+    function ofuscarValor(value, visibleEndLength = 4) {
+        if (!value || value.length <= visibleEndLength) {
+            return value;
+        }
+        const maskedLength = value.length - visibleEndLength;
+        const maskedPart = '*'.repeat(maskedLength);
+        const visiblePart = value.substring(maskedLength);
+        return maskedPart + visiblePart;
+    }
+
+    function verificarAccesoSeguro() {
+        const securityLoading = document.getElementById('securityLoading');
+        const mainContent = document.getElementById('mainContent');
+        
+        const referrer = document.referrer;
+        const origin = window.location.origin;
+        const allowedReferrers = [
+            origin + '/tienda.html',
+            origin + '/verificacion.html'
+        ];
+
+        const isValidReferrer = allowedReferrers.some(ref => referrer.includes(ref));
+        const hasSessionAuth = sessionStorage.getItem('auth_verified') === 'true';
+
+        if (!isValidReferrer && !hasSessionAuth) {
+            console.warn('🚫 Acceso no autorizado - Redirigiendo a verificación');
+            if(securityLoading) securityLoading.style.opacity = 0;
+            window.location.href = 'index.html';
+            return false;
+        }
+        
+        sessionStorage.setItem('auth_verified', 'true');
+        
+        setTimeout(() => {
+            if (securityLoading) securityLoading.style.opacity = 0;
+            if (mainContent) mainContent.classList.add('content-visible');
+            setTimeout(() => {
+                if(securityLoading) securityLoading.style.display = 'none';
+            }, 500);
+        }, 800);
+        
+        return true;
+    }
+    
+    function verificarBackButton() {
+        window.location.href = 'tienda.html';
+        return false;
+    }
+
+    function configurarProteccionInspeccion() {
+        document.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i')) || 
+                (e.ctrlKey && (e.key === 'u' || e.key === 'U'))) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    }
+
+    // ========================================
+    // SISTEMA DE PARTÍCULAS ANIMADAS (MANTENER IGUAL)
+    // ========================================
+    function crearParticulas() {
+        const particlesContainer = document.getElementById('particles');
+        const particleCount = 12;
+        
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            
+            const size = Math.random() * 80 + 40;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.left = `${Math.random() * 100}%`;
+            particle.style.top = `${Math.random() * 100}%`;
+            particle.style.opacity = Math.random() * 0.1 + 0.02;
+            particle.style.animationDelay = `${Math.random() * 8}s`;
+            particle.style.animationDuration = `${Math.random() * 10 + 10}s`;
+            
+            particlesContainer.appendChild(particle);
+        }
+    }
+
+    // ========================================
+    // ✅✅✅ SISTEMA DE HISTORIAL - VERSIÓN CORREGIDA ✅✅✅
+    // ========================================
+    function cargarHistorialCompras() {
+        const user = auth.currentUser;
+        if (!user) {
+            mostrarEmptyState('Inicia sesión para ver tu historial');
+            return;
+        }
+
+        const userEmail = user.email.toLowerCase().trim();
+        const userId = user.uid;
+        
+        console.log('🔍 Cargando historial COMPLETO para:', userEmail);
+
+        // ✅ 1. Cargar compras registradas (colección 'compras')
+        const promesaCompras = db.collection('compras')
+            .where('usuario_email', '==', userEmail)
+            .get()
+            .then(snapshot => {
+                const compras = [];
+                snapshot.forEach(doc => {
+                    compras.push({
+                        id: doc.id,
+                        tipo: 'compra_registrada',
+                        data: doc.data()
+                    });
+                });
+                return compras;
+            })
+            .catch(error => {
+                console.log('ℹ️ No hay compras registradas o error:', error);
+                return [];
+            });
+
+        // ✅ 2. Cargar tarjetas compradas por país
+        const paises = ['usa', 'mexico'];
+        const promesasPaises = paises.map(pais => 
+            db.collection('paises').doc(pais).collection('cards')
+                .where('vendida', '==', true)
+                .where('comprador', '==', userId)
+                .get()
+                .then(snapshot => {
+                    const tarjetas = [];
+                    snapshot.forEach(doc => {
+                        tarjetas.push({
+                            id: doc.id,
+                            tipo: 'tarjeta_pais',
+                            pais: pais,
+                            data: doc.data()
+                        });
+                    });
+                    return tarjetas;
+                })
+                .catch(error => {
+                    console.log(`ℹ️ Error cargando tarjetas de ${pais}:`, error);
+                    return [];
+                })
+        );
+
+        // ✅ 3. Cargar dumps comprados
+        const promesaDumps = db.collection('dumps')
+            .where('vendido', '==', true)
+            .where('comprador_id', '==', userId)
+            .get()
+            .then(snapshot => {
+                const dumps = [];
+                snapshot.forEach(doc => {
+                    dumps.push({
+                        id: doc.id,
+                        tipo: 'dump',
+                        data: doc.data()
+                    });
+                });
+                return dumps;
+            })
+            .catch(error => {
+                console.log('ℹ️ Error cargando dumps:', error);
+                return [];
+            });
+
+        // ✅ 4. Cargar Amazon cards compradas
+        const promesaAmazon = db.collection('amazon')
+            .where('vendida', '==', true)
+            .where('comprador_id', '==', userId)
+            .get()
+            .then(snapshot => {
+                const amazonCards = [];
+                snapshot.forEach(doc => {
+                    amazonCards.push({
+                        id: doc.id,
+                        tipo: 'amazon',
+                        data: doc.data()
+                    });
+                });
+                return amazonCards;
+            })
+            .catch(error => {
+                console.log('ℹ️ Error cargando Amazon cards:', error);
+                return [];
+            });
+
+        // ✅ Combinar TODAS las promesas
+        Promise.all([
+            promesaCompras,
+            ...promesasPaises,
+            promesaDumps,
+            promesaAmazon
+        ]).then(resultados => {
+            // Aplanar todos los resultados en un solo array
+            todasLasCompras = resultados.flat();
+            
+            console.log('📊 Total de compras encontradas:', todasLasCompras.length);
+            
+            if (todasLasCompras.length === 0) {
+                mostrarEmptyState('No se encontraron compras en tu historial');
+                return;
+            }
+
+            // Ordenar por fecha (más reciente primero)
+            todasLasCompras.sort((a, b) => {
+                const fechaA = obtenerFechaCompra(a);
+                const fechaB = obtenerFechaCompra(b);
+                return fechaB - fechaA;
+            });
+
+            comprasFiltradas = [...todasLasCompras];
+            actualizarEstadisticas();
+            mostrarComprasEnLista();
+        });
+    }
+
+    function obtenerFechaCompra(compra) {
+        switch(compra.tipo) {
+            case 'compra_registrada':
+                return compra.data.fecha?.toDate?.() || new Date(compra.data.fecha) || new Date();
+            case 'tarjeta_pais':
+                return compra.data.fecha_venta?.toDate?.() || new Date(compra.data.fecha_venta) || new Date();
+            case 'dump':
+            case 'amazon':
+                return compra.data.fecha_venta?.toDate?.() || new Date(compra.data.fecha_venta) || new Date();
+            default:
+                return new Date();
+        }
+    }
+
+    function actualizarEstadisticas() {
+        let totalGastado = 0;
+        let comprasEsteMes = 0;
+        const mesActual = new Date().getMonth();
+        const añoActual = new Date().getFullYear();
+
+        todasLasCompras.forEach(compra => {
+            const precio = obtenerPrecioCompra(compra);
+            totalGastado += precio;
+            
+            const fechaCompra = obtenerFechaCompra(compra);
+            if (fechaCompra.getMonth() === mesActual && fechaCompra.getFullYear() === añoActual) {
+                comprasEsteMes++;
+            }
+        });
+
+        document.getElementById('totalCompras').textContent = todasLasCompras.length;
+        document.getElementById('totalGastado').textContent = `$${totalGastado.toFixed(2)}`;
+        document.getElementById('comprasEsteMes').textContent = comprasEsteMes;
+        document.getElementById('tarjetasCompradas').textContent = todasLasCompras.length;
+    }
+
+    function obtenerPrecioCompra(compra) {
+        switch(compra.tipo) {
+            case 'compra_registrada':
+                return parseFloat(compra.data.monto) || parseFloat(compra.data.precio) || 0;
+            case 'tarjeta_pais':
+                return parseFloat(compra.data.precio) || 0;
+            case 'dump':
+            case 'amazon':
+                return parseFloat(compra.data.precio) || 0;
+            default:
+                return 0;
+        }
+    }
+
+    // ========================================
+    // FUNCIÓN MEJORADA - MOSTRAR COMPRAS ✅
+    // ========================================
+    function mostrarComprasEnLista() {
+        const listaCompras = document.getElementById('listaCompras');
+        
+        if (comprasFiltradas.length === 0) {
+            mostrarEmptyState('No hay compras que coincidan con el filtro');
+            return;
+        }
+
+        let comprasHTML = '';
+
+        comprasFiltradas.forEach((compra, index) => {
+            const datos = compra.data;
+            const tipo = compra.tipo;
+            
+            let titulo, numero, cvv, vencimiento, titular, marca, banco, precio, pais, fecha;
+            
+            // ✅ PROCESAR SEGÚN EL TIPO DE COMPRA
+            switch(tipo) {
+                case 'tarjeta_pais':
+                    titulo = `Tarjeta ${compra.pais.toUpperCase()}`;
+                    numero = datos.numero || '';
+                    cvv = datos.cvv || '';
+                    vencimiento = datos.fecha || '';
+                    titular = datos.nombre || datos.nombre_completo || '';
+                    marca = datos.marca || 'Premium';
+                    banco = datos.banco || '';
+                    precio = parseFloat(datos.precio) || 0;
+                    pais = compra.pais;
+                    fecha = datos.fecha_venta?.toDate?.() || new Date();
+                    break;
+                    
+                case 'dump':
+                    titulo = 'Dump Premium';
+                    numero = datos.numero || '';
+                    cvv = datos.cvv || '';
+                    vencimiento = datos.fecha || '';
+                    titular = datos.nombre || datos.nombre_completo || '';
+                    marca = datos.marca || 'Dump';
+                    banco = datos.banco || '';
+                    precio = parseFloat(datos.precio) || 0;
+                    pais = datos.pais || '';
+                    fecha = datos.fecha_venta?.toDate?.() || new Date();
+                    break;
+                    
+                case 'amazon':
+                    titulo = 'Gift Card Amazon';
+                    numero = datos.codigo || datos.numero || '';
+                    cvv = '';
+                    vencimiento = '';
+                    titular = '';
+                    marca = 'Amazon';
+                    banco = '';
+                    precio = parseFloat(datos.precio) || 0;
+                    pais = '';
+                    fecha = datos.fecha_venta?.toDate?.() || new Date();
+                    break;
+                    
+                case 'compra_registrada':
+                default:
+                    titulo = datos.producto || 'Compra';
+                    numero = datos.numero || '';
+                    cvv = datos.cvv || '';
+                    vencimiento = datos.fecha_vencimiento || '';
+                    titular = datos.titular || '';
+                    marca = datos.marca || 'Producto';
+                    banco = datos.banco || '';
+                    precio = parseFloat(datos.monto) || parseFloat(datos.precio) || 0;
+                    pais = datos.pais || '';
+                    fecha = datos.fecha?.toDate?.() || new Date(datos.fecha) || new Date();
+                    break;
+            }
+
+            const fechaFormateada = fecha.toLocaleDateString('es-ES', { 
+                day: 'numeric', 
+                month: 'short', 
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            let iconClass = 'credit-card';
+            const lowerMarca = marca.toLowerCase();
+            if (lowerMarca.includes('visa')) {
+                iconClass = 'visa';
+            } else if (lowerMarca.includes('mastercard') || lowerMarca.includes('master card')) {
+                iconClass = 'mastercard';
+            } else if (lowerMarca.includes('amazon')) {
+                iconClass = 'amazon';
+            } else if (lowerMarca.includes('dump')) {
+                iconClass = 'database';
+            }
+
+            comprasHTML += `
+                <div class="compra-item" onclick="mostrarDetallesCompra(${index})">
+                    <div class="compra-header">
+                        <div class="compra-marca">
+                            <i class="fab fa-cc-${iconClass}"></i>
+                            <span>${titulo}</span>
+                        </div>
+                        <div class="compra-fecha">${fechaFormateada}</div>
+                    </div>
+                    
+                    <div class="compra-datos">
+                        ${numero ? `
+                        <div class="dato-group">
+                            <span class="dato-label">NÚMERO</span>
+                            <span class="dato-value">${numero}</span>
+                        </div>
+                        ` : ''}
+                        
+                        ${cvv ? `
+                        <div class="dato-group">
+                            <span class="dato-label">CVV</span>
+                            <span class="dato-value">${cvv}</span>
+                        </div>
+                        ` : ''}
+                        
+                        ${vencimiento ? `
+                        <div class="dato-group">
+                            <span class="dato-label">EXPIRACIÓN</span>
+                            <span class="dato-value">${vencimiento}</span>
+                        </div>
+                        ` : ''}
+                        
+                        ${titular ? `
+                        <div class="dato-group">
+                            <span class="dato-label">TITULAR</span>
+                            <span class="dato-value">${titular}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="compra-footer">
+                        <div class="compra-precio">$${precio.toFixed(2)} USDT</div>
+                        <div class="compra-banco">${banco} ${pais ? '• ' + pais.toUpperCase() : ''}</div>
+                    </div>
+                    
+                    ${numero || cvv ? `
+                    <div class="action-buttons">
+                        <button class="action-btn btn-copy" onclick="event.stopPropagation(); copiarDatosCompra(${index})">
+                            <i class="fas fa-copy"></i> Copiar Datos
+                        </button>
+                        <button class="action-btn btn-export" onclick="event.stopPropagation(); exportarCompra(${index})">
+                            <i class="fas fa-download"></i> Exportar
+                        </button>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        });
+
+        listaCompras.innerHTML = comprasHTML;
+    }
+
+    // ========================================
+    // FUNCIONES DE COMPRA INDIVIDUAL (MANTENER IGUAL)
+    // ========================================
+    function mostrarDetallesCompra(index) {
+        const compra = comprasFiltradas[index];
+        if (!compra) return;
+        
+        const datos = compra.data;
+        const tipo = compra.tipo;
+        
+        let titulo, numero, cvv, vencimiento, titular, marca, banco, precio, pais, fecha;
+        
+        switch(tipo) {
+            case 'tarjeta_pais':
+                titulo = `Tarjeta ${compra.pais.toUpperCase()}`;
+                numero = datos.numero || 'N/A';
+                cvv = datos.cvv || 'N/A';
+                vencimiento = datos.fecha || 'N/A';
+                titular = datos.nombre || datos.nombre_completo || 'N/A';
+                marca = datos.marca || 'N/A';
+                banco = datos.banco || 'N/A';
+                precio = parseFloat(datos.precio) || 0;
+                pais = compra.pais;
+                fecha = datos.fecha_venta?.toDate?.() || new Date();
+                break;
+                
+            case 'dump':
+                titulo = 'Dump Premium';
+                numero = datos.numero || 'N/A';
+                cvv = datos.cvv || 'N/A';
+                vencimiento = datos.fecha || 'N/A';
+                titular = datos.nombre || datos.nombre_completo || 'N/A';
+                marca = datos.marca || 'N/A';
+                banco = datos.banco || 'N/A';
+                precio = parseFloat(datos.precio) || 0;
+                pais = datos.pais || 'N/A';
+                fecha = datos.fecha_venta?.toDate?.() || new Date();
+                break;
+                
+            case 'amazon':
+                titulo = 'Gift Card Amazon';
+                numero = datos.codigo || datos.numero || 'N/A';
+                cvv = 'N/A';
+                vencimiento = 'N/A';
+                titular = 'N/A';
+                marca = 'Amazon';
+                banco = 'N/A';
+                precio = parseFloat(datos.precio) || 0;
+                pais = 'N/A';
+                fecha = datos.fecha_venta?.toDate?.() || new Date();
+                break;
+                
+            case 'compra_registrada':
+            default:
+                titulo = datos.producto || 'Compra';
+                numero = datos.numero || 'N/A';
+                cvv = datos.cvv || 'N/A';
+                vencimiento = datos.fecha_vencimiento || 'N/A';
+                titular = datos.titular || 'N/A';
+                marca = datos.marca || 'N/A';
+                banco = datos.banco || 'N/A';
+                precio = parseFloat(datos.monto) || parseFloat(datos.precio) || 0;
+                pais = datos.pais || 'N/A';
+                fecha = datos.fecha?.toDate?.() || new Date(datos.fecha) || new Date();
+                break;
+        }
+
+        const mensaje = `
+🔐 **DETALLES DE COMPRA COMPLETOS**
+
+💳 **INFORMACIÓN DE LA TARJETA:**
+Producto: ${titulo}
+Número: ${numero}
+Marca: ${marca}
+CVV: ${cvv}
+Vencimiento: ${vencimiento}
+Banco: ${banco}
+BIN: ${numero && numero.length >= 6 ? numero.substring(0, 6) : 'N/A'}
+
+👤 **TITULAR:**
+Nombre: ${titular}
+
+💰 **TRANSACCIÓN:**
+Precio: $${precio.toFixed(2)} USDT
+País: ${pais}
+Fecha: ${fecha.toLocaleString('es-ES')}
+        `.trim();
+
+        if (confirm('¿Mostrar detalles completos en alerta?\n\n(Se recomienda usar "Copiar Datos" para mayor seguridad)')) {
+            alert(mensaje);
+        }
+    }
+
+    function copiarDatosCompra(index) {
+        const compra = comprasFiltradas[index];
+        if (!compra) return;
+        
+        const datos = compra.data;
+        let texto = '';
+        
+        switch(compra.tipo) {
+            case 'tarjeta_pais':
+            case 'dump':
+                texto = `${datos.numero || ''}|${datos.fecha || ''}|${datos.cvv || ''}`;
+                break;
+            case 'amazon':
+                texto = datos.codigo || datos.numero || '';
+                break;
+            default:
+                texto = `${datos.numero || ''}|${datos.fecha_vencimiento || ''}|${datos.cvv || ''}`;
+        }
+        
+        if (texto && texto !== '||') {
+            copiarAlPortapapeles(texto, '✅ Datos copiados al portapapeles');
+        }
+    }
+
+    function exportarCompra(index) {
+        const compra = comprasFiltradas[index];
+        if (!compra) return;
+        
+        const datos = compra.data;
+        const tipo = compra.tipo;
+        
+        let titulo, numero, marca, banco, cvv, vencimiento, bin, titular, precio, pais, fecha;
+        
+        switch(tipo) {
+            case 'tarjeta_pais':
+                titulo = `Tarjeta ${compra.pais.toUpperCase()}`;
+                numero = datos.numero || 'N/A';
+                marca = datos.marca || 'N/A';
+                banco = datos.banco || 'N/A';
+                cvv = datos.cvv || 'N/A';
+                vencimiento = datos.fecha || 'N/A';
+                bin = datos.bin || (numero && numero.length >= 6 ? numero.substring(0, 6) : 'N/A');
+                titular = datos.nombre || datos.nombre_completo || 'N/A';
+                precio = parseFloat(datos.precio) || 0;
+                pais = compra.pais;
+                fecha = datos.fecha_venta?.toDate?.() || new Date();
+                break;
+                
+            case 'dump':
+                titulo = 'Dump Premium';
+                numero = datos.numero || 'N/A';
+                marca = datos.marca || 'N/A';
+                banco = datos.banco || 'N/A';
+                cvv = datos.cvv || 'N/A';
+                vencimiento = datos.fecha || 'N/A';
+                bin = datos.bin || (numero && numero.length >= 6 ? numero.substring(0, 6) : 'N/A');
+                titular = datos.nombre || datos.nombre_completo || 'N/A';
+                precio = parseFloat(datos.precio) || 0;
+                pais = datos.pais || 'N/A';
+                fecha = datos.fecha_venta?.toDate?.() || new Date();
+                break;
+                
+            case 'amazon':
+                titulo = 'Gift Card Amazon';
+                numero = datos.codigo || datos.numero || 'N/A';
+                marca = 'Amazon';
+                banco = 'N/A';
+                cvv = 'N/A';
+                vencimiento = 'N/A';
+                bin = 'N/A';
+                titular = 'N/A';
+                precio = parseFloat(datos.precio) || 0;
+                pais = 'N/A';
+                fecha = datos.fecha_venta?.toDate?.() || new Date();
+                break;
+                
+            case 'compra_registrada':
+            default:
+                titulo = datos.producto || 'Compra';
+                numero = datos.numero || 'N/A';
+                marca = datos.marca || 'N/A';
+                banco = datos.banco || 'N/A';
+                cvv = datos.cvv || 'N/A';
+                vencimiento = datos.fecha_vencimiento || 'N/A';
+                bin = datos.bin || 'N/A';
+                titular = datos.titular || 'N/A';
+                precio = parseFloat(datos.monto) || parseFloat(datos.precio) || 0;
+                pais = datos.pais || 'N/A';
+                fecha = datos.fecha?.toDate?.() || new Date(datos.fecha) || new Date();
+                break;
+        }
+
+        const contenido = `
+=========================================
+           CCSHOP - COMPRA
+=========================================
+
+*** INFORMACION DE LA TARJETA ***
+-----------------------------------------
+Producto:     ${titulo}
+Numero:       ${numero}
+Marca:        ${marca}
+Banco:        ${banco}
+CVV:          ${cvv}
+Vencimiento:  ${vencimiento}
+BIN:          ${bin}
+
+*** TITULAR ***
+-----------------------------------------
+Nombre:       ${titular}
+
+*** TRANSACCION ***
+-----------------------------------------
+Precio:       $${precio.toFixed(2)} USDT
+Pais:         ${pais}
+Fecha:        ${fecha.toLocaleString('es-ES')}
+
+=========================================
+        `;
+        
+        descargarArchivo(`CCshop_Compra_${compra.id}.txt`, contenido);
+        mostrarToast('✅ Archivo descargado');
+    }
+
+    // ========================================
+    // FUNCIÓN DE EXPORTACIÓN MASIVA (MANTENER IGUAL)
+    // ========================================
+    function exportarTodoHistorial() {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        mostrarToast('⏳ Exportando historial completo...');
+
+        let contenido = `
+=========================================
+      CCSHOP - HISTORIAL COMPLETO
+=========================================
+Usuario: ${user.email}
+Fecha exportacion: ${new Date().toLocaleString('es-ES')}
+Total compras: ${comprasFiltradas.length}
+=========================================
+
+`;
+
+        comprasFiltradas.forEach((compra, index) => {
+            const datos = compra.data;
+            const tipo = compra.tipo;
+            
+            let titulo, numero, marca, banco, cvv, vencimiento, bin, titular, precio, pais, fecha;
+            
+            switch(tipo) {
+                case 'tarjeta_pais':
+                    titulo = `Tarjeta ${compra.pais.toUpperCase()}`;
+                    numero = datos.numero || 'N/A';
+                    marca = datos.marca || 'N/A';
+                    banco = datos.banco || 'N/A';
+                    cvv = datos.cvv || 'N/A';
+                    vencimiento = datos.fecha || 'N/A';
+                    bin = datos.bin || (numero && numero.length >= 6 ? numero.substring(0, 6) : 'N/A');
+                    titular = datos.nombre || datos.nombre_completo || 'N/A';
+                    precio = parseFloat(datos.precio) || 0;
+                    pais = compra.pais;
+                    fecha = datos.fecha_venta?.toDate?.() || new Date();
+                    break;
+                    
+                case 'dump':
+                    titulo = 'Dump Premium';
+                    numero = datos.numero || 'N/A';
+                    marca = datos.marca || 'N/A';
+                    banco = datos.banco || 'N/A';
+                    cvv = datos.cvv || 'N/A';
+                    vencimiento = datos.fecha || 'N/A';
+                    bin = datos.bin || (numero && numero.length >= 6 ? numero.substring(0, 6) : 'N/A');
+                    titular = datos.nombre || datos.nombre_completo || 'N/A';
+                    precio = parseFloat(datos.precio) || 0;
+                    pais = datos.pais || 'N/A';
+                    fecha = datos.fecha_venta?.toDate?.() || new Date();
+                    break;
+                    
+                case 'amazon':
+                    titulo = 'Gift Card Amazon';
+                    numero = datos.codigo || datos.numero || 'N/A';
+                    marca = 'Amazon';
+                    banco = 'N/A';
+                    cvv = 'N/A';
+                    vencimiento = 'N/A';
+                    bin = 'N/A';
+                    titular = 'N/A';
+                    precio = parseFloat(datos.precio) || 0;
+                    pais = 'N/A';
+                    fecha = datos.fecha_venta?.toDate?.() || new Date();
+                    break;
+                    
+                case 'compra_registrada':
+                default:
+                    titulo = datos.producto || 'Compra';
+                    numero = datos.numero || 'N/A';
+                    marca = datos.marca || 'N/A';
+                    banco = datos.banco || 'N/A';
+                    cvv = datos.cvv || 'N/A';
+                    vencimiento = datos.fecha_vencimiento || 'N/A';
+                    bin = datos.bin || 'N/A';
+                    titular = datos.titular || 'N/A';
+                    precio = parseFloat(datos.monto) || parseFloat(datos.precio) || 0;
+                    pais = datos.pais || 'N/A';
+                    fecha = datos.fecha?.toDate?.() || new Date(datos.fecha) || new Date();
+                    break;
+            }
+
+            contenido += `
+COMPRA #${index + 1} - ${titulo}
+-----------------------------------------
+Numero:      ${numero}
+CVV:         ${cvv}
+Vencimiento: ${vencimiento}
+Marca:       ${marca}
+Banco:       ${banco}
+Titular:     ${titular}
+Precio:      $${precio.toFixed(2)} USDT
+Pais:        ${pais}
+Fecha:       ${fecha.toLocaleString('es-ES')}
+
+`;
+        });
+
+        descargarArchivo(`CCshop_Historial_Completo_${Date.now()}.txt`, contenido);
+        mostrarToast(`✅ ${comprasFiltradas.length} compras exportadas`);
+    }
+
+    // ========================================
+    // FILTROS
+    // ========================================
+    document.getElementById('filtroTipo').addEventListener('change', function(e) {
+        const filtro = e.target.value;
+        
+        if (filtro === 'todas') {
+            comprasFiltradas = [...todasLasCompras];
+        } else {
+            comprasFiltradas = todasLasCompras.filter(compra => {
+                switch(filtro) {
+                    case 'tarjetas': return compra.tipo === 'tarjeta_pais';
+                    case 'dumps': return compra.tipo === 'dump';
+                    case 'amazon': return compra.tipo === 'amazon';
+                    case 'compras': return compra.tipo === 'compra_registrada';
+                    default: return true;
+                }
+            });
+        }
+        
+        actualizarEstadisticas();
+        mostrarComprasEnLista();
+    });
+
+    // ========================================
+    // UTILIDADES (MANTENER IGUAL)
+    // ========================================
+    function mostrarEmptyState(mensaje) {
+        const listaCompras = document.getElementById('listaCompras');
+        listaCompras.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-receipt"></i>
+                <h3>${mensaje}</h3>
+                <p>Visita la tienda para realizar tu primera compra.</p>
+                <div class="action-buttons" style="justify-content: center; margin-top: 20px;">
+                    <button class="action-btn btn-export" onclick="exportarTodoHistorial()" ${comprasFiltradas.length === 0 ? 'disabled' : ''}>
+                        <i class="fas fa-download"></i> Exportar Todo el Historial
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    function copiarAlPortapapeles(texto, mensajeExito = '✅ Copiado') {
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(texto)
+                .then(() => mostrarToast(mensajeExito))
+                .catch(() => fallbackCopy(texto, mensajeExito));
+        } else {
+            fallbackCopy(texto, mensajeExito);
+        }
+    }
+
+    function fallbackCopy(texto, mensajeExito) {
+        const textArea = document.createElement('textarea');
+        textArea.value = texto;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-9999px';
+        document.body.appendChild(textArea);
+        textArea.select();
+        
+        try {
+            document.execCommand('copy');
+            mostrarToast(mensajeExito);
+        } catch (err) {
+            mostrarToast('❌ Error al copiar', true);
+        }
+        
+        document.body.removeChild(textArea);
+    }
+
+    function descargarArchivo(nombreArchivo, contenido) {
+        const blob = new Blob([contenido], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = nombreArchivo;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    function mostrarToast(mensaje, esError = false) {
+        const toast = document.getElementById('toast');
+        toast.textContent = mensaje;
+        toast.style.display = 'block';
+        
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 3000);
+    }
+
+    // ========================================
+    // SISTEMA DE SALDO (MANTENER IGUAL)
+    // ========================================
+    function cargarSaldoUsuario() {
+        const user = auth.currentUser;
+        
+        if (user) {
+            usuarioActual = user;
+            const saldoRef = rtdb.ref('users/' + user.uid + '/saldo');
+            
+            saldoRef.on('value', (snapshot) => {
+                const saldo = snapshot.val();
+                
+                if (saldo !== null && saldo !== undefined) {
+                    saldoActual = parseFloat(saldo);
+                    document.getElementById('saldoUsuario').textContent = `$${saldoActual.toFixed(2)}`;
+                } else {
+                    crearSaldoInicial(user.uid);
+                }
+            });
+        }
+    }
+
+    async function crearSaldoInicial(userId) {
+        try {
+            await rtdb.ref('users/' + userId).set({
+                email: usuarioActual.email,
+                nombre: usuarioActual.displayName || 'Usuario',
+                saldo: 50.00,
+                fechaRegistro: Date.now()
+            });
+        } catch (error) {
+            console.error('Error creando saldo:', error);
+        }
+    }
+
+    // ========================================
+    // INICIALIZACIÓN
+    // ========================================
+    configurarProteccionInspeccion();
+
+    auth.onAuthStateChanged(function(user) {
+        if (!verificarAccesoSeguro()) {
+            return;
+        }
+        
+        if (user) {
+            console.log('✅ Usuario autenticado:', user.email);
+            usuarioActual = user;
+            cargarSaldoUsuario();
+            cargarHistorialCompras(); // ✅ ESTA ES LA FUNCIÓN CORREGIDA
+            crearParticulas();
+        } else {
+            console.log('❌ No hay usuario autenticado - Redirigiendo a index');
+            window.location.href = '../index.html';
+        }
+    });
+
+</script>
+</body>
+</html>

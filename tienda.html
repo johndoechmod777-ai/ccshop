@@ -1,0 +1,2753 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCshop - Dashboard Premium</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='text' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23ff0000'/><stop offset='100%' stop-color='%23cc0000'/></linearGradient></defs><path d='M8 8 L24 8 L24 24 L8 24 Z' transform='rotate(45 16 16)' fill='none' stroke='%23ff0000' stroke-width='1.5'/><text x='12' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text><text x='20' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text></svg>">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+    <style>
+        /* CSS se mantiene sin cambios ya que ya estaba optimizado */
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body { 
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            min-height: 100vh; 
+            color: white; 
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Efecto de partículas animadas en el fondo - MEJORADO */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            background: radial-gradient(circle, rgba(255, 0, 0, 0.2) 0%, rgba(255, 0, 0, 0.05) 70%);
+            border-radius: 50%;
+            animation: float 8s infinite ease-in-out;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.1);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); opacity: 0.6; }
+            50% { transform: translateY(-30px) rotate(180deg) scale(1.1); opacity: 0.3; }
+        }
+
+        /* HEADER PROFESIONAL MEJORADO - MÁS ELEGANTE */
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 15px 25px; 
+            background: rgba(10, 10, 10, 0.98);
+            backdrop-filter: blur(25px);
+            border-bottom: 1px solid rgba(255, 0, 0, 0.4);
+            height: 70px; 
+            position: sticky; 
+            top: 0; 
+            z-index: 999;
+            box-shadow: 0 4px 40px rgba(255, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .header-left { 
+            display: flex; 
+            align-items: center; 
+            gap: 20px; 
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-icon {
+            font-size: 28px;
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 12px rgba(255, 0, 0, 0.6));
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .brand-text {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff0000, #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        /* BOTÓN DE PERFIL MEJORADO - MÁS SOPHISTICADO */
+        .profile-btn { 
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border: 1px solid rgba(255, 0, 0, 0.5);
+            color: white; 
+            cursor: pointer; 
+            padding: 0;
+            font-size: 14px; 
+            border-radius: 14px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            width: 50px;
+            height: 50px;
+        }
+
+        .profile-btn i {
+            font-size: 20px;
+            transition: transform 0.3s ease;
+            display: block;
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        .profile-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+            transition: left 0.6s;
+        }
+
+        .profile-btn:hover { 
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.2), rgba(255, 0, 0, 0.1));
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 10px 30px rgba(255, 0, 0, 0.4), 0 0 0 1px rgba(255, 0, 0, 0.5);
+            border-color: rgba(255, 0, 0, 0.7);
+        }
+
+        .profile-btn:hover i {
+            transform: scale(1.1);
+        }
+
+        .profile-btn:hover::before {
+            left: 100%;
+        }
+
+        .balance-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
+            padding: 12px 20px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            backdrop-filter: blur(15px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .balance-label {
+            font-size: 14px;
+            color: #aaa;
+            font-weight: 600;
+        }
+
+        .balance { 
+            color: #ff0000; 
+            font-size: 20px; 
+            font-weight: bold; 
+            font-family: 'Courier New', monospace; 
+            text-shadow: 0 0 12px rgba(255, 0, 0, 0.6);
+        }
+
+        .time-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
+            padding: 6px 8px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            backdrop-filter: blur(15px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            max-width: 140px;
+            word-wrap: break-word;
+            overflow: hidden;
+        }
+
+        .time-label {
+            font-size: 9px;
+            color: #aaa;
+            font-weight: 600;
+            text-align: left;
+            margin-left: 0;
+            padding-left: 0;
+            line-height: 1.1;
+        }
+
+        .time { 
+            color: #ff0000; 
+            font-size: 12px; 
+            font-weight: bold; 
+            font-family: 'Courier New', monospace; 
+            text-shadow: 0 0 12px rgba(255, 0, 0, 0.6);
+            text-align: left;
+            margin-left: 0;
+            padding-left: 0;
+        }
+
+        .header-buttons { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+        }
+
+        /* BOTONES de ÍCONOS MEJORADOS - MÁS ELEGANTE */
+        .icon-btn { 
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: white; 
+            cursor: pointer; 
+            padding: 14px;
+            font-size: 16px; 
+            position: relative; 
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 14px;
+            width: 52px;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            text-decoration: none;
+        }
+
+        .icon-btn i {
+            font-size: 18px;
+            transition: transform 0.3s ease;
+        }
+        
+        /* Nuevo Estilo para el botón de gráfica */
+        .btn-grafica {
+            background: linear-gradient(135deg, rgba(30, 200, 30, 0.2), rgba(30, 200, 30, 0.1));
+            border: 1px solid rgba(0, 255, 0, 0.5);
+        }
+
+        .btn-grafica:hover {
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.3), rgba(0, 255, 0, 0.15));
+            box-shadow: 0 10px 30px rgba(0, 255, 0, 0.4), 0 0 0 1px rgba(0, 255, 0, 0.5);
+            border-color: rgba(0, 255, 0, 0.7);
+        }
+
+        .icon-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+            transition: left 0.6s;
+        }
+
+        .icon-btn:hover { 
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.2), rgba(255, 0, 0, 0.1));
+            transform: translateY(-3px) scale(1.08);
+            box-shadow: 0 10px 30px rgba(255, 0, 0, 0.4), 0 0 0 1px rgba(255, 0, 0, 0.5);
+            border-color: rgba(255, 0, 0, 0.5);
+        }
+
+        .icon-btn:hover i {
+            transform: scale(1.1);
+        }
+
+        .icon-btn:hover::before {
+            left: 100%;
+        }
+
+        .notification-badge { 
+            position: absolute; 
+            top: 2px; 
+            right: 2px; 
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+            color: white; 
+            border-radius: 50%; 
+            width: 18px; 
+            height: 18px; 
+            font-size: 10px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(255, 0, 0, 0.5);
+        }
+
+        .menu-btn .notification-badge {
+            top: -5px;
+            right: -5px;
+            width: 16px;
+            height: 16px;
+            font-size: 9px;
+        }
+
+        .menu-item .notification-badge {
+            position: static;
+            margin-left: auto;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+        }
+        
+        /* BOTÓN DE MENÚ MEJORADO - MÁS SOPHISTICADO */
+        .menu-btn { 
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: white; 
+            cursor: pointer; 
+            padding: 14px;
+            display: flex; 
+            flex-direction: column; 
+            gap: 3px; 
+            border-radius: 14px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: visible;
+            backdrop-filter: blur(10px);
+        }
+
+        .menu-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+            transition: left 0.6s;
+        }
+
+        .menu-btn:hover { 
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.2), rgba(255, 0, 0, 0.1));
+            transform: translateY(-3px) scale(1.08);
+            box-shadow: 0 10px 30px rgba(255, 0, 0, 0.4), 0 0 0 1px rgba(255, 0, 0, 0.5);
+            border-color: rgba(255, 0, 0, 0.5);
+        }
+
+        .menu-btn:hover::before {
+            left: 100%;
+        }
+
+        .menu-line { 
+            width: 22px; 
+            height: 2px; 
+            background: white; 
+            transition: all 0.4s ease; 
+            border-radius: 2px;
+            transform-origin: center;
+        }
+
+        .menu-btn:hover .menu-line { 
+            background: #ff0000; 
+            width: 24px;
+        }
+        
+        /* MENÚS CONTEXTUALES MEJORADOS - MÁS REFINADOS */
+        .context-menu { 
+            position: fixed; 
+            top: 75px; 
+            background: rgba(26, 26, 26, 0.98);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 0, 0, 0.4);
+            border-radius: 16px; 
+            padding: 0;
+            display: none; 
+            z-index: 1000; 
+            min-width: 280px; 
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 0, 0, 0.2);
+            animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        
+        .menu-profile { left: 20px; }
+        .menu-messages { right: 20px; max-height: 450px; overflow-y: auto; width: 90vw; max-width: 420px; }
+        .menu-main { right: 20px; }
+        
+        /* ÍTEMS DE MENÚ MEJORADOS - MÁS PREMIUM */
+        .menu-item { 
+            padding: 14px 18px; 
+            font-size: 14px; 
+            cursor: pointer; 
+            border-bottom: 1px solid rgba(42, 42, 42, 0.6); 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 12px;
+            margin: 4px 8px;
+            background: rgba(255, 255, 255, 0.03);
+            position: relative;
+            overflow: hidden;
+            font-weight: 500;
+        }
+
+        .menu-item i {
+            width: 18px;
+            text-align: center;
+            font-size: 15px;
+            transition: transform 0.3s ease;
+        }
+
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 0, 0, 0.15), transparent);
+            transition: left 0.6s;
+        }
+
+        .menu-item:last-child { border-bottom: none; }
+        .menu-item:hover { 
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.2), rgba(255, 0, 0, 0.1)); 
+            transform: translateX(8px) scale(1.02);
+            border-left: 4px solid #ff0000;
+            box-shadow: 0 6px 20px rgba(255, 0, 0, 0.3);
+            margin-left: 6px;
+            margin-right: 10px;
+        }
+
+        .menu-item:hover i {
+            transform: scale(1.1);
+        }
+
+        .menu-item:hover::before {
+            left: 100%;
+        }
+        
+        /* PERFIL MEJORADO - MÁS ELEGANTE */
+        .profile-info { 
+            padding: 20px; 
+            border-bottom: 1px solid rgba(51, 51, 51, 0.6); 
+            background: linear-gradient(135deg, rgba(26, 26, 26, 0.9), rgba(42, 42, 42, 0.9)); 
+            border-radius: 12px 12px 0 0; 
+            margin: 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-info::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #ff0000, #cc0000);
+        }
+
+        .profile-name { 
+            font-weight: bold; 
+            color: #ff0000; 
+            font-size: 16px; 
+            margin-bottom: 6px;
+        }
+
+        .profile-email { 
+            display: block; 
+            font-size: 13px; 
+            color: #bbb; 
+            margin-bottom: 10px;
+        }
+
+        .profile-balance { 
+            font-size: 14px; 
+            color: #ff0000; 
+            font-family: 'Courier New', monospace; 
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.15), rgba(255, 0, 0, 0.1));
+            padding: 8px 16px;
+            border-radius: 8px;
+            display: inline-block;
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            box-shadow: 0 2px 10px rgba(255, 0, 0, 0.2);
+        }
+        
+        /* MENSAJES DE COMPRAS - MEJORADO */
+        .message-item { 
+            padding: 18px; 
+            font-size: 13px; 
+            border-bottom: 1px solid rgba(42, 42, 42, 0.6); 
+            cursor: pointer; 
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 12px; 
+            margin: 8px; 
+            background: linear-gradient(135deg, rgba(42, 26, 26, 0.8), rgba(29, 13, 13, 0.8)); 
+            border-left: 5px solid #ff0000;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .message-item:hover { 
+            background: linear-gradient(135deg, rgba(58, 42, 42, 0.9), rgba(42, 26, 26, 0.9)); 
+            transform: translateX(8px); 
+            box-shadow: 0 10px 25px rgba(255, 0, 0, 0.3);
+        }
+
+        .message-sender { 
+            font-weight: bold; 
+            color: #ff0000; 
+            margin-bottom: 8px; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+        }
+
+        .message-preview { color: #ddd; font-size: 12px; margin-top: 5px; line-height: 1.5; }
+        .message-time { font-size: 11px; color: #999; margin-top: 8px; font-style: italic; }
+        .empty-messages { padding: 40px 25px; text-align: center; color: #777; font-style: italic; font-size: 13px; }
+        
+        /* ACCIONES DEL MENÚ DE MENSAJES - MEJORADAS */
+        .messages-header { 
+            padding: 16px 18px; 
+            background: linear-gradient(135deg, rgba(61, 26, 26, 0.9), rgba(42, 13, 13, 0.9)); 
+            border-radius: 12px 12px 0 0; 
+            margin: 0;
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            position: relative;
+            overflow: hidden;
+        }
+
+        .messages-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #ff0000, #cc0000);
+        }
+
+        .messages-title { 
+            color: #ff0000; 
+            font-weight: bold; 
+            font-size: 15px; 
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .messages-title i {
+            font-size: 18px;
+        }
+
+        .messages-actions { display: flex; gap: 10px; }
+        .action-btn-small { 
+            background: linear-gradient(135deg, rgba(42, 42, 42, 0.9), rgba(42, 42, 42, 0.7)); 
+            border: 1px solid rgba(68, 68, 68, 0.6); 
+            color: white; 
+            padding: 8px 12px; 
+            border-radius: 8px; 
+            font-size: 12px; 
+            cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 500;
+        }
+
+        .action-btn-small:hover { 
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.4), rgba(255, 0, 0, 0.2)); 
+            transform: scale(1.08); 
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+        }
+        
+        /* MODAL PROFESIONAL MEJORADO - MÁS REFINADO */
+        .modal-overlay { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0, 0, 0, 0.95); 
+            z-index: 2000; 
+            align-items: center; 
+            justify-content: center; 
+            backdrop-filter: blur(15px); 
+            animation: fadeIn 0.4s ease; 
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal-container { 
+            background: linear-gradient(135deg, rgba(26, 26, 26, 0.98), rgba(42, 42, 42, 0.98)); 
+            border-radius: 20px; 
+            width: 100%;
+            max-width: 550px; 
+            max-height: 90vh; 
+            overflow-y: auto; 
+            border: 2px solid #ff0000; 
+            box-shadow: 0 25px 70px rgba(255, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1); 
+            animation: slideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        
+        .modal-header { 
+            background: linear-gradient(135deg, #a80000, #800000); 
+            padding: 18px 25px; 
+            border-radius: 18px 18px 0 0; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 4px 20px rgba(168, 0, 0, 0.3);
+        }
+
+        .modal-title { 
+            font-size: 18px; 
+            font-weight: bold; 
+            color: white; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+        }
+
+        .modal-title i {
+            font-size: 20px;
+        }
+
+        .modal-close { 
+            background: rgba(255, 255, 255, 0.15); 
+            border: none; 
+            color: white; 
+            width: 35px; 
+            height: 35px; 
+            border-radius: 50%; 
+            font-size: 18px; 
+            cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
+
+        .modal-close:hover { 
+            background: #ff0000; 
+            transform: rotate(90deg) scale(1.1);
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.4);
+        }
+        
+        .modal-body { 
+            padding: 25px; 
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        
+        .info-section { 
+            background: linear-gradient(135deg, rgba(26, 26, 26, 0.9), rgba(42, 42, 42, 0.9)); 
+            border-radius: 14px; 
+            padding: 20px; 
+            margin-bottom: 20px; 
+            border-left: 5px solid #ff0000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .info-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #ff0000, #cc0000);
+        }
+
+        .section-title { 
+            color: #ff0000; 
+            font-size: 15px; 
+            font-weight: bold; 
+            margin-bottom: 15px; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            border-bottom: 1px solid rgba(51, 51, 51, 0.6); 
+            padding-bottom: 10px; 
+        }
+
+        .section-title i {
+            font-size: 18px;
+        }
+        
+        .info-row { 
+            display: flex; 
+            justify-content: space-between; 
+            padding: 10px 0; 
+            border-bottom: 1px solid rgba(42, 42, 42, 0.6); 
+            font-size: 14px; 
+        }
+
+        .info-row:last-child { border-bottom: none; }
+        .info-label { color: #aaa; display: flex; align-items: center; gap: 8px; font-weight: 500; }
+        .info-label i {
+            font-size: 13px;
+            color: #ff0000;
+        }
+        .info-value { color: white; font-weight: bold; font-family: 'Courier New', monospace; }
+        .info-value.highlight { color: #ff0000; text-shadow: 0 0 5px rgba(255, 0, 0, 0.5); }
+        
+        .modal-actions { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 12px; 
+            padding: 20px; 
+            background: linear-gradient(135deg, rgba(13, 13, 13, 0.95), rgba(26, 26, 26, 0.95)); 
+            border-radius: 0 0 18px 18px; 
+            position: sticky;
+            bottom: 0;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
+        }
+        
+        .action-btn { 
+            padding: 14px; 
+            border: none; 
+            border-radius: 10px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 10px; 
+            font-size: 14px; 
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-btn i {
+            font-size: 15px;
+            transition: transform 0.3s ease;
+        }
+
+        .action-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn-copy { 
+            background: linear-gradient(135deg, #7a1a1a, #6a0d0d); 
+            color: white; 
+            border: 1px solid rgba(255, 0, 0, 0.3);
+        }
+
+        .btn-copy:hover { 
+            background: linear-gradient(135deg, #9a2a2a, #8a1a1a); 
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 20px rgba(122, 26, 26, 0.4);
+        }
+
+        .btn-copy:hover i {
+            transform: scale(1.1);
+        }
+
+        .btn-export { 
+            background: linear-gradient(135deg, #5f1a7a, #4d0d6a); 
+            color: white; 
+            border: 1px solid rgba(95, 26, 122, 0.3);
+        }
+
+        .btn-export:hover { 
+            background: linear-gradient(135deg, #7f2a9a, #6d1a8a); 
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 20px rgba(95, 26, 122, 0.4);
+        }
+
+        .btn-close { 
+            background: linear-gradient(135deg, rgba(42, 42, 42, 0.9), rgba(58, 58, 58, 0.9)); 
+            color: white; 
+            grid-column: 1 / -1; 
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-close:hover { 
+            background: linear-gradient(135deg, rgba(58, 58, 58, 1), rgba(42, 42, 42, 1)); 
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .action-btn:hover::before {
+            left: 100%;
+        }
+        
+        /* SCROLLBAR PERSONALIZADO - MEJORADO */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: rgba(26, 26, 26, 0.9); border-radius: 5px; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(135deg, #ff0000, #cc0000); border-radius: 5px; border: 1px solid rgba(255, 255, 255, 0.1); }
+        ::-webkit-scrollbar-thumb:hover { background: linear-gradient(135deg, #cc0000, #990000); }
+        
+        /* TOAST NOTIFICATIONS MEJORADAS - MÁS ELEGANTE */
+        .toast { 
+            position: fixed; 
+            bottom: 25px; 
+            right: 25px; 
+            background: linear-gradient(135deg, #008000, #006400);
+            color: white; 
+            padding: 18px 25px; 
+            border-radius: 12px; 
+            box-shadow: 0 12px 40px rgba(0, 128, 0, 0.6);
+            z-index: 3000; 
+            display: none; 
+            animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 5px solid #00ff00;
+            max-width: 350px;
+            font-weight: 500;
+        }
+        
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(100px) scale(0.95); }
+            to { opacity: 1; transform: translateX(0) scale(1); }
+        }
+        
+        .toast.error { 
+            background: linear-gradient(135deg, #a80000, #800000); 
+            border-left: 5px solid #ff0000;
+            box-shadow: 0 12px 40px rgba(168, 0, 0, 0.6);
+        }
+
+        /* MEDIA QUERIES PARA RESPONSIVE */
+        @media (max-width: 768px) {
+            .header { padding: 12px 20px; height: 65px; }
+            .header-left { gap: 15px; }
+            .brand-text { font-size: 22px; }
+            .balance { font-size: 18px; }
+            .icon-btn { width: 45px; height: 45px; font-size: 16px; padding: 12px; }
+            .profile-btn { width: 45px; height: 45px; }
+            .profile-btn i { font-size: 18px; }
+            .menu-btn { padding: 12px; }
+            
+            .menu-messages { width: 95vw; max-width: none; right: 2.5vw; }
+            
+            .modal-container { width: 95%; border-radius: 15px; }
+            
+            .modal-actions { grid-template-columns: 1fr; gap: 10px; }
+        }
+        
+        @media (max-width: 480px) {
+            .header { flex-direction: column; height: auto; padding: 15px; gap: 15px; }
+            .header-left { width: 100%; justify-content: space-between; }
+            .header-buttons { width: 100%; justify-content: space-between; }
+            .balance-container { width: 100%; justify-content: center; }
+            
+            .menu-profile { left: 10px; }
+            
+            .message-item { padding: 15px; margin: 6px; }
+        }
+
+        /* === FEED USUARIOS ACTIVOS - MISMO ESTILO TIENDA === */
+        .floating-feed {
+            position: fixed;
+            top: 205px;
+            left: 0px;
+            right:0px;
+            width: auto;
+            height: 500px;
+            background: rgba(15, 15, 15, 0.98);
+            backdrop-filter: blur(25px);
+            border: 2px solid rgba(255, 0, 0, 0.4);
+            border-radius: 0px;
+            box-shadow: 0 20px 60px rgba(255, 0, 0, 0.3);
+            z-index: 100;
+            overflow: hidden;
+            animation: slideInLeft 0.5s ease;
+        }
+
+        @keyframes slideInLeft {
+            from { transform: translateX(-100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .feed-header {
+            background: linear-gradient(135deg, rgba(168, 0, 0, 0.9), rgba(128, 0, 0, 0.9));
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid rgba(255, 0, 0, 0.4);
+        }
+
+        .feed-title {
+            font-size: 16px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .live-indicator {
+            margin-left: auto;
+            background: rgba(255, 0, 0, 0.9);
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            background: #fff;
+            border-radius: 50%;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+
+        .usuarios-activos-container {
+            padding: 15px;
+        }
+
+        .usuarios-stats {
+            background: rgba(255, 0, 0, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #ff0000;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .usuarios-icon {
+            font-size: 24px;
+        }
+
+        .usuarios-info {
+            flex: 1;
+        }
+
+        .usuarios-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff4444;
+            font-family: 'Courier New', monospace;
+        }
+
+        .usuarios-label {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 5px;
+        }
+
+        .activity-list {
+            overflow-y: auto;
+            height: 300px;
+        }
+
+        .activity-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border-left: 3px solid #ff0000;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .activity-item:hover {
+            background: rgba(255, 0, 0, 0.1);
+            transform: translateX(5px);
+        }
+
+        .activity-user {
+            color: #ff4444;
+            font-weight: bold;
+            margin-bottom: 3px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .activity-details {
+            color: #ddd;
+            line-height: 1.3;
+        }
+
+        .activity-product {
+            color: #00ff00;
+            font-weight: 600;
+        }
+
+        .activity-time {
+            color: #888;
+            font-size: 10px;
+            margin-top: 2px;
+        }
+
+        .activity-amount {
+            color: #00ff00;
+            font-weight: bold;
+            float: right;
+        }
+    </style>
+<!-- Firebase App Check -->
+<script>
+function initializeAppCheck() {
+    if (typeof firebase !== 'undefined' && firebase.appCheck) {
+        const appCheck = firebase.appCheck();
+        appCheck.activate('6Ld0ewksAAAAAA2GM14dH2smAWCiZpGJfWymOc4C');
+        console.log('🛡️ App Check activado');
+    }
+}
+
+if (typeof firebase !== 'undefined') {
+    initializeAppCheck();
+} else {
+    document.addEventListener('firebase-ready', initializeAppCheck);
+}
+</script>
+</head>
+<body>
+
+    <div id="securityLoading" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0a0a;display:flex;justify-content:center;align-items:center;z-index:9999;">
+        <div style="text-align:center;">
+            <div style="font-size:2rem;margin-bottom:20px;">🔒</div>
+            <div>Verificando seguridad...</div>
+        </div>
+    </div>
+
+    <div class="particles" id="particles"></div>
+
+    <div class="header">
+        <div class="header-left">
+            <div class="brand">
+                <div class="brand-icon"><i class="fas fa-credit-card"></i></div>
+                <div class="brand-text">CCSHOP</div>
+            </div>
+            <button class="profile-btn" onclick="toggleMenu('profile')" title="Mi Perfil">
+                <i class="fas fa-user"></i>
+            </button>
+            <div class="time-container">
+                <div class="time-label">HORA Y FECHA DEL SERVIDOR</div>
+                <div class="time" id="serverTime">Cargando...</div>
+            </div>
+        </div>
+        
+        <div class="balance-container">
+            <div class="balance-label">Saldo:</div>
+            <div class="balance" id="saldoUsuario">Cargando...</div>
+        </div>
+        
+        <div class="header-buttons">
+            <a href="estadistica.html" class="icon-btn btn-grafica" title="Ver Gráfica de Actividad">
+                <i class="fas fa-chart-line"></i>
+            </a>
+            <button class="icon-btn" onclick="openStore()" title="Tienda Completa"><i class="fas fa-store"></i></button>
+            <button class="icon-btn" onclick="toggleMenu('messages')" title="Mensajes">
+                <i class="fas fa-envelope"></i><div id="messageBadge" class="notification-badge" style="display: none;">0</div>
+            </button>
+            <button class="menu-btn" id="menuBtn" onclick="toggleMenu('main')" title="Menú">
+                <div id="mainMenuBadge" class="notification-badge" style="display: none;">!</div>
+                <div class="menu-line"></div>
+                <div class="menu-line"></div>
+                <div class="menu-line"></div>
+            </button>
+        </div>
+    </div>
+
+    <div class="context-menu menu-profile" id="profileMenu">
+        <div class="profile-info">
+            <div class="profile-name">Usuario Premium</div>
+            <div class="profile-balance">Saldo: $0.00</div>
+        </div>
+        <div class="menu-item" onclick="irAPerfil()"><i class="fas fa-user"></i> Mi Perfil</div>
+        <div class="menu-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</div>
+    </div>
+
+    <div class="context-menu menu-messages" id="messagesMenu">
+        <div class="messages-header">
+            <div class="messages-title"><i class="fas fa-envelope"></i> Compras Recientes</div>
+            <div class="messages-actions">
+                <button class="action-btn-small" onclick="exportarTodasCompras()" title="Exportar todas"><i class="fas fa-download"></i> Exportar</button>
+            </div>
+        </div>
+        <div id="comprasList" class="compras-list">
+            <div class="empty-messages">Cargando compras recientes...</div>
+        </div>
+    </div>
+
+    <div class="context-menu menu-main" id="mainMenu">
+        <div class="menu-item" onclick="window.location.href='pagos/wallet-usdt.html'" style="background: rgba(26, 61, 26, 0.8); border-left: 4px solid #00ff00;">
+            <i class="fas fa-money-bill-wave"></i> Recargar Saldo
+        </div>
+        <div class="menu-item" onclick="window.location.href='reglas.html'" style="background: rgba(61, 61, 26, 0.8); border-left: 4px solid #ffff00;">
+            <i class="fas fa-clipboard-list"></i> Reglas
+        </div>
+        <div class="menu-item" onclick="window.location.href='historial.html'" style="background: rgba(61, 26, 26, 0.8); border-left: 4px solid #ff0000;">
+            <i class="fas fa-chart-bar"></i> Historial
+        </div>
+        <div class="menu-item" id="supportMenuItem" onclick="acknowledgeNotifications();" style="background: rgba(26, 61, 61, 0.8); border-left: 4px solid #00ffff;">
+            <i class="fas fa-shield-alt"></i> Soporte 24/7
+            <span id="supportBadge" class="notification-badge" style="display: none;">!</span>
+        </div>
+        <div class="menu-item" id="adminMenuItem" onclick="if(esUsuarioAdmin(usuarioActual)) location.href='herramientas/auto-publicador.html';" style="display: none; background: rgba(61, 26, 61, 0.8); border-left: 4px solid #ff00ff;">
+            <i class="fas fa-cogs"></i> Panel Admin
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalDetalleCompra">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fas fa-credit-card"></i>
+                    <span>Detalle de Compra</span>
+                </div>
+                <button class="modal-close" onclick="cerrarModal()"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <div class="modal-body" id="modalContent">
+                </div>
+            
+            <div class="modal-actions">
+                <button class="action-btn btn-copy" onclick="copiarDatosCompra()">
+                    <i class="fas fa-copy"></i> Copiar
+                </button>
+                <button class="action-btn btn-export" onclick="exportarCompra()">
+                    <i class="fas fa-download"></i> Exportar
+                </button>
+                <button class="action-btn btn-close" onclick="cerrarModal()">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+    
+    <script>
+    // ========================================
+    // 🔒 SEGURIDAD EXTRA - DETECCIÓN DE HERRAMIENTAS DE DESARROLLO
+    // ========================================
+    // Nota: Aunque no es a prueba de balas, es un excelente disuasivo.
+    (function() {
+        // Bloqueo de Copy-Paste, Cut, Drag and Drop
+        document.addEventListener('copy', (e) => e.preventDefault());
+        document.addEventListener('cut', (e) => e.preventDefault());
+        document.addEventListener('paste', (e) => e.preventDefault());
+        document.addEventListener('dragstart', (e) => e.preventDefault());
+        document.addEventListener('drop', (e) => e.preventDefault());
+
+        // Detección de Consola Abierta (Método de Function.prototype.toString)
+        const isDevToolsOpen = () => {
+            const threshold = 160; 
+            if (window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold) {
+                return true;
+            }
+            return false;
+        };
+
+        const checkDevTools = () => {
+            if (isDevToolsOpen()) {
+                // Redirigir si se detectan herramientas abiertas
+                if (window.location.href.includes('dashboard')) {
+                    window.location.href = 'verificacion.html'; 
+                }
+            }
+        };
+
+        // Redirección si se usa iframe malicioso
+        setInterval(() => {
+            if (window.self !== window.top) {
+                window.top.location = window.self.location;
+            }
+            checkDevTools(); // Comprobar herramientas regularmente
+        }, 1000); 
+    })();
+
+    // ========================================
+    // 🔒 PROTECCIÓN CONTRA INSPECCIÓN (Teclas)
+    // ========================================
+    document.addEventListener('contextmenu', (e) => e.preventDefault());
+    document.addEventListener('keydown', (e) => {
+        // Bloquear F12, Ctrl+Shift+I, Ctrl+U
+        if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I') || 
+            (e.ctrlKey && e.key === 'u')) {
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    // ========================================
+    // CONFIGURACIÓN FIREBASE
+    // ========================================
+    const firebaseConfig = {
+        // [AQUÍ DEBE IR TU CONFIGURACIÓN REAL DE FIREBASE]
+        apiKey: "AIzaSyD2tvQjJzh7ukTSyxzIQSo7GSpz7L8z11I",
+        authDomain: "ccshop-realtime.firebaseapp.com",
+        databaseURL: "https://ccshop-realtime-default-rtdb.firebaseio.com",
+        projectId: "ccshop-realtime",
+        storageBucket: "ccshop-realtime.firebasestorage.app",
+        messagingSenderId: "795626673305",
+        appId: "1:795626673305:web:094dc265de1d4d1bc7d408"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const rtdb = firebase.database();
+    const auth = firebase.auth();
+
+    // ========================================
+    // VARIABLES GLOBALES
+    // ========================================
+    let saldoActual = 0.00;
+    let usuarioActual = null;
+    let activeMenu = null;
+    let comprasUnread = 0;
+    let compraActual = null;
+    let ticketsListener = null;
+    let comprasListener = null;
+    let feedListener = null;
+    let sistemaInicializado = false;
+
+    // ========================================
+    // 🛡️ VERIFICACIÓN DE SEGURIDAD - VERSIÓN PRODUCCIÓN
+    // ========================================
+    function verificarAccesoSeguro() {
+        const hasSessionAuth = sessionStorage.getItem('auth_verified') === 'true';
+        const hasLocalCaptcha = localStorage.getItem('passedCaptcha') === 'true';
+        
+        if (hasSessionAuth || hasLocalCaptcha) {
+            sessionStorage.setItem('auth_verified', 'true');
+            return true;
+        }
+        
+        setTimeout(() => {
+            window.location.href = 'verificacion.html';
+        }, 2000);
+        return false;
+    }
+
+    // ========================================
+    // FUNCIÓN PARA VERIFICAR SI ES ADMIN
+    // ========================================
+    function esUsuarioAdmin(user) {
+        return user && user.email && user.email.toLowerCase().trim() === 'johndoechmod777@gmail.com';
+    }
+
+    // ========================================
+    // SISTEMA DE PARTÍCULAS ANIMADAS
+    // ========================================
+    function crearParticulas() {
+        const particlesContainer = document.getElementById('particles');
+        if (!particlesContainer) return;
+
+        const particleCount = 15;
+        
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            
+            const size = Math.random() * 100 + 50;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.left = `${Math.random() * 100}%`;
+            particle.style.top = `${Math.random() * 100}%`;
+            particle.style.opacity = Math.random() * 0.1 + 0.02;
+            particle.style.animationDelay = `${Math.random() * 8}s`;
+            particle.style.animationDuration = `${Math.random() * 10 + 10}s`;
+            
+            particlesContainer.appendChild(particle);
+        }
+    }
+
+    // ========================================
+    // SISTEMA DE NOTIFICACIONES DE TICKETS
+    // ========================================
+    function cargarNotificacionesTickets(email) {
+        if (ticketsListener) {
+            ticketsListener();
+            ticketsListener = null;
+        }
+
+        const ticketsQuery = db.collection('tickets')
+            .where('usuario_email', '==', email)
+            .orderBy('fecha_creacion', 'desc');
+
+        ticketsListener = ticketsQuery.onSnapshot((snapshot) => {
+            let tieneNotificacion = false;
+            let ticketsConNotif = 0;
+            
+            snapshot.forEach((doc) => {
+                const ticketData = doc.data();
+                const ticketId = doc.id;
+                const estado = ticketData.estado || 'abierto';
+                
+                let notificacionTicket = false;
+                const ultimaVezVisto = localStorage.getItem(`ticket_visto_${ticketId}`) || '1970-01-01T00:00:00.000Z';
+
+                if (ticketData.mensajes && Array.isArray(ticketData.mensajes)) {
+                    const ultimoMensajeAdmin = ticketData.mensajes.findLast(msg => msg.tipo === 'admin');
+                    
+                    if (ultimoMensajeAdmin && ultimoMensajeAdmin.fecha?.toDate) {
+                        const fechaUltimoAdmin = ultimoMensajeAdmin.fecha.toDate();
+                        if (fechaUltimoAdmin > new Date(ultimaVezVisto)) {
+                            notificacionTicket = true;
+                        }
+                    }
+                }
+                
+                const fechaActualizacion = ticketData.fecha_actualizacion?.toDate ? ticketData.fecha_actualizacion.toDate() : ticketData.fecha_creacion?.toDate ? ticketData.fecha_creacion.toDate() : new Date(0);
+                
+                if ((estado === 'pendiente' || estado === 'cerrado') && fechaActualizacion > new Date(ultimaVezVisto)) {
+                    notificacionTicket = true;
+                }
+
+                if (notificacionTicket) {
+                    ticketsConNotif++;
+                    tieneNotificacion = true;
+                }
+            });
+
+            const supportBadge = document.getElementById('supportBadge');
+            const mainMenuBadge = document.getElementById('mainMenuBadge');
+            
+            if (tieneNotificacion) {
+                const displayText = ticketsConNotif > 9 ? '+9' : ticketsConNotif.toString();
+
+                if (supportBadge) {
+                    supportBadge.textContent = displayText;
+                    supportBadge.style.display = 'flex';
+                }
+                if (mainMenuBadge) {
+                    mainMenuBadge.textContent = displayText;
+                    mainMenuBadge.style.display = 'flex';
+                }
+            } else {
+                if (supportBadge) supportBadge.style.display = 'none';
+                if (mainMenuBadge) mainMenuBadge.style.display = 'none';
+            }
+        }, (error) => {
+            // Manejar error en producción
+        });
+    }
+
+    function acknowledgeNotifications() {
+        // Solo redirige, la lógica de marcado de lectura está en la página de soporte
+        window.location.href = 'soporte.html';
+    }
+
+    // ========================================
+    // SISTEMA DE COMPRAS - VERSIÓN PRODUCCIÓN
+    // ========================================
+    function cargarComprasComoMensajes() {
+        const user = auth.currentUser;
+        if (!user) {
+            document.getElementById('comprasList').innerHTML = '<div class="empty-messages">Inicia sesión para ver tus compras</div>';
+            return;
+        }
+
+        if (comprasListener) {
+            comprasListener();
+        }
+
+        const userEmail = user.email.toLowerCase().trim();
+
+        comprasListener = db.collection('compras')
+            .where('usuario_email', '==', userEmail)
+            .orderBy('fecha_compra', 'desc')
+            .limit(20)
+            .onSnapshot(snapshot => {
+                if (!snapshot.empty) {
+                    mostrarComprasEnMenu(snapshot);
+                } else {
+                    document.getElementById('comprasList').innerHTML = `
+                        <div class="empty-messages">
+                            No se encontraron compras recientes
+                        </div>
+                    `;
+                    actualizarBadgeMensajes();
+                }
+            }, error => {
+                document.getElementById('comprasList').innerHTML = '<div class="empty-messages">Error al cargar compras</div>';
+                actualizarBadgeMensajes();
+            });
+    }
+
+    function mostrarComprasEnMenu(snapshot) {
+        const comprasArray = [];
+        snapshot.forEach(doc => {
+            comprasArray.push({ id: doc.id, data: doc.data() });
+        });
+
+        let comprasHTML = '';
+        comprasUnread = 0;
+
+        comprasArray.forEach(({ id, data: compra }) => {
+            const esDump = compra.tipo_tarjeta && (compra.tipo_tarjeta.includes('Visa') || compra.tipo_tarjeta.includes('Mastercard'));
+            
+            let numeroParcial, nombreCompleto, tipoProducto;
+            
+            const numeroCC = compra.numero_tarjeta || compra.numero; 
+            
+            if (esDump) {
+                numeroParcial = formatearNumeroTarjeta(numeroCC);
+                nombreCompleto = compra.nombre_titular || 'Titular no disponible';
+                tipoProducto = compra.tipo_tarjeta || 'Dump Premium';
+            } else {
+                numeroParcial = formatearNumeroTarjeta(numeroCC);
+                nombreCompleto = compra.titular || compra.nombre_titular || 'Titular no disponible';
+                tipoProducto = compra.marca || 'Tarjeta Premium';
+            }
+            
+            const fecha = compra.fecha_compra?.toDate ? compra.fecha_compra.toDate() : new Date(0);
+            const fechaFormateada = formatearTiempoRelativo(fecha);
+            
+            const leido = compra.leido === undefined ? false : compra.leido;
+            if (!leido) comprasUnread++;
+
+            const itemStyle = leido ? '' : 'style="background: linear-gradient(135deg, rgba(68, 20, 20, 0.8), rgba(42, 13, 13, 0.8)); border-left: 5px solid #ff4500;"';
+
+            comprasHTML += `
+                <div class="message-item" ${itemStyle} onclick="verDetalleCompra('${id}')">
+                    <div class="message-sender">
+                        <i class="fas fa-check-circle" style="color: #00ff00;"></i>
+                        <span>CCSHOP - Compra Exitosa</span>
+                    </div>
+                    <div class="message-preview">
+                        <strong><i class="fas fa-credit-card"></i> Producto:</strong> ${tipoProducto} ${numeroParcial}
+                    </div>
+                    <div class="message-preview">
+                        <strong><i class="fas fa-user"></i> Titular:</strong> ${nombreCompleto}
+                    </div>
+                    <div class="message-preview">
+                        <strong><i class="fas fa-dollar-sign"></i> Precio:</strong> $${(compra.precio || 0.00).toFixed(2)} USDT
+                    </div>
+                    <div class="message-time"><i class="fas fa-clock"></i> ${fechaFormateada}</div>
+                </div>
+            `;
+        });
+
+        document.getElementById('comprasList').innerHTML = comprasHTML;
+        actualizarBadgeMensajes();
+    }
+
+    function verDetalleCompra(compraId) {
+        db.collection('compras').doc(compraId).update({ leido: true }).catch(() => {});
+
+        db.collection('compras').doc(compraId).get()
+            .then(doc => {
+                if (doc.exists) {
+                    compraActual = { id: doc.id, data: doc.data() };
+                    mostrarModalDetalle();
+                } else {
+                    mostrarToast('⚠️ Compra no encontrada', true);
+                }
+            })
+            .catch(() => {
+                mostrarToast('❌ Error al cargar detalles', true);
+            });
+    }
+
+    function mostrarModalDetalle() {
+        if (!compraActual) return;
+        
+        const compra = compraActual.data;
+        
+        const numeroCompleto = compra.numero_tarjeta || compra.numero || 'N/A';
+        const cvvCompleto = compra.cvv || 'N/A';
+        const titular = compra.titular || compra.nombre_titular || 'N/A';
+        const vencimiento = compra.fecha_expiracion || compra.fecha_vencimiento || compra.vencimiento || 'N/A';
+        const marca = compra.tipo_tarjeta || compra.marca || 'N/A';
+        const banco = compra.banco || 'N/A';
+        const precio = (compra.precio || 0.00).toFixed(2);
+        const pais = compra.pais || 'N/A';
+        const bin = compra.bin || (numeroCompleto !== 'N/A' && numeroCompleto.length >= 6 ? numeroCompleto.substring(0, 6) : 'N/A');
+        
+        let fechaTexto = 'N/A';
+        if (compra.fecha_compra?.toDate) {
+            fechaTexto = compra.fecha_compra.toDate().toLocaleString('es-ES', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        const contenidoHTML = `
+            <div class="info-section">
+                <div class="section-title"><i class="fas fa-credit-card"></i> Información de la Tarjeta</div>
+                <div class="info-row">
+                    <span class="info-label"><i class="fas fa-hashtag"></i> Número</span>
+                    <span class="info-value highlight">${numeroCompleto}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label"><i class="fas fa-gem"></i> Marca</span>
+                    <span class="info-value">${marca}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label"><i class="fas fa-key"></i> CVV</span>
+                    <span class="info-value highlight">${cvvCompleto}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label"><i class="fas fa-calendar-alt"></i> Vencimiento</span>
+                    <span class="info-value">${vencimiento}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label"><i class="fas fa-university"></i> Banco</span>
+                    <span class="info-value">${banco}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label"><i class="fas fa-barcode"></i> BIN</span>
+                    <span class="info-value">${bin}</span>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <div class="section-title"><i class="fas fa-user"></i> Titular</div>
+                <div class="info-row">
+                    <span class="info-label"><i class="fas fa-id-badge"></i> Nombre</span>
+                    <span class="info-value">${titular}</span>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <div class="section-title"><i class="fas fa-dollar-sign"></i> Transacción</div>
+                <div class="info-row">
+                    <span class="info-label"><i class="fas fa-money-bill-wave"></i> Precio</span>
+                    <span class="info-value highlight">$${precio} USDT</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label"><i class="fas fa-globe"></i> País</span>
+                    <span class="info-value">${pais}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label"><i class="fas fa-clock"></i> Fecha</span>
+                    <span class="info-value">${fechaTexto}</span>
+                </div>
+            </div>
+        `;
+
+        document.getElementById('modalContent').innerHTML = contenidoHTML;
+        document.getElementById('modalDetalleCompra').style.display = 'flex';
+        closeAllMenus();
+    }
+
+    function cerrarModal() {
+        document.getElementById('modalDetalleCompra').style.display = 'none';
+        compraActual = null;
+    }
+
+    // ========================================
+    // FUNCIONES DE EXPORTACIÓN
+    // ========================================
+    function copiarDatosCompra() {
+        if (!compraActual) return;
+        
+        const compra = compraActual.data;
+        
+        const numero = compra.numero_tarjeta || compra.numero || '';
+        const vencimiento = compra.fecha_expiracion || compra.fecha_vencimiento || compra.vencimiento || '';
+        const cvv = compra.cvv || '';
+        
+        const texto = `${numero}|${vencimiento}|${cvv}`;
+        
+        copiarAlPortapapeles(texto, '✅ Datos de la compra copiados');
+    }
+
+    function exportarCompra() {
+        if (!compraActual) return;
+        
+        const compra = compraActual.data;
+        
+        const numero = compra.numero_tarjeta || compra.numero || 'N/A';
+        const marca = compra.tipo_tarjeta || compra.marca || 'N/A';
+        const banco = compra.banco || 'N/A';
+        const cvv = compra.cvv || 'N/A';
+        const vencimiento = compra.fecha_expiracion || compra.fecha_vencimiento || compra.vencimiento || 'N/A';
+        const titular = compra.titular || compra.nombre_titular || 'N/A';
+        const precio = (compra.precio || 0.00).toFixed(2);
+        const pais = compra.pais || 'N/A';
+        
+        const fechaTexto = compra.fecha_compra?.toDate ? compra.fecha_compra.toDate().toLocaleString('es-ES') : 'N/A';
+
+        const contenido = `
+=========================================
+    CCSHOP - DETALLE DE COMPRA
+=========================================
+Numero:      ${numero}
+CVV:         ${cvv}
+Vencimiento: ${vencimiento}
+Marca:       ${marca}
+Banco:       ${banco}
+Titular:     ${titular}
+Precio:      $${precio} USDT
+Pais:        ${pais}
+Fecha:       ${fechaTexto}
+=========================================
+`;
+        descargarArchivo(`CCshop_Compra_${compraActual.id}.txt`, contenido);
+        mostrarToast(`✅ Compra exportada`);
+    }
+
+    function exportarTodasCompras() {
+        const user = auth.currentUser;
+        if (!user) {
+            mostrarToast('⚠️ Debes iniciar sesión para exportar', true);
+            return;
+        }
+
+        mostrarToast('⏳ Exportando compras...');
+        closeAllMenus();
+
+        db.collection('compras')
+            .where('usuario_email', '==', user.email.toLowerCase().trim())
+            .orderBy('fecha_compra', 'desc')
+            .get()
+            .then(snapshot => {
+                if (snapshot.empty) {
+                    mostrarToast('⚠️ No hay compras para exportar');
+                    return;
+                }
+
+                let contenido = `
+=========================================
+      CCSHOP - HISTORIAL COMPLETO
+=========================================
+Usuario: ${user.email}
+Fecha exportacion: ${new Date().toLocaleString('es-ES')}
+Total compras: ${snapshot.size}
+=========================================
+
+`;
+
+                snapshot.forEach((doc, index) => {
+                    const compra = doc.data();
+                    
+                    const numero = compra.numero_tarjeta || compra.numero || 'N/A';
+                    const marca = compra.tipo_tarjeta || compra.marca || 'N/A';
+                    const banco = compra.banco || 'N/A';
+                    const cvv = compra.cvv || 'N/A';
+                    const vencimiento = compra.fecha_expiracion || compra.fecha_vencimiento || compra.vencimiento || 'N/A';
+                    const titular = compra.titular || compra.nombre_titular || 'N/A';
+                    const precio = (compra.precio || 0.00).toFixed(2);
+                    const pais = compra.pais || 'N/A';
+                    const fechaTexto = compra.fecha_compra?.toDate ? compra.fecha_compra.toDate().toLocaleString('es-ES') : 'N/A';
+
+                    contenido += `
+COMPRA #${index + 1}
+-----------------------------------------
+Numero:      ${numero}
+CVV:         ${cvv}
+Vencimiento: ${vencimiento}
+Marca:       ${marca}
+Banco:       ${banco}
+Titular:     ${titular}
+Precio:      $${precio} USDT
+Pais:        ${pais}
+Fecha:       ${fechaTexto}
+
+`;
+                });
+
+                descargarArchivo(`CCshop_Historial_${Date.now()}.txt`, contenido);
+                mostrarToast(`✅ ${snapshot.size} compras exportadas`);
+            })
+            .catch(() => {
+                mostrarToast('❌ Error al exportar', true);
+            });
+    }
+
+    // ========================================
+    // UTILIDADES
+    // ========================================
+    function formatearNumeroTarjeta(numero) {
+        if (!numero) return '•••• •••• •••• ••••';
+        const soloDigitos = numero.toString().replace(/\D/g, '');
+        if (soloDigitos.length < 16) return '•••• •••• •••• ••••';
+        return `${soloDigitos.substring(0, 4)} •••• •••• ${soloDigitos.substring(12, 16)}`;
+    }
+
+    function formatearTiempoRelativo(fecha) {
+        if (!fecha || isNaN(fecha.getTime())) return 'Fecha no válida';
+        
+        const ahora = new Date();
+        const diferencia = ahora - fecha;
+        const minutos = Math.floor(diferencia / 60000);
+        const horas = Math.floor(minutos / 60);
+        const dias = Math.floor(horas / 24);
+
+        if (diferencia < 60000) {
+            return 'Justo ahora';
+        } else if (minutos < 60) {
+            return `Hace ${minutos} minuto${minutos !== 1 ? 's' : ''}`;
+        } else if (horas < 24) {
+            return `Hace ${horas} hora${horas !== 1 ? 's' : ''}`;
+        } else if (dias < 7) {
+            return `Hace ${dias} día${dias !== 1 ? 's' : ''}`;
+        } else {
+            return fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+        }
+    }
+
+    function actualizarBadgeMensajes() {
+        const badge = document.getElementById('messageBadge');
+        if (comprasUnread > 0) {
+            badge.textContent = comprasUnread > 9 ? '+9' : comprasUnread.toString();
+            badge.style.display = 'flex';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+
+    function copiarAlPortapapeles(texto, mensajeExito = '✅ Copiado') {
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(texto)
+                .then(() => mostrarToast(mensajeExito))
+                .catch(() => fallbackCopy(texto, mensajeExito));
+        } else {
+            fallbackCopy(texto, mensajeExito);
+        }
+    }
+
+    function fallbackCopy(texto, mensajeExito) {
+        const textArea = document.createElement('textarea');
+        textArea.value = texto;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-9999px';
+        document.body.appendChild(textArea);
+        textArea.select();
+        
+        try {
+            document.execCommand('copy');
+            mostrarToast(mensajeExito);
+        } catch (err) {
+            mostrarToast('❌ Error al copiar', true);
+        }
+        
+        document.body.removeChild(textArea);
+    }
+
+    function descargarArchivo(nombreArchivo, contenido) {
+        const blob = new Blob([contenido], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = nombreArchivo;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    function mostrarToast(mensaje, esError = false) {
+        const toast = document.getElementById('toast');
+        toast.textContent = mensaje;
+        toast.className = 'toast' + (esError ? ' error' : '');
+        toast.style.display = 'block';
+        
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 3000);
+    }
+
+    // ========================================
+    // SISTEMA DE MENÚS
+    // ========================================
+    function toggleMenu(menuType) {
+        const menus = {
+            'profile': document.getElementById('profileMenu'),
+            'messages': document.getElementById('messagesMenu'),
+            'main': document.getElementById('mainMenu')
+        };
+
+        if (activeMenu === menuType) {
+            menus[menuType].style.display = 'none';
+            activeMenu = null;
+        } else {
+            Object.values(menus).forEach(menu => menu.style.display = 'none');
+            menus[menuType].style.display = 'block';
+            activeMenu = menuType;
+            
+            if (menuType === 'messages') {
+                const comprasList = document.getElementById('comprasList');
+                if (comprasList.innerHTML.includes('Cargando') || comprasList.innerHTML.includes('No se encontraron compras')) {
+                    cargarComprasComoMensajes();
+                }
+            }
+        }
+    }
+
+    function closeAllMenus() {
+        document.querySelectorAll('.context-menu').forEach(menu => {
+            menu.style.display = 'none';
+        });
+        activeMenu = null;
+    }
+
+    document.addEventListener('click', function(event) {
+        const isMenuButton = event.target.closest('.profile-btn, .icon-btn, .menu-btn');
+        const isMenu = event.target.closest('.context-menu');
+        const isModal = event.target.closest('.modal-container');
+        
+        if (!isMenuButton && !isMenu && !isModal) {
+            closeAllMenus();
+        }
+    });
+
+    // ========================================
+    // SISTEMA DE SALDO Y PERFIL
+    // ========================================
+    function cargarSaldoUsuario() {
+        const user = auth.currentUser;
+        
+        if (user) {
+            usuarioActual = user;
+            const userPath = user.uid || user.email.toLowerCase().replace(/[.#$\[\]]/g, '_'); 
+            const saldoRef = rtdb.ref('users/' + userPath + '/saldo');
+            
+            saldoRef.on('value', (snapshot) => {
+                const saldo = snapshot.val();
+                
+                if (saldo !== null && saldo !== undefined) {
+                    saldoActual = parseFloat(saldo);
+                    document.getElementById('saldoUsuario').textContent = `$${saldoActual.toFixed(2)}`;
+                    
+                    const profileBalance = document.querySelector('.profile-balance');
+                    if (profileBalance) {
+                        profileBalance.textContent = `Saldo: $${saldoActual.toFixed(2)}`;
+                    }
+                } else {
+                    crearSaldoInicial(userPath, user);
+                }
+            });
+        }
+    }
+
+    async function crearSaldoInicial(userPath, user) {
+        try {
+            await rtdb.ref('users/' + userPath).set({
+                email: user.email || 'N/A',
+                nombre: user.displayName || 'Usuario Premium',
+                saldo: 50.00,
+                fechaRegistro: firebase.database.ServerValue.TIMESTAMP
+            });
+        } catch (error) {
+            // Manejar error de creación de saldo en producción
+        }
+    }
+
+    function actualizarPerfilUsuario(user) {
+        if (user) {
+            document.querySelector('.profile-name').textContent = user.displayName || 'Usuario Premium';
+            
+        }
+    }
+
+    // ========================================
+    // OTRAS FUNCIONES DE ACCESO
+    // ========================================
+    function openStore() {
+        window.location.href = 'catalogo.html';
+    }
+
+    function irAPerfil() {
+        closeAllMenus();
+        if (usuarioActual) {
+            window.location.href = 'perfil.html';
+        } else {
+            mostrarToast('⚠️ Debes iniciar sesión primero', true);
+            window.location.href = '../index.html';
+        }
+    }
+
+    function logout() {
+        if (confirm('¿Seguro que deseas cerrar sesión?')) {
+            sessionStorage.removeItem('auth_verified');
+            localStorage.removeItem('passedCaptcha');
+            
+            // Limpiar todos los listeners
+            if (comprasListener) comprasListener();
+            if (feedListener) feedListener();
+            if (ticketsListener) ticketsListener();
+            
+            auth.signOut().then(() => {
+                window.location.href = '../index.html';
+            }).catch(() => {
+                mostrarToast('❌ Error al cerrar sesión', true);
+            });
+        }
+    }
+
+    // ========================================
+    // TIEMPO LOCAL ACTUAL
+    // ========================================
+    const formatter = new Intl.DateTimeFormat('es-ES', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+
+    function actualizarTiempoLocal() {
+        const serverTimeElem = document.getElementById('serverTime');
+        const now = new Date();
+        serverTimeElem.textContent = formatter.format(now);
+    }
+    
+    // Actualizar tiempo cada minuto
+    setInterval(actualizarTiempoLocal, 60000);
+    actualizarTiempoLocal(); // Llamada inicial
+
+    // ========================================
+    // 🎯 SISTEMA GLOBAL MEJORADO - FEED REAL PARA TODOS
+    // ========================================
+    const marcas = ["Visa Platinum", "Visa Signature", "Visa Infinite", "Mastercard Gold", "Mastercard Black"];
+    
+    function generarUIDReal(email) {
+        if (!email) return 'UID ' + Math.random().toString(36).substr(2, 8).toUpperCase();
+        
+        let hash = 0;
+        for (let i = 0; i < email.length; i++) {
+            hash = ((hash << 5) - hash) + email.charCodeAt(i);
+            hash = hash & hash;
+        }
+        const baseUID = Math.abs(hash).toString(36).toUpperCase().substr(0, 8);
+        return 'UID ' + baseUID;
+    }
+
+    function generarActividadSimulada() {
+        const uid = generarUIDReal(null);
+        const marca = marcas[Math.floor(Math.random() * marcas.length)];
+        const digitos = Math.floor(1000 + Math.random() * 9000);
+        const country = getRandomCountry();
+        const amount = [5, 6, 8, 11, 12, 15, 25, 30, 32, 35, 38, 36, 40, 45, 50, 55, 52, 60, 75, 100][Math.floor(Math.random() * 20)];
+        
+        return {
+            tipo: 'simulada',
+            uid: uid,
+            producto: `${marca} •••• ${digitos}`,
+            pais: country,
+            monto: amount,
+            timestamp: new Date()
+        };
+    }
+
+    
+function mapearPaisABandera(nombrePais) {
+    if (!nombrePais) return getRandomCountry();
+    
+    const paisLimpio = nombrePais.toLowerCase().trim();
+    
+    console.log("🔍 Mapeando país:", paisLimpio);
+    
+    // MAPEO CORREGIDO - INCLUYENDO TODAS LAS VARIANTES
+    const mapeoPaises = {
+        // USA
+        'usa': '🇺🇸 USA',
+        'estados unidos': '🇺🇸 USA', 
+        'us': '🇺🇸 USA', 
+        'united states': '🇺🇸 USA',
+        'unitedstates': '🇺🇸 USA',
+        
+        // MÉXICO
+        'méxico': '🇲🇽 México', 
+        'mexico': '🇲🇽 México',
+        'mx': '🇲🇽 México',
+        
+        // CHILE
+        'chile': '🇨🇱 Chile', 
+        'cl': '🇨🇱 Chile',
+        
+        // BRASIL - TODAS LAS VARIANTES (ESPAÑOL E INGLÉS)
+        'brasil': '🇧🇷 Brazil',     // ← Español
+        'brazil': '🇧🇷 Brazil',     // ← Inglés
+        'br': '🇧🇷 Brazil',
+        'brasil_': '🇧🇷 Brazil',
+        'brazil_': '🇧🇷 Brazil',
+        
+        // CHINA
+        'china': '🇨🇳 China', 
+        'cn': '🇨🇳 China',
+        
+        // COSTA RICA
+        'costa rica': '🇨🇷 Costa Rica', 
+        'costarrica': '🇨🇷 Costa Rica', 
+        'costarica': '🇨🇷 Costa Rica',
+        'costa_rica': '🇨🇷 Costa Rica',
+        'cr': '🇨🇷 Costa Rica',
+        
+        // PUERTO RICO
+        'puerto rico': '🇵🇷 Puerto Rico', 
+        'puertorico': '🇵🇷 Puerto Rico',
+        'puerto_rico': '🇵🇷 Puerto Rico',
+        'pr': '🇵🇷 Puerto Rico',
+        
+        // INDIA
+        'india': '🇮🇳 India', 
+        'in': '🇮🇳 India',
+        
+        // PANAMÁ
+        'panamá': '🇵🇦 Panama', 
+        'panama': '🇵🇦 Panama',
+        'pa': '🇵🇦 Panama',
+        
+        // ECUADOR
+        'ecuador': '🇪🇨 Ecuador', 
+        'ec': '🇪🇨 Ecuador',
+        
+        // HONDURAS
+        'honduras': '🇭🇳 Honduras', 
+        'hn': '🇭🇳 Honduras'
+    };
+    
+    // Resto del código igual...
+    // Buscar coincidencia exacta primero
+    if (mapeoPaises[paisLimpio]) {
+        console.log("✅ País encontrado exacto:", mapeoPaises[paisLimpio]);
+        return mapeoPaises[paisLimpio];
+    }
+    
+    // Buscar coincidencias parciales
+    for (const [key, value] of Object.entries(mapeoPaises)) {
+        const keyClean = key.replace(/[\s\-_]+/g, '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        const paisClean = paisLimpio.replace(/[\s\-_]+/g, '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        
+        if (paisClean === keyClean) {
+            console.log("✅ País encontrado por limpieza:", value);
+            return value;
+        }
+    }
+    
+    console.log("❌ País no está en los 11 del catálogo, usando fallback");
+    return getRandomCountry();
+}
+    function getRandomCountry() {
+    const countries = [
+        "🇺🇸 USA", "🇲🇽 México", "🇨🇱 Chile", "🇧🇷 Brazil", 
+        "🇨🇳 China", "🇨🇷 Costa Rica", "🇵🇷 Puerto Rico", 
+        "🇮🇳 India", "🇵🇦 Panama", "🇪🇨 Ecuador", "🇭🇳 Honduras"
+    ];
+    return countries[Math.floor(Math.random() * countries.length)];
+} // ← ESTE CIERRE TAMBIÉN FALTABA
+    // 🔄 REEMPLAZADA: Implementación con orden de más reciente a más antiguo
+    function mostrarActividadesEnFeed(actividades) {
+        const activityList = document.getElementById('activityList');
+        if (!activityList) return;
+        
+        // ORDENAR: Más reciente PRIMERO (para que bajen hacia abajo)
+        const actividadesOrdenadas = [...actividades].sort((a, b) => {
+            return new Date(b.timestamp.toDate ? b.timestamp.toDate() : b.timestamp) - 
+                   new Date(a.timestamp.toDate ? a.timestamp.toDate() : a.timestamp);
+        });
+        
+        let html = '';
+        
+        actividadesOrdenadas.forEach(actividad => {
+            const timestamp = actividad.timestamp.toDate ? actividad.timestamp.toDate() : actividad.timestamp;
+            const tiempoReal = calcularTiempoReal(timestamp);
+            
+            html += `
+                <div class="activity-item">
+                    <div class="activity-user">${actividad.uid}</div>
+                    <div class="activity-details">
+                        <span class="activity-product">${actividad.producto}</span><br>
+                        desde ${actividad.pais}
+                    </div>
+                    <div class="activity-time">${tiempoReal}</div>
+                    <div class="activity-amount">$${actividad.monto.toFixed(2)}</div>
+                </div>
+            `;
+        });
+        
+        activityList.innerHTML = html;
+    }
+
+    function calcularTiempoReal(timestamp) {
+        if (!timestamp) return "justo ahora";
+        
+        const fechaActividad = new Date(timestamp);
+        const ahora = new Date();
+        const diferencia = ahora - fechaActividad;
+        const minutos = Math.floor(diferencia / 60000);
+        const horas = Math.floor(minutos / 60);
+        const dias = Math.floor(horas / 24);
+
+        if (diferencia < 60000) {
+            return "justo ahora";
+        } else if (minutos < 60) {
+            return `hace ${minutos} minuto${minutos !== 1 ? 's' : ''}`;
+        } else if (horas < 24) {
+            return `hace ${horas} hora${horas !== 1 ? 's' : ''}`;
+        } else if (dias < 7) {
+            return `hace ${dias} día${dias !== 1 ? 's' : ''}`;
+        } else {
+            return fechaActividad.toLocaleDateString('es-ES', { 
+                day: 'numeric', 
+                month: 'short', 
+                year: 'numeric' 
+            });
+        }
+    }
+
+    function generarActividadReal(compra) {
+    const product = compra.tipo_tarjeta || compra.marca || 'Tarjeta Premium';
+    const numero = compra.numero_tarjeta || compra.numero || '';
+    const digitosReales = numero && numero.length >= 4 ? '•••• ' + numero.slice(-4) : '•••• ••••';
+    const amount = compra.precio || 50;
+    
+    // OBTENER PAÍS CORRECTAMENTE
+    let country = getRandomCountry(); // Fallback
+    
+    if (compra.pais) {
+        console.log("🔍 País de la compra:", compra.pais); // Debug
+        const mappedCountry = mapearPaisABandera(compra.pais);
+        console.log("📍 País mapeado:", mappedCountry); // Debug
+        
+        if (mappedCountry) {
+            country = mappedCountry;
+        } else {
+            // Si no se mapea, usar el país original
+            country = compra.pais;
+        }
+    }
+    
+    const uidReal = generarUIDReal(compra.usuario_email);
+    const fechaCompra = compra.fecha_compra?.toDate ? compra.fecha_compra.toDate() : new Date();
+    
+    console.log("🎯 Actividad generada:", { 
+        producto: `${product} ${digitosReales}`, 
+        pais: country,
+        monto: amount 
+    }); // Debug
+    
+    return {
+        tipo: 'real',
+        uid: uidReal,
+        producto: `${product} ${digitosReales}`,
+        pais: country,
+        monto: parseFloat(amount),
+        timestamp: fechaCompra,
+        compraId: compra.id || Date.now().toString()
+    };
+}
+    // 🔄 REEMPLAZADA: Función para iniciar actividades simuladas cada 15 segundos exactos
+    function iniciarActividadesAutomaticas() {
+        // Primera actividad inmediata
+        setTimeout(() => {
+            const actividadSimulada = generarActividadSimulada();
+            agregarActividadGlobal(actividadSimulada);
+        }, 1000);
+        
+        // ACTIVIDAD CADA 15 SEGUNDOS EXACTOS
+        setInterval(async () => {
+            const actividadSimulada = generarActividadSimulada();
+            actividadSimulada.timestamp = new Date();
+            await agregarActividadGlobal(actividadSimulada);
+        }, 15000); // 15 segundos exactos
+    }
+
+    // 🔄 REEMPLAZADA: Función para agregar actividad con límite de 3 minutos y 12 elementos
+    async function agregarActividadGlobal(actividad) {
+        try {
+            const feedRef = db.collection('feedGlobal').doc('actividades');
+            
+            await db.runTransaction(async (transaction) => {
+                const doc = await transaction.get(feedRef);
+                
+                if (!doc.exists) {
+                    transaction.set(feedRef, {
+                        actividades: [actividad],
+                        ultimaActualizacion: firebase.firestore.FieldValue.serverTimestamp(),
+                        totalActividades: 1
+                    });
+                    return;
+                }
+                
+                const data = doc.data();
+                let actividades = data.actividades || [];
+                
+                // AGREGAR NUEVA AL INICIO (más reciente primero)
+                actividades.unshift(actividad);
+                
+                // ELIMINAR ACTIVIDADES MÁS VIEJAS DE 3 MINUTOS
+                const tresMinutosAtras = new Date(Date.now() - (3 * 60 * 1000));
+                actividades = actividades.filter(act => {
+                    // Usar .toDate() si el timestamp es un objeto Timestamp de Firebase
+                    const fechaAct = act.timestamp?.toDate ? act.timestamp.toDate() : new Date(act.timestamp);
+                    return fechaAct >= tresMinutosAtras;
+                });
+                
+                // MÁXIMO 12 ACTIVIDADES (para mantener un límite visible)
+                if (actividades.length > 12) {
+                    actividades = actividades.slice(0, 12);
+                }
+                
+                transaction.update(feedRef, {
+                    actividades: actividades,
+                    ultimaActualizacion: firebase.firestore.FieldValue.serverTimestamp(),
+                    totalActividades: actividades.length
+                });
+            });
+            
+            return true;
+        } catch (error) {
+            // Manejar error de transacción
+            return false;
+        }
+    }
+
+    // 🔄 REEMPLAZADA: Mantenida, pero con el límite de 10 minutos más adecuado para compras reales
+    function conectarComprasRealesAlFeed() {
+        // Escucha solo las 10 más recientes para detectar nuevas adiciones
+        db.collection('compras')
+            .orderBy('fecha_compra', 'desc')
+            .limit(10)
+            .onSnapshot((snapshot) => {
+                snapshot.docChanges().forEach((change) => {
+                    if (change.type === 'added') {
+                        const compra = change.doc.data();
+                        const compraId = change.doc.id;
+                        
+                        const fechaCompra = compra.fecha_compra?.toDate ? compra.fecha_compra.toDate() : new Date();
+                        const tiempoTranscurrido = new Date() - fechaCompra;
+                        const maxTiempoPermitido = 10 * 60 * 1000; // 10 minutos
+                        
+                        if (tiempoTranscurrido <= maxTiempoPermitido) {
+                            // Se utiliza localStorage para evitar reprocesar la misma compra al recargar
+                            const compraProcesadaKey = `compra_procesada_${compraId}`;
+                            if (!localStorage.getItem(compraProcesadaKey)) {
+                                const actividadReal = generarActividadReal({
+                                    ...compra,
+                                    id: compraId
+                                });
+                                
+                                agregarActividadGlobal(actividadReal);
+                                localStorage.setItem(compraProcesadaKey, 'true');
+                                
+                                // Limpiar la bandera después de una hora
+                                setTimeout(() => {
+                                    localStorage.removeItem(compraProcesadaKey);
+                                }, 60 * 60 * 1000); 
+                            }
+                        }
+                    }
+                });
+            }, () => {});
+    }
+
+    function cargarFeedGlobalDesdeFirebase() {
+        const feedRef = db.collection('feedGlobal').doc('actividades');
+        
+        feedListener = feedRef.onSnapshot((snapshot) => {
+            if (snapshot.exists) {
+                const data = snapshot.data();
+                mostrarActividadesEnFeed(data.actividades);
+            } else {
+                 // Si no existe, inicializar con un mensaje
+                 document.getElementById('activityList').innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #666;">
+                        El feed está vacío. Esperando nuevas actividades...
+                    </div>
+                `;
+            }
+        }, () => {});
+    }
+
+    
+// ========================================
+// 📊 SISTEMA USUARIOS ACTIVOS (VERSIÓN OPTIMIZADA - PRODUCCIÓN)
+// ========================================
+
+const rangosPorDia = {
+    1: { min: 0, max: 650 },   // Lunes (más bajo)
+    2: { min: 5, max: 720 },   // Martes  
+    3: { min: 15, max: 850 },   // Miércoles
+    4: { min: 50, max: 980 },   // Jueves
+    5: { min: 100, max: 1150 },  // Viernes
+    6: { min: 220, max: 1350 },  // Sábado
+    0: { min: 480, max: 1500 }   // Domingo
+};
+
+function obtenerRangoDelDia() {
+    const dia = new Date().getDay();
+    return rangosPorDia[dia] || { min: 0, max: 1000 }; // Fallback
+}
+
+function actualizarInterfazUsuarios(valor) {
+    const element = document.getElementById('usuariosNumber');
+    if (element) {
+        element.textContent = valor.toLocaleString();
+    }
+}
+
+// VERSIÓN OPTIMIZADA - CON LISTENER EN TIEMPO REAL
+async function inicializarContadorFirebase() {
+    try {
+        const fechaHoy = new Date().toDateString();
+        const rango = obtenerRangoDelDia();
+        
+        // VALOR INICIAL EMPIEZA DESDE 250 (mínimo)
+        const valorInicial = 0;
+        
+        const usuariosRef = rtdb.ref('estadisticas/usuariosActivos');
+        
+        // LISTENER EN TIEMPO REAL
+        usuariosRef.on('value', (snapshot) => {
+            if (snapshot.exists()) {
+                const datos = snapshot.val();
+                const valorActual = datos.count || valorInicial;
+                actualizarInterfazUsuarios(valorActual);
+                
+                // MOSTRAR TENDENCIA EN CONSOLA
+                if (datos.tendencia) {
+                    console.log(`👥 Usuarios: ${valorActual} - Tendencia: ${datos.tendencia}`);
+                }
+            } else {
+                // Crear valor inicial empezando desde 250
+                usuariosRef.set({
+                    fecha: fechaHoy,
+                    count: valorInicial,
+                    rango: rango,
+                    ultimaActualizacion: Date.now(),
+                    tendencia: 'estable'
+                });
+                actualizarInterfazUsuarios(valorInicial);
+                console.log(`🎯 Contador iniciado desde: ${valorInicial}`);
+            }
+        });
+        
+    } catch (error) {
+        console.log("Error inicializando contador:", error);
+        // Fallback local empezando desde 250
+        actualizarInterfazUsuarios(0);
+    }
+}
+// VERSIÓN MEJORADA - MÁS ESTABLE Y REALISTA
+async function actualizarContador() {
+    try {
+        const usuariosRef = rtdb.ref('estadisticas/usuariosActivos');
+        const snapshot = await usuariosRef.once('value');
+        
+        if (!snapshot.exists()) {
+            return;
+        }
+        
+        const datos = snapshot.val();
+        const rango = datos.rango || obtenerRangoDelDia();
+        let valorActual = datos.count || 0; // Siempre empezar desde 250
+        
+        // COMPORTAMIENTO ORGÁNICO - CRECIMIENTO PROGRESIVO
+        const ahora = new Date();
+        const hora = ahora.getHours();
+        const diaSemana = ahora.getDay();
+        
+        // FACTORES DE INFLUENCIA MÁS SUAVES
+        let factorHora = 1.0;
+        let factorDia = 1.0;
+        
+        // FACTOR HORARIO MÁS SUAVE
+        if (hora >= 14 && hora <= 18) factorHora = 1.2;    // Tarde
+        else if (hora >= 19 && hora <= 23) factorHora = 1.4; // Noche
+        else if (hora >= 0 && hora <= 6) factorHora = 0.8;   // Madrugada
+        else if (hora >= 7 && hora <= 9) factorHora = 0.9;   // Mañana temprano
+        else if (hora >= 10 && hora <= 13) factorHora = 1.1; // Medio día
+        
+        // FACTOR DÍA DE LA SEMANA
+        if (diaSemana === 0 || diaSemana === 6) factorDia = 1.3; // Fin de semana
+        else if (diaSemana === 5) factorDia = 1.15; // Viernes
+        
+        // VARIACIÓN MÁS ORGÁNICA - CRECIMIENTO PROGRESIVO
+        let cambio = 0;
+        const random = Math.random();
+        
+        // PROBABILIDADES AJUSTADAS PARA CRECIMIENTO ORGÁNICO
+        if (random < 0.20) {
+            // Bajadas pequeñas (20% de probabilidad)
+            cambio = -Math.floor(Math.random() * 5 + 1);
+        } else if (random < 0.60) {
+            // Subidas pequeñas (40% de probabilidad)
+            cambio = Math.floor(Math.random() * 8 + 1);
+        } else if (random < 0.85) {
+            // Subidas moderadas (25% de probabilidad)
+            cambio = Math.floor(Math.random() * 15 + 5);
+        } else {
+            // Subidas grandes ocasionales (15% de probabilidad)
+            cambio = Math.floor(Math.random() * 25 + 10);
+        }
+        
+        // APLICAR FACTORES
+        cambio = Math.round(cambio * factorHora * factorDia);
+        
+        // TENDENCIA ALCISTA MÁS FUERTE (70% probabilidad de subir)
+        if (Math.random() < 0.7 && cambio < 0) {
+            cambio = Math.abs(cambio); // Convertir bajada en subida
+        }
+        
+        // CRECIMIENTO MÁS RÁPIDO AL PRINCIPIO, MÁS LENTO AL FINAL
+        const progreso = (valorActual - 0) / (1500 - 0);
+        if (progreso < 0.3) {
+            // Primer 30%: crecimiento más rápido
+            cambio = Math.round(cambio * 1.3);
+        } else if (progreso > 0.8) {
+            // Último 20%: crecimiento más lento
+            cambio = Math.round(cambio * 0.7);
+        }
+        
+        valorActual += cambio;
+        
+        // LÍMITES INTELIGENTES
+        const limiteMinimo = 0;
+        const limiteMaximo = 1500;
+        
+        // AJUSTE SUAVE DE LÍMITES
+        if (valorActual < limiteMinimo) {
+            const ajuste = Math.floor(Math.random() * 15 + 5);
+            valorActual = limiteMinimo + ajuste;
+        } else if (valorActual > limiteMaximo) {
+            const ajuste = Math.floor(Math.random() * 10 + 2);
+            valorActual = limiteMaximo - ajuste;
+        }
+        
+        // EVITAR VALORES NEGATIVOS Y DECIMALES
+        valorActual = Math.max(0, Math.floor(valorActual));
+        
+        // ACTUALIZAR SI HAY CAMBIO SIGNIFICATIVO
+        if (Math.abs(valorActual - datos.count) > 2) {
+            await usuariosRef.update({ 
+                count: valorActual,
+                ultimaActualizacion: Date.now(),
+                tendencia: cambio >= 0 ? 'subiendo' : 'bajando'
+            });
+            
+            console.log(`📊 Usuarios activos: ${valorActual} (${cambio >= 0 ? '↗️' : '↘️'} ${Math.abs(cambio)})`);
+        }
+        
+    } catch (error) {
+        console.log("Error en actualización automática:", error);
+    }
+}
+// INTERVALO OPTIMIZADO
+function iniciarActualizacionAutomatica() {
+    // Actualizar cada 30 segundos
+    setInterval(actualizarContador, 60000);
+    
+    // Primera actualización inmediata
+    setTimeout(() => {
+        actualizarContador();
+    }, 60000);
+    
+    console.log("🔄 Sistema de actualización iniciado (30 segundos)");
+}
+function crearInterfazUsuariosActivos() {
+    // Verificar si ya existe para no duplicar
+    if (document.getElementById('floatingFeed')) {
+        return;
+    }
+    
+    const feedHTML = `
+        <div class="floating-feed" id="floatingFeed">
+            <div class="feed-header">
+                <div class="feed-title">
+                    <i class="fas fa-users"></i>
+                    ACTIVIDAD EN TIEMPO REAL 
+                </div>
+                <div class="live-indicator">
+                    <div class="live-dot"></div>
+                    EN VIVO
+                </div>
+            </div>
+            <div class="usuarios-activos-container">
+                <div class="usuarios-stats">
+                    <div class="usuarios-icon">👤</div>
+                    <div class="usuarios-info">
+                        <div class="usuarios-number" id="usuariosNumber">0</div>
+                        <div class="usuarios-label">Usuarios Activos en CCSHOP</div>
+                    </div>
+                </div>
+                <div class="activity-list" id="activityList">
+                    <div style="text-align: center; padding: 20px; color: #666;">
+                        Cargando actividades...
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', feedHTML);
+}
+
+// ========================================
+// 🎯 SISTEMA FEED GLOBAL OPTIMIZADO
+// ========================================
+
+async function inicializarFeedGlobal() {
+    try {
+        const feedRef = db.collection('feedGlobal').doc('actividades');
+        const snapshot = await feedRef.get();
+        
+        if (!snapshot.exists) {
+            await feedRef.set({
+                actividades: [],
+                ultimaActualizacion: firebase.firestore.FieldValue.serverTimestamp(),
+                totalActividades: 0
+            });
+        }
+        return true;
+    } catch (error) {
+        console.log("Error inicializando feed:", error);
+        return false;
+    }
+}
+
+// VERSIÓN MÁS EFICIENTE PARA AGREGAR ACTIVIDADES
+async function agregarActividadGlobal(actividad) {
+    try {
+        const feedRef = db.collection('feedGlobal').doc('actividades');
+        
+        const doc = await feedRef.get();
+        
+        if (!doc.exists) {
+            await feedRef.set({
+                actividades: [actividad],
+                ultimaActualizacion: firebase.firestore.FieldValue.serverTimestamp(),
+                totalActividades: 1
+            });
+            return true;
+        }
+        
+        const data = doc.data();
+        let actividades = data.actividades || [];
+        
+        // AGREGAR NUEVA AL INICIO
+        actividades.unshift(actividad);
+        
+        // LIMPIAR ACTIVIDADES VIEJAS (5 minutos)
+        const cincoMinutosAtras = new Date(Date.now() - (5 * 60 * 1000));
+        actividades = actividades.filter(act => {
+            const fechaAct = act.timestamp?.toDate ? act.timestamp.toDate() : new Date(act.timestamp);
+            return fechaAct >= cincoMinutosAtras;
+        });
+        
+        // MÁXIMO 15 ACTIVIDADES
+        if (actividades.length > 15) {
+            actividades = actividades.slice(0, 15);
+        }
+        
+        await feedRef.update({
+            actividades: actividades,
+            ultimaActualizacion: firebase.firestore.FieldValue.serverTimestamp(),
+            totalActividades: actividades.length
+        });
+        
+        return true;
+    } catch (error) {
+        console.log("Error agregando actividad:", error);
+        return false;
+    }
+}
+
+function cargarFeedGlobalDesdeFirebase() {
+    try {
+        const feedRef = db.collection('feedGlobal').doc('actividades');
+        
+        feedListener = feedRef.onSnapshot((snapshot) => {
+            if (snapshot.exists) {
+                const data = snapshot.data();
+                mostrarActividadesEnFeed(data.actividades);
+            } else {
+                document.getElementById('activityList').innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #666;">
+                        El feed está vacío. Esperando nuevas actividades...
+                    </div>
+                `;
+            }
+        }, (error) => {
+            console.log("Error cargando feed:", error);
+        });
+    } catch (error) {
+        console.log("Error en carga de feed:", error);
+    }
+}
+
+// ========================================
+// 🚀 INICIALIZACIÓN COMPLETA OPTIMIZADA
+// ========================================
+
+async function iniciarSistemaFeedCompleto() {
+    console.log("🔄 Iniciando sistema feed completo...");
+    
+    // Crear interfaz si no existe
+    if (!document.getElementById('floatingFeed')) {
+        crearInterfazUsuariosActivos();
+    }
+    
+    try {
+        // Inicializar contador con listener en tiempo real
+        await inicializarContadorFirebase();
+        
+        // Iniciar actualizaciones automáticas
+        iniciarActualizacionAutomatica();
+        
+        // Inicializar feed de actividades
+        const feedInicializado = await inicializarFeedGlobal();
+        
+        if (feedInicializado) {
+            cargarFeedGlobalDesdeFirebase();
+            conectarComprasRealesAlFeed();
+            iniciarActividadesAutomaticas();
+        }
+        
+        console.log("✅ Sistema feed iniciado correctamente");
+        
+    } catch (error) {
+        console.log("❌ Error iniciando sistema feed:", error);
+        // Fallback: mostrar interfaz básica empezando desde 250
+        crearInterfazUsuariosActivos();
+        actualizarInterfazUsuarios(0);
+    }
+}
+
+// ========================================
+// 🔄 INICIALIZACIÓN PRINCIPAL - PRODUCCIÓN
+// ========================================
+
+auth.onAuthStateChanged(function(user) {
+    const securityLoading = document.getElementById('securityLoading');
+    
+    if (sistemaInicializado) return;
+    
+    if (!verificarAccesoSeguro()) {
+        if (securityLoading) {
+            securityLoading.innerHTML = `
+                <div style="text-align:center;">
+                    <div style="font-size:2rem;margin-bottom:20px;">🔄</div>
+                    <div>Redirigiendo a verificación de seguridad...</div>
+                </div>
+            `;
+        }
+        return;
+    }
+
+    if (securityLoading) {
+        securityLoading.style.display = 'none';
+    }
+
+    if (user) {
+        usuarioActual = user;
+        
+        // Cargar datos esenciales primero
+        cargarSaldoUsuario();
+        actualizarPerfilUsuario(user);
+        crearParticulas();
+        cargarNotificacionesTickets(user.email.toLowerCase().trim());
+        cargarComprasComoMensajes();
+        
+        // Mostrar/ocultar panel admin
+        const adminMenuItem = document.getElementById('adminMenuItem');
+        if (esUsuarioAdmin(user)) {
+            adminMenuItem.style.display = 'flex';
+        } else {
+            adminMenuItem.style.display = 'none';
+        }
+
+        // Iniciar sistema feed con retardo para mejor performance
+        setTimeout(() => {
+            iniciarSistemaFeedCompleto();
+        }, 1500);
+
+        sistemaInicializado = true;
+
+    } else {
+        if (securityLoading) {
+            securityLoading.style.display = 'flex';
+        }
+        sessionStorage.removeItem('auth_verified');
+        setTimeout(() => {
+            window.location.href = '../index.html';
+        }, 1500);
+    }
+});
+
+// ========================================
+// 🛡️ LIMPIAR RECURSOS AL CERRAR
+// ========================================
+
+window.addEventListener('beforeunload', () => {
+    console.log("🧹 Limpiando listeners...");
+    if (comprasListener) comprasListener();
+    if (feedListener) feedListener();
+    if (ticketsListener) ticketsListener();
+    
+    // Limpiar listener de usuarios activos
+    const usuariosRef = rtdb.ref('estadisticas/usuariosActivos');
+    usuariosRef.off();
+});
+
+// ========================================
+// 🎯 FUNCIONES DE ACTIVIDADES (MANTENER EXISTENTES)
+// ========================================
+
+// [Tus funciones existentes de actividades se mantienen igual]
+// generarActividadSimulada(), mostrarActividadesEnFeed(), 
+// iniciarActividadesAutomaticas(), conectarComprasRealesAlFeed(), etc.
+</script>
+</body>
+</html>

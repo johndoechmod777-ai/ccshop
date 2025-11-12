@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>CC Catálogo Global - CCshop</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='text' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23ff0000'/><stop offset='100%' stop-color='%23cc0000'/></linearGradient></defs><path d='M8 8 L24 8 L24 24 L8 24 Z' transform='rotate(45 16 16)' fill='none' stroke='%23ff0000' stroke-width='1.5'/><text x='12' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text><text x='20' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text></svg>">
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body { 
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            min-height: 100vh; 
+            color: white; 
+            overflow-x: hidden; 
+            position: relative;
+            -webkit-tap-highlight-color: transparent; 
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* PANTALLA DE SEGURIDAD */
+        #securityOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            color: #ff0000;
+            font-family: 'Courier New', monospace;
+        }
+
+        .security-spinner {
+            border: 4px solid rgba(255, 0, 0, 0.3);
+            border-top: 4px solid #ff0000;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: securitySpin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        .security-text {
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        }
+
+        @keyframes securitySpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 10px 15px; 
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 0, 0, 0.3);
+            height: 60px; 
+            position: sticky; 
+            top: 0; 
+            z-index: 999;
+            box-shadow: 0 4px 20px rgba(255, 0, 0, 0.1);
+            flex-shrink: 0;
+        }
+
+        .header-left { 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand-icon {
+            font-size: 20px; 
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 8px rgba(255, 0, 0, 0.5));
+        }
+
+        .brand-text {
+            font-size: 18px; 
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff0000, #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .back-btn { 
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            color: white; 
+            cursor: pointer; 
+            padding: 6px 10px; 
+            font-size: 12px; 
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .back-btn:hover { 
+            background: rgba(255, 0, 0, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 0, 0, 0.3);
+        }
+
+        /* Botón hamburguesa con parpadeo */
+        .hamburger {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            width: 40px;
+            height: 32px;
+            cursor: pointer;
+            padding: 4px;
+            border: none;
+            background: transparent;
+            z-index: 1002;
+            position: relative;
+            animation: pulseHamburger 2s infinite;
+        }
+
+        .hamburger span {
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+            border-radius: 3px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 8px rgba(255, 0, 0, 0.7);
+        }
+
+        .hamburger.active {
+            animation: none; /* Detiene el parpadeo cuando está activo */
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+        .hamburger:hover span {
+            background: linear-gradient(135deg, #cc0000, #990000);
+        }
+
+        @keyframes pulseHamburger {
+            0%, 100% { 
+                opacity: 0.7;
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 1;
+                transform: scale(1.1);
+                box-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+            }
+        }
+
+        .menu-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 5px;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 10px 0;
+            min-width: 120px;
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            box-shadow: 0 4px 20px rgba(255, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .menu-dropdown.active {
+            display: flex;
+        }
+
+        .dumps-btn { 
+            background: rgba(255, 0, 0, 0.1);
+            border: none;
+            color: white; 
+            cursor: pointer; 
+            padding: 8px 15px; 
+            font-size: 14px; 
+            text-align: left;
+            transition: all 0.3s ease;
+            width: 100%;
+            border-radius: 6px;
+        }
+
+        .dumps-btn:hover { 
+            background: rgba(255, 0, 0, 0.3);
+            padding-left: 20px;
+            box-shadow: 0 2px 10px rgba(255, 0, 0, 0.3);
+        }
+
+        .main-content { 
+            flex: 1;
+            margin-top: 70px; 
+            padding: 15px; 
+            min-height: 0;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            display: none; /* Oculto hasta verificación */
+        }
+
+        .title-section {
+            text-align: center;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .logos-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 8px;
+        }
+
+        .logo-img {
+            height: 30px;
+            width: auto;
+        }
+        
+        .page-title { 
+            font-size: 24px; 
+            text-align: center; 
+            margin: 0;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff0000, #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+        
+        .search-container {
+            max-width: 300px; 
+            margin: 0 auto 20px auto;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 8px 35px 8px 12px; 
+            border-radius: 20px;
+            border: none;
+            outline: none;
+            font-size: 14px; 
+            background: rgba(26, 26, 26, 0.8);
+            color: white;
+            box-shadow: 0 0 8px rgba(255, 0, 0, 0.3);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .search-input::placeholder {
+            color: #bbb;
+        }
+
+        .search-input:focus {
+            box-shadow: 0 0 12px rgba(255, 0, 0, 0.8);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px; 
+            color: #ff0000;
+            pointer-events: none;
+            filter: drop-shadow(0 0 3px rgba(255, 0, 0, 0.7));
+        }
+
+        .countries-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
+            gap: 20px; 
+            max-width: 1000px; 
+            margin: 0 auto; 
+            overflow: visible;
+        }
+        
+        .country-card { 
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px; 
+            padding: 20px 16px; 
+            text-align: center; 
+            cursor: pointer; 
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 12px; 
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+        }
+        
+        .country-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255, 0, 0, 0.6), transparent);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .country-card:hover { 
+            transform: translateY(-10px) scale(1.02);
+            border-color: rgba(255, 0, 0, 0.3);
+            box-shadow: 0 20px 60px rgba(255, 0, 0, 0.15);
+        }
+
+        .country-card:hover::before {
+            opacity: 1;
+        }
+
+        .country-card.highlight {
+            border-color: #ff4444;
+            transform: scale(1.05); 
+            transition: all 0.4s ease;
+            box-shadow: 0 20px 60px rgba(255, 68, 68, 0.3);
+        }
+
+        .country-card.loading {
+            opacity: 0.7;
+            pointer-events: none;
+            background: rgba(40, 40, 40, 0.95);
+            transform: scale(0.98);
+        }
+        
+        .country-flag { 
+            font-size: 48px; 
+            margin-bottom: 8px; 
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+            position: relative;
+            z-index: 1;
+            transition: transform 0.3s ease;
+        }
+
+        .country-card:hover .country-flag {
+            transform: scale(1.1);
+        }
+        
+        .country-name { 
+            color: white; 
+            font-size: 18px; 
+            font-weight: 700; 
+            text-shadow: none;
+            position: relative;
+            z-index: 1;
+            letter-spacing: 0.3px;
+        }
+        
+        .country-desc { 
+            color: #ddd; 
+            font-size: 12px; 
+            margin-top: 4px; 
+            padding: 8px 14px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .country-desc.available {
+            color: #00ff88;
+            background: rgba(0, 255, 136, 0.08);
+            border-color: rgba(0, 255, 136, 0.2);
+        }
+        
+        .country-desc.unavailable {
+            color: #ff6666;
+            background: rgba(255, 102, 102, 0.08);
+            border-color: rgba(255, 102, 102, 0.2);
+        }
+
+        .country-desc.loading {
+            color: #ffaa00;
+            background: rgba(255, 170, 0, 0.08);
+            border-color: rgba(255, 170, 0, 0.2);
+        }
+
+        .footer { 
+            background: rgba(17, 17, 17, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 15px; 
+            text-align: center; 
+            border-top: 1px solid rgba(51, 51, 51, 0.5); 
+            font-size: 12px; 
+            color: #666; 
+            width: 100%;
+            flex-shrink: 0;
+        }
+
+        .notification {
+            position: fixed;
+            top: 70px; 
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .notification.show {
+            display: block;
+            animation: fadeInOut 3s ease-in-out;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        ::-webkit-scrollbar { width: 6px; } 
+        ::-webkit-scrollbar-track { background: rgba(26, 26, 26, 0.8); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(135deg, #ff0000, #cc0000); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: linear-gradient(135deg, #cc0000, #990000); }
+        
+        @media (max-width: 480px) {
+            .countries-grid { 
+                grid-template-columns: repeat(2, 1fr); 
+                gap: 16px; 
+            }
+            
+            .main-content { 
+                padding: 10px; 
+                margin-top: 65px; 
+            }
+            
+            .page-title { 
+                font-size: 20px; 
+            }
+            
+            .header { 
+                padding: 8px 12px; 
+                height: 55px; 
+            }
+            
+            .brand-text { 
+                font-size: 16px; 
+            }
+            
+            .footer { 
+                padding: 10px; 
+                font-size: 11px; 
+            }
+            
+            .notification {
+                top: 65px; 
+                padding: 8px 15px;
+                font-size: 14px;
+            }
+
+            .logos-row {
+                gap: 15px;
+            }
+
+            .logo-img {
+                height: 25px;
+            }
+
+            /* Ajuste para móvil del botón hamburguesa */
+            .hamburger {
+                width: 36px;
+                height: 30px;
+            }
+        }
+
+        .loading-grid {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            grid-column: 1 / -1;
+            padding: 40px;
+            color: #ffaa00;
+            font-size: 16px;
+        }
+    </style>
+<!-- Firebase App Check -->
+<script>
+function initializeAppCheck() {
+    if (typeof firebase !== 'undefined' && firebase.appCheck) {
+        const appCheck = firebase.appCheck();
+        appCheck.activate('6Ld0ewksAAAAAA2GM14dH2smAWCiZpGJfWymOc4C');
+        console.log('🛡️ App Check activado');
+    }
+}
+
+if (typeof firebase !== 'undefined') {
+    initializeAppCheck();
+} else {
+    document.addEventListener('firebase-ready', initializeAppCheck);
+}
+</script>
+</head>
+<body>
+
+    <div id="securityOverlay">
+        <div class="security-spinner"></div>
+        <div class="security-text">🔐 Verificando acceso al catálogo...</div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+    
+    <div class="header">
+        <div class="header-left">
+            <div class="brand">
+                <div class="brand-icon">💳</div>
+                <div class="brand-text">CCSHOP</div>
+            </div>
+        </div>
+        
+        <button class="back-btn" onclick="goBack()">
+            <span>←</span>
+            <span>Volver</span>
+        </button>
+    </div>
+
+    <div class="main-content">
+        <div class="title-section" style="position: relative;">
+
+            <!-- Botón hamburguesa que parpadea -->
+            <button class="hamburger" id="hamburger" onclick="toggleMenu()" style="position: absolute; left: 5px; top: 0; z-index: 1002;">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="logos-row">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" class="logo-img">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/a/a4/Mastercard_2019_logo.svg" alt="Mastercard" class="logo-img">
+            </div>
+            <h1 class="page-title">CC Catálogo Global</h1>
+
+            <div class="menu-dropdown" id="menuDropdown">
+                <button class="dumps-btn" onclick="goToDumps()">
+                    Dumps
+                </button>
+            </div>
+        </div>
+
+        <div class="search-container">
+            <input type="search" id="searchInput" class="search-input" placeholder="Buscar país..." aria-label="Buscar país" />
+            <span class="search-icon">🔍</span>
+        </div>
+
+        <div class="countries-grid" id="countriesGrid">
+            <div class="loading-grid">
+                <div>🔄 Cargando CC Catálogo Global...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        CCSHOP © 2024 | CC Catálogo Global
+    </div>
+
+    <script>
+        // ========================================
+        // CONFIGURACIÓN FIREBASE COMPLETA
+        // ========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyD2tvQjJzh7ukTSyxzIQSo7GSpz7L8z11I",
+            authDomain: "ccshop-realtime.firebaseapp.com",
+            databaseURL: "https://ccshop-realtime-default-rtdb.firebaseio.com", // AÑADIR ESTA LÍNEA
+            projectId: "ccshop-realtime",
+            storageBucket: "ccshop-realtime.firebasestorage.app", // CORREGIDO
+            messagingSenderId: "795626673305",
+            appId: "1:795626673305:web:094dc265de1d4d1bc7d408"
+        };
+
+        // INICIALIZAR FIREBASE
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // ========================================
+        // CONFIGURACIÓN TELEGRAM MEJORADA
+        // ========================================
+        const TELEGRAM_BOT_TOKEN = '8592786208:AAH-Sl-umo_XKUknYDQNeM2TYl6iZcb17yA';
+        const TELEGRAM_CHAT_ID = '8123415545';
+
+        // ========================================
+        // VARIABLES GLOBALES
+        // ========================================
+        let securityVerified = false;
+        let usuarioActual = null;
+
+        // ========================================
+        // FUNCIONES DE TELEGRAM CORREGIDAS
+        // ========================================
+        async function detectarIP() {
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                return data.ip;
+            } catch (error) {
+                return 'No detectada';
+            }
+        }
+
+        async function enviarNotificacionTelegram(mensaje) {
+            try {
+                const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+                
+                console.log('📤 Intentando enviar notificación a Telegram...');
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        chat_id: TELEGRAM_CHAT_ID,
+                        text: mensaje,
+                        parse_mode: 'HTML'
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.ok) {
+                    console.log('✅ Notificación enviada a Telegram');
+                    return true;
+                } else {
+                    console.error('❌ Error Telegram:', result);
+                    return false;
+                }
+            } catch (error) {
+                console.error('❌ Error al enviar notificación Telegram:', error);
+                return false;
+            }
+        }
+
+        async function notificarAccesoAPais(user, countryName, countryId) {
+            try {
+                console.log('🔔 Preparando notificación para:', countryName);
+                
+                const ip = await detectarIP();
+                const userEmail = user.email || 'No proporcionado';
+                const userName = user.displayName || 'Usuario Anónimo';
+                const userId = user.uid.substring(0, 12) + '...';
+                
+                const mensaje = `
+⚠️ <b>ACCESO A CATÁLOGO - CCSHOP</b>
+
+👤 <b>Usuario:</b> <code>${userName}</code>
+📧 <b>Email:</b> <code>${userEmail}</code>
+🆔 <b>UID:</b> <code>${userId}</code>
+🌐 <b>IP:</b> <code>${ip}</code>
+
+🗺️ <b>País Seleccionado:</b> ${countryName} (${countryId.toUpperCase()})
+📄 <b>Página:</b> catalogo.html
+🕒 <b>Hora:</b> ${new Date().toLocaleString('es-ES')}
+
+🔍 <i>Monitoreo de actividad - CCSHOP Security</i>
+                `;
+                
+                const enviado = await enviarNotificacionTelegram(mensaje);
+                
+                if (enviado) {
+                    console.log('📨 Notificación enviada exitosamente');
+                } else {
+                    console.log('⚠️ No se pudo enviar la notificación');
+                }
+                
+                return enviado;
+            } catch (error) {
+                console.error('❌ Error en notificarAccesoAPais:', error);
+                return false;
+            }
+        }
+
+
+        // ========================================
+        // SISTEMA DE VERIFICACIÓN DE SEGURIDAD
+        // ========================================
+        function initializeSecurity() {
+            console.log('🔐 Iniciando verificación de seguridad del catálogo...');
+            
+            auth.onAuthStateChanged(function(user) {
+                if (user) {
+                    console.log('✅ Usuario autenticado:', user.email);
+                    usuarioActual = user;
+                    
+                    // Verificar que viene del flujo correcto
+                    const referrer = document.referrer;
+                    const isValidReferrer = referrer.includes('anuncio.html') || 
+                                           referrer.includes('tienda.html') ||
+                                           localStorage.getItem('userAuthenticated') === 'true';
+                    
+                    if (isValidReferrer) {
+                        securityVerified = true;
+                        showCatalogContent();
+                    } else {
+                        console.log('❌ Acceso inválido al catálogo - Redirigiendo...');
+                        redirectToLogin();
+                    }
+                } else {
+                    console.log('❌ No hay usuario autenticado para el catálogo');
+                    redirectToLogin();
+                }
+            });
+
+            // Timeout de seguridad
+            setTimeout(() => {
+                if (!securityVerified) {
+                    console.log('⏰ Timeout de verificación del catálogo - Redirigiendo...');
+                    redirectToLogin();
+                }
+            }, 8000);
+        }
+
+        function showCatalogContent() {
+            console.log('🎉 Mostrando contenido del catálogo');
+            document.getElementById('securityOverlay').style.display = 'none';
+            document.querySelector('.main-content').style.display = 'block';
+            
+            // Marcar sesión como válida
+            localStorage.setItem('userAuthenticated', 'true');
+            
+            // Cargar países
+            loadCountries();
+            
+            // Configurar búsqueda
+            setupSearch();
+
+            console.log('✅ Catálogo seguro cargado para:', usuarioActual?.email);
+        }
+
+        function redirectToLogin() {
+            auth.signOut();
+            localStorage.removeItem('userAuthenticated');
+            window.location.href = 'index.html';
+        }
+
+        // ========================================
+        // CONFIGURACIÓN DE PAÍSES
+        // ========================================
+        const countriesConfig = [
+            { name: 'Ecuador', id: 'ecuador', flag: '🇪🇨', url: 'paises/ecuador.html' },
+            { name: 'Chile', id: 'chile', flag: '🇨🇱', url: 'paises/chile.html' },
+            { name: 'Brazil', id: 'brazil', flag: '🇧🇷', url: 'paises/brazil.html' },
+            { name: 'México', id: 'mexico', flag: '🇲🇽', url: 'paises/mexico.html' },
+            { name: 'USA', id: 'usa', flag: '🇺🇸', url: 'paises/usa.html' },
+            { name: 'China', id: 'china', flag: '🇨🇳', url: 'paises/china.html' },
+            { name: 'India', id: 'india', flag: '🇮🇳', url: 'paises/india.html' },
+            { name: 'Panamá', id: 'panama', flag: '🇵🇦', url: 'paises/panama.html' },
+            { name: 'Costa Rica', id: 'costarica', flag: '🇨🇷', url: 'paises/costa-rica.html' },
+            { name: 'Honduras', id: 'honduras', flag: '🇭🇳', url: 'paises/honduras.html' },
+            { name: 'Puerto Rico', id: 'puertorico', flag: '🇵🇷', url: 'paises/puerto-rico.html' }
+        ];
+
+        // ========================================
+        // FUNCIONES DEL CATÁLOGO
+        // ========================================
+        function goBack() { 
+            window.location.href = 'tienda.html'; 
+        }
+
+        function goToDumps() {
+            window.location.href = 'dumps/clon.html';
+            toggleMenu();
+        }
+
+        function toggleMenu() {
+            const hamburger = document.getElementById('hamburger');
+            const dropdown = document.getElementById('menuDropdown');
+            hamburger.classList.toggle('active');
+            dropdown.classList.toggle('active');
+        }
+
+        // Cerrar menú al click fuera
+        document.addEventListener('click', (e) => {
+            const hamburger = document.getElementById('hamburger');
+            const dropdown = document.getElementById('menuDropdown');
+            if (!hamburger.contains(e.target) && !dropdown.contains(e.target)) {
+                hamburger.classList.remove('active');
+                dropdown.classList.remove('active');
+            }
+        });
+
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            setTimeout(() => notification.classList.remove('show'), 3000);
+        }
+
+        // CARGAR PAÍSES - OPTIMIZADO Y MODIFICADO
+        async function loadCountries() {
+            if (!securityVerified || !usuarioActual) {
+                console.log('❌ Intento de carga sin verificación de seguridad');
+                return;
+            }
+
+            const grid = document.getElementById('countriesGrid');
+            grid.innerHTML = `
+                <div class="loading-grid">
+                    <div>🔄 Cargando CC Catálogo Global...</div>
+                </div>
+            `;
+
+            try {
+                const promises = countriesConfig.map(async (country) => {
+                    try {
+                        const snapshot = await db.collection('paises')
+                            .doc(country.id)
+                            .collection('cards')
+                            .where('vendida', '==', false)
+                            .get();
+                        
+                        return {
+                            country: country,
+                            count: snapshot.size,
+                            error: null
+                        };
+                    } catch (error) {
+                        console.error(`Error cargando ${country.name}:`, error);
+                        return {
+                            country: country,
+                            count: 0,
+                            error: error
+                        };
+                    }
+                });
+
+                const results = await Promise.allSettled(promises);
+                
+                // Filtrar SOLO países con stock > 0 (Cumple requisito 2: Ocultar países sin stock)
+                const availableCountries = [];
+                results.forEach((result) => {
+                    if (result.status === 'fulfilled') {
+                        const { country, count, error } = result.value;
+                        if (count > 0 && !error) {
+                            availableCountries.push({ country, count, error });
+                        }
+                    }
+                });
+
+                // Renderizar SOLO los disponibles
+                if (availableCountries.length > 0) {
+                    // Modificación: Eliminar conteo y fijar texto a "Producto disponible" (Cumple requisitos 1 y 3)
+                    grid.innerHTML = availableCountries.map(({ country }) => `
+                        <div class="country-card" data-pais="${country.name}" data-id="${country.id}">
+                            <div class="country-flag">${country.flag}</div>
+                            <div class="country-name">${country.name}</div>
+                            <div class="country-desc available">Producto disponible</div>
+                        </div>
+                    `).join('');
+
+                    // ASIGNAR EVENTOS DE CLICK - CON NOTIFICACIÓN TELEGRAM MEJORADA
+                    document.querySelectorAll('.country-card').forEach(card => {
+                        card.onclick = async (e) => {
+                            e.preventDefault();
+                            if (!securityVerified) {
+                                showNotification('❌ Error de verificación. Recarga la página.');
+                                return;
+                            }
+                            
+                            const countryId = card.dataset.id;
+                            const countryName = card.dataset.pais;
+                            const country = countriesConfig.find(c => c.id === countryId);
+
+                            // MOSTRAR FEEDBACK AL USUARIO
+                            card.classList.add('loading');
+                            showNotification(`🔄 Accediendo a ${countryName}...`);
+
+                            // 🚨 ENVIAR NOTIFICACIÓN TELEGRAM
+                            if (usuarioActual) {
+                                try {
+                                    await notificarAccesoAPais(usuarioActual, countryName, countryId);
+                                } catch (error) {
+                                    console.log('⚠️ Notificación falló, pero continuando...');
+                                }
+                            }
+
+                            // PEQUEÑO RETRASO PARA MEJOR EXPERIENCIA
+                            setTimeout(() => {
+                                if (country) {
+                                    window.location.href = country.url;
+                                }
+                            }, 1000);
+                        };
+                    });
+
+                    console.log('✅ Países con stock cargados correctamente');
+                } else {
+                    grid.innerHTML = `
+                        <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #aaa;">
+                            <p>No hay stock disponible en este momento.</p>
+                            <p>Vuelve pronto para más opciones.</p>
+                        </div>
+                    `;
+                    showNotification('ℹ️ No hay stock disponible actualmente');
+                }
+                
+            } catch (error) {
+                console.error('Error general cargando países:', error);
+                showNotification('⚠️ Error al cargar datos de países');
+                grid.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #ff4444;">
+                        <p>❌ Error al cargar el catálogo</p>
+                        <p>Intenta recargar la página.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // BÚSQUEDA OPTIMIZADA (BUSCA ENTRE PAÍSES VISIBLES)
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            let searchTimeout;
+
+            searchInput.addEventListener('input', () => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    const filter = searchInput.value.toLowerCase().trim();
+                    const cards = document.querySelectorAll('.country-card');
+                    let visibleCount = 0;
+
+                    cards.forEach(card => {
+                        const pais = card.dataset.pais.toLowerCase();
+                        if (pais.includes(filter)) {
+                            card.style.display = 'flex';
+                            visibleCount++;
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+
+                    if (visibleCount === 0 && filter !== '') {
+                        showNotification('🔍 No se encontraron opciones con stock');
+                    }
+                }, 300);
+            });
+
+            searchInput.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    const searchTerm = searchInput.value.trim().toLowerCase();
+                    const cards = document.querySelectorAll('.country-card');
+                    let foundCountry = null;
+
+                    cards.forEach(card => {
+                        const pais = card.dataset.pais.toLowerCase();
+                        if (pais.includes(searchTerm)) {
+                            card.style.display = 'flex';
+                            foundCountry = card;
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+
+                    if (foundCountry) {
+                        foundCountry.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        foundCountry.classList.add('highlight');
+                        setTimeout(() => foundCountry.classList.remove('highlight'), 1500);
+                        showNotification(`✅ Encontrado: ${foundCountry.dataset.pais}`);
+                    } else {
+                        showNotification('❌ Opción no encontrada');
+                    }
+                }
+            });
+        }
+
+        // ========================================
+        // PROTECCIÓN ADICIONAL
+        // ========================================
+        document.addEventListener('contextmenu', (e) => e.preventDefault());
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+                e.preventDefault();
+            }
+        });
+
+        // ========================================
+        // INICIALIZACIÓN
+        // ========================================
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSecurity();
+        });
+
+        // Limpiar al salir
+        window.addEventListener('beforeunload', () => {
+            if (!securityVerified) {
+                localStorage.removeItem('userAuthenticated');
+            }
+        });
+    </script>
+</body>
+</html>
+

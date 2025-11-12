@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCshop - Actualización Terminada</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        body { 
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh; 
+            color: white; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container { 
+            width: 100%; 
+            max-width: 800px; 
+            padding: 30px;
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            box-shadow: 0 15px 30px rgba(255, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #ff0000, #ff4444, #ff0000, transparent);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .logo-container { 
+            text-align: center;
+            margin-bottom: 30px; 
+        }
+
+        .logo {
+            font-size: 46px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ff0000, #ff4444, #ff0000);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(255, 0, 0, 0.6);
+            letter-spacing: 2px;
+        }
+
+        .update-title {
+            color: #ff0000;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+            display: block;
+            text-align: center;
+        }
+
+        .update-date {
+            color: #ff4444;
+            font-size: 16px;
+            margin-bottom: 25px;
+            display: block;
+            letter-spacing: 1px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .update-text {
+            color: #fff;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 25px;
+        }
+
+        .feature-list li {
+            background: rgba(255, 0, 0, 0.1);
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 3px solid #ff0000;
+            font-weight: 400;
+            color: white;
+            font-size: 14px;
+            display: flex;
+            align-items: flex-start;
+            transition: all 0.3s ease;
+        }
+
+        .feature-list li:hover {
+            background: rgba(255, 0, 0, 0.2);
+            transform: translateX(5px);
+        }
+
+        .feature-list li strong {
+            color: #ff4444;
+            margin-right: 5px;
+            font-weight: 600;
+        }
+        
+        .icon {
+            margin-right: 10px;
+            color: #ff0000;
+            font-weight: 900;
+            font-size: 16px;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+        
+        .paypal-container {
+            background: rgba(52, 152, 219, 0.15);
+            border-left: 3px solid #3498db;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            font-size: 14px;
+            color: #c0d9f0;
+            line-height: 1.5;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.2);
+        }
+
+        .paypal-title {
+            color: #3498db;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .paypal-title i {
+            margin-right: 10px;
+        }
+
+        .paypal-process {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 10px;
+            border: 1px dashed rgba(52, 152, 219, 0.5);
+        }
+
+        .coupon-container {
+            background: rgba(255, 0, 0, 0.15);
+            border: 2px solid rgba(255, 0, 0, 0.5);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 25px 0;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(255, 0, 0, 0.3);
+        }
+
+        .coupon-title {
+            color: #ff0000;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        }
+
+        .coupon-code {
+            color: #ff0000;
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            display: block;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            margin: 10px 0;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 0, 0, 0.3);
+        }
+        
+        .coupon-code:hover {
+            transform: scale(1.03);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3);
+        }
+
+        .coupon-limit {
+            color: #ff4444;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .access-button { 
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.85), rgba(180, 0, 0, 0.9)); 
+            color: white; 
+            border: 2px solid rgba(255, 255, 255, 0.8); 
+            padding: 18px 45px; 
+            font-size: 20px; 
+            font-weight: 700; 
+            border-radius: 45px; 
+            cursor: pointer; 
+            text-transform: uppercase; 
+            letter-spacing: 1.5px; 
+            transition: all 0.4s ease; 
+            display: block; 
+            margin: 30px auto 0;
+            width: 100%;
+            max-width: 300px;
+            box-shadow: 0 15px 35px rgba(255, 0, 0, 0.3);
+            font-family: 'Segoe UI', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .access-button:hover { 
+            transform: scale(1.08); 
+            box-shadow: 0 20px 45px rgba(255, 0, 0, 0.5);
+            letter-spacing: 2px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px 20px;
+                margin: 20px;
+                max-width: 90%;
+            }
+            
+            .logo {
+                font-size: 38px;
+            }
+            
+            .access-button {
+                padding: 16px 35px;
+                font-size: 18px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px 15px;
+            }
+            
+            .logo {
+                font-size: 32px;
+            }
+
+            .update-title {
+                font-size: 20px;
+            }
+
+            .update-text {
+                font-size: 15px;
+            }
+
+            .access-button {
+                padding: 14px 30px;
+                font-size: 16px;
+            }
+
+            .coupon-code {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-container">
+            <div class="logo">CCSHOP</div>
+        </div>
+        
+        <div class="update-content">
+            <span class="update-title">¡ACTUALIZACIÓN TERMINADA! 🍀</span>
+            <span class="update-date">12 DE NOVIEMBRE DE 2025</span>
+
+            <p class="update-text">
+                Queremos agradecerles enormemente por su paciencia y disculparnos por el tiempo de espera. 
+                <strong>¡Estamos de vuelta con más fuerza que nunca!</strong>
+            </p>
+
+            <ul class="feature-list">
+                <li><span class="icon">✨</span><strong>Errores Corregidos:</strong> Estabilidad y velocidad mejoradas en toda la plataforma.</li>
+                <li><span class="icon">💰</span><strong>Nuevos Precios:</strong> Hemos ajustado y mejorado nuestros precios, ahora disponibles <strong>desde $5 USD hasta $100 o más.</strong></li>
+                <li><span class="icon">💳</span><strong>Pago con PayPal:</strong> ¡Nueva forma de pago disponible! Genera tu código de pago vía Telegram y envíalo al soporte del dueño de CCshop para completar la transacción.</li>
+            </ul>
+            
+            <div class="paypal-container">
+                <div class="paypal-title">
+                    <i class="fab fa-paypal"></i> Nuevo Pago con PayPal:
+                </div>
+                <p>¡Ya puedes pagar con PayPal! El proceso es más rápido y directo.</p>
+                
+                <div class="paypal-process">
+                    <strong>Proceso PayPal:</strong> Solo genera el código en Paypal y luego envíalo al admin de Telegram que sale ahí mismo, o al correo: <strong>soporte_ccshop@proton.me</strong>
+                </div>
+            </div>
+
+            <div class="coupon-container">
+                <div class="coupon-title">¡RECOMPENSA POR LA DEMORA!</div>
+                <p class="update-text" style="margin-bottom: 5px;">
+                    Abajo les dejaremos un cupón para una <strong>tarjeta USD GRATIS</strong> que podrán sacar saldo de ella:
+                </p>
+                <div class="coupon-code" onclick="copyCoupon('CCSHOP-914625')">CCSHOP-914625</div>
+                <div class="coupon-limit">Válido solo para los primeros 1000 usuarios. ¡Corre a reclamarlo! 😊</div>
+            </div>
+
+            <button class="access-button" onclick="window.location.href='verificacion.html'">
+                Acceder a la Tienda
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Función para copiar el cupón
+        function copyCoupon(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('¡Cupón copiado! ' + text);
+            }, (err) => {
+                console.error('No se pudo copiar el texto: ', err);
+            });
+        }
+
+        // Efectos de carga inicial
+        window.addEventListener('load', () => {
+            document.body.style.opacity = '0';
+            document.body.style.transition = 'opacity 0.8s ease';
+            
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+            }, 100);
+        });
+    </script>
+</body>
+</html>

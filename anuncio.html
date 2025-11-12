@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anuncio - CCSHOP</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='text' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23ff0000'/><stop offset='100%' stop-color='%23cc0000'/></linearGradient></defs><path d='M8 8 L24 8 L24 24 L8 24 Z' transform='rotate(45 16 16)' fill='none' stroke='%23ff0000' stroke-width='1.5'/><text x='12' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text><text x='20' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text></svg>">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: #000; 
+            font-family: 'Montserrat', sans-serif;
+            overflow: hidden; 
+            background: radial-gradient(circle at center, #050505 0%, #000000 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        /* Pantalla de carga de seguridad */
+        #securityCheck {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            color: #ff0000;
+            font-family: 'Courier New', monospace;
+        }
+
+        .security-spinner {
+            border: 4px solid rgba(255, 0, 0, 0.3);
+            border-top: 4px solid #ff0000;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: securitySpin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        .security-text {
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        }
+
+        @keyframes securitySpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #modal-container {
+            display: none; /* Oculto hasta verificación */
+            /* Layout Original 2x2 */
+            display: grid; 
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto; /* Solo dos filas para el 2x2 */
+            position: relative;
+            max-width: 500px; /* Ancho ajustado para 2x2 */
+            width: 90%;
+            border: 2px solid #330000;
+            border-radius: 15px;
+            box-shadow: 
+                0 0 50px rgba(139, 0, 0, 0.4),
+                inset 0 0 20px rgba(0, 0, 0, 0.8);
+            overflow: hidden;
+            position: relative;
+            transform: translate(0, 0);
+        }
+
+        /* Se eliminaron los estilos de la pieza full-width */
+
+        #modal-container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: 
+                linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.6), rgba(139, 0, 0, 0.8), transparent),
+                linear-gradient(135deg, transparent, rgba(255, 0, 0, 0.3), transparent);
+            background-size: 400% 400%, 200% 200%;
+            z-index: -1;
+            border-radius: 17px;
+            animation: electricGlow 1.5s ease-in-out infinite alternate;
+            opacity: 0.7;
+            filter: blur(1px);
+        }
+
+        #modal-container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.3) 1px, transparent 1px),
+                radial-gradient(circle at 80% 80%, rgba(139, 0, 0, 0.4) 1px, transparent 1px);
+            background-size: 50px 50px, 70px 70px;
+            opacity: 0.1;
+            animation: sparks 2s linear infinite;
+            pointer-events: none;
+        }
+
+        .puzzle-piece {
+            background: linear-gradient(135deg, #0f0f0f, #000000);
+            padding: 20px;
+            animation-fill-mode: forwards;
+            position: relative;
+            overflow: hidden;
+            border-right: 1px solid rgba(139, 0, 0, 0.2);
+            border-bottom: 1px solid rgba(139, 0, 0, 0.2);
+        }
+        
+        /* Asegurar la pieza superior derecha y la inferior derecha no tengan borde derecho */
+        #piece-tr, #piece-br {
+            border-right: none;
+        }
+
+        /* Asegurar las piezas de la fila inferior no tengan borde inferior */
+        #piece-bl, #piece-br {
+             border-bottom: none;
+        }
+
+        .puzzle-piece::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle, rgba(139, 0, 0, 0.2) 1px, transparent 1px),
+                radial-gradient(circle, rgba(255, 255, 255, 0.1) 0.5px, transparent 0.5px);
+            background-size: 40px 40px, 20px 20px;
+            opacity: 0.08;
+            pointer-events: none;
+            animation: pieceSparks 3s ease-in-out infinite;
+        }
+
+        #piece-tl {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: assemble-tl 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+        .modal-header {
+            color: #8B0000;
+            font-size: 32px;
+            font-weight: 700;
+            text-shadow: 
+                0 0 20px rgba(139, 0, 0, 0.8),
+                0 0 30px rgba(139, 0, 0, 0.3);
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            letter-spacing: 2px;
+        }
+        .warning-text {
+            color: #ff4500;
+            font-size: 12px;
+            text-align: center;
+            margin-top: 5px;
+            font-weight: 700;
+            text-shadow: 0 0 10px rgba(255, 69, 0, 0.5);
+            letter-spacing: 0.5px;
+        }
+
+        #piece-tr {
+            text-align: right;
+            animation: assemble-tr 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        #piece-tr h3 {
+            color: #fff;
+            font-size: 20px;
+            font-weight: 700;
+            position: relative;
+            display: inline-block;
+            margin-bottom: 8px;
+            text-shadow: 0 0 10px rgba(139, 0, 0, 0.5);
+        }
+        #fecha-actual {
+            color: #666;
+            font-size: 13px;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+        #fecha-actual i {
+            margin-right: 5px;
+            color: #8B0000;
+            animation: spin 3s linear infinite;
+            text-shadow: 0 0 5px rgba(139, 0, 0, 0.5);
+        }
+        .stock-indicator {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 6px 12px;
+            background: linear-gradient(135deg, #00ff00, #006600);
+            border-radius: 6px;
+            color: #000;
+            font-size: 12px;
+            font-weight: 700;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+        .stock-indicator i {
+            margin-left: 5px;
+            color: #000;
+        }
+
+        #piece-bl {
+            animation: assemble-bl 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+        #piece-bl ul { list-style: none; }
+        #piece-bl li {
+            color: #999;
+            margin: 10px 0;
+            padding-left: 25px;
+            position: relative;
+            font-size: 13px;
+            transition: color 0.3s, transform 0.3s;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+        #piece-bl li:hover {
+            color: #ff4500;
+            transform: translateX(5px);
+            text-shadow: 0 0 10px rgba(255, 69, 0, 0.5);
+        }
+        #piece-bl li::before {
+            content: "\f058";
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: #00ff00;
+            font-size: 12px;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.8), 0 0 20px rgba(139, 0, 0, 0.4);
+            animation: arrowSpark 2s ease-in-out infinite alternate;
+        }
+
+        #piece-br {
+            text-align: center;
+            animation: assemble-br 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .contact-section {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 15px;
+            background: rgba(139, 0, 0, 0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 1px solid rgba(139, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.3s;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+        .contact-section:hover {
+            background: rgba(139, 0, 0, 0.4);
+            box-shadow: 0 0 15px rgba(139, 0, 0, 0.6), 0 0 25px rgba(139, 0, 0, 0.3);
+        }
+        .contact-section span {
+            margin-bottom: 5px;
+        }
+        .telegram-link {
+            color: #00bfff;
+            text-decoration: none;
+            font-weight: 700;
+            transition: color 0.3s;
+            text-transform: uppercase;
+            font-size: 14px;
+            margin: 5px 0;
+            letter-spacing: 1px;
+        }
+        .telegram-link:hover {
+            color: #ff6347;
+            text-shadow: 0 0 10px rgba(255, 69, 0, 0.7);
+        }
+        .telegram-icon {
+            color: #00bfff;
+            font-size: 20px;
+            margin-top: 3px;
+            text-shadow: 0 0 10px rgba(139, 0, 0, 0.7);
+        }
+        .action-btn {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #8B0000, #4B0000);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 16px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 
+                0 0 20px rgba(139, 0, 0, 0.6),
+                inset 0 0 10px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+        }
+        .action-btn::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), rgba(139, 0, 0, 0.3), transparent);
+            transition: left 0.5s;
+        }
+        .action-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 
+                0 0 30px rgba(139, 0, 0, 0.8),
+                0 0 40px rgba(139, 0, 0, 0.4);
+        }
+        .action-btn:hover::before {
+            left: 100%;
+        }
+        .action-btn i {
+            color: #00ff00;
+            font-size: 14px;
+            transition: transform 0.3s;
+            text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+        }
+        .action-btn:hover i {
+            transform: translateX(5px);
+        }
+
+        /* Se eliminaron los estilos para la nueva pieza de Telegram */
+
+        @keyframes assemble-tl { from { transform: translate(-50vw, -50vh) rotate(-45deg); } to { transform: translate(0, 0) rotate(0deg); } }
+        @keyframes assemble-tr { from { transform: translate(50vw, -50vh) rotate(45deg); } to { transform: translate(0, 0) rotate(0deg); } }
+        @keyframes assemble-bl { from { transform: translate(-50vw, 50vh) rotate(45deg); } to { transform: translate(0, 0) rotate(0deg); } }
+        @keyframes assemble-br { from { transform: translate(50vw, 50vh) rotate(-45deg); } to { transform: translate(0, 0) rotate(0deg); } }
+        /* Se eliminó la animación específica para el nuevo cuadro */
+
+        @keyframes electricGlow {
+            0% { 
+                background-position: 0% 50%, 0% 0%; 
+                opacity: 0.4;
+                filter: blur(1px);
+            }
+            25% { 
+                background-position: 100% 50%, 50% 100%; 
+                opacity: 0.9;
+                filter: blur(2px);
+            }
+            50% { 
+                background-position: 0% 50%, 100% 0%; 
+                opacity: 0.6;
+                filter: blur(1px);
+            }
+            75% { 
+                background-position: 100% 50%, 0% 100%; 
+                opacity: 0.8;
+                filter: blur(1.5px);
+            }
+            100% { 
+                background-position: 0% 50%, 50% 0%; 
+                opacity: 0.5;
+                filter: blur(1px);
+            }
+        }
+
+        @keyframes sparks {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(10px, -10px) rotate(5deg); }
+        }
+
+        @keyframes pieceSparks {
+            0%, 100% { opacity: 0.08; }
+            50% { opacity: 0.15; }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes arrowSpark {
+            0% { text-shadow: 0 0 10px rgba(0, 255, 0, 0.8); }
+            100% { text-shadow: 0 0 20px rgba(0, 255, 0, 1), 0 0 30px rgba(139, 0, 0, 0.6); }
+        }
+
+        @media (max-width: 480px) {
+            .puzzle-piece { padding: 15px; }
+            .modal-header { font-size: 28px; }
+            .warning-text { font-size: 11px; }
+            #piece-tr h3 { font-size: 18px; }
+            #piece-bl li { font-size: 12px; }
+            .action-btn { padding: 10px 20px; font-size: 14px; }
+            .contact-section { 
+                padding: 10px;
+                font-size: 11px;
+            }
+            .telegram-link {
+                font-size: 13px;
+            }
+            .telegram-icon {
+                font-size: 18px;
+            }
+            /* Se eliminaron los media queries para la nueva pieza */
+        }
+    </style>
+<!-- Firebase App Check -->
+<script>
+function initializeAppCheck() {
+    if (typeof firebase !== 'undefined' && firebase.appCheck) {
+        const appCheck = firebase.appCheck();
+        appCheck.activate('6Ld0ewksAAAAAA2GM14dH2smAWCiZpGJfWymOc4C');
+        console.log('🛡️ App Check activado');
+    }
+}
+
+if (typeof firebase !== 'undefined') {
+    initializeAppCheck();
+} else {
+    document.addEventListener('firebase-ready', initializeAppCheck);
+}
+</script>
+</head>
+<body>
+    <div id="securityCheck">
+        <div class="security-spinner"></div>
+        <div class="security-text">🔐 Verificando identidad...</div>
+    </div>
+
+    <div id="modal-container">
+        <div class="puzzle-piece" id="piece-tl">
+            <div class="modal-header">CCSHOP</div>
+            <p class="warning-text">⚠️ Antes de realizar una compra leer las reglas de CCSHOP ⚠️</p>
+        </div>
+
+        <div class="puzzle-piece" id="piece-tr">
+            <h3>Nuevos Activos Disponibles</h3>
+            <p id="fecha-actual"><i class="fas fa-calendar"></i> Actualizado: --/--/----</p>
+            <div class="stock-indicator"><span>Stock</span> <i class="fas fa-check"></i> disponible</div>
+        </div>
+
+        <div class="puzzle-piece" id="piece-bl">
+            <ul>
+                <li>Stock verificado y en línea 24/7</li>
+                <li>Transacción automatizada y segura</li>
+                <li>Garantía de reembolso</li>
+                <li>Precios competitivos desde 5 USD hasta 100+ USD por unidad</li>
+            </ul>
+        </div>
+
+        <div class="puzzle-piece" id="piece-br">
+            <div class="contact-section">
+                <span>Dudas contacta vía</span>
+                <a href="https://t.me/valid_cc_shop" target="_blank" rel="noopener noreferrer nofollow" class="telegram-link">
+                    TELEGRAM
+                </a>
+                <i class="fab fa-telegram-plane telegram-icon"></i>
+            </div>
+            <button class="action-btn" onclick="redirectToStore()">
+                Acceder a la Tienda
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+        
+        </div>
+
+    <script>
+        // =======================================================
+        // CONFIGURACIÓN FIREBASE Y SEGURIDAD
+        // =======================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyD2tvQjJzh7ukTSyxzIQSo7GSpz7L8z11I",
+            authDomain: "ccshop-realtime.firebaseapp.com",
+            projectId: "ccshop-realtime",
+            storageBucket: "ccshop-realtime.firebasestorage.app",
+            messagingSenderId: "795626673305",
+            appId: "1:795626673305:web:094dc265de1d4d1bc7d408"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        // =======================================================
+        // SISTEMA DE VERIFICACIÓN DE SEGURIDAD
+        // =======================================================
+        let securityCheckPassed = false;
+        let verificationAttempts = 0;
+        const MAX_VERIFICATION_ATTEMPTS = 3;
+
+        function performSecurityVerification() {
+            console.log('🔐 Iniciando verificación de seguridad...');
+            
+            // Verificación 1: Usuario autenticado en Firebase
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    console.log('✅ Usuario autenticado:', user.email);
+                    
+                    // Verificación 2: Viene de la página correcta
+                    const referrer = document.referrer;
+                    const isValidReferrer = referrer.includes('verificacion.html') || 
+                                           referrer.includes('verificacion') ||
+                                           localStorage.getItem('passedCaptcha') === 'true';
+                    
+                    if (isValidReferrer) {
+                        console.log('✅ Referente válido');
+                        securityCheckPassed = true;
+                        showContent();
+                    } else {
+                        console.log('❌ Referente inválido, verificando intentos...');
+                        handleInvalidAccess();
+                    }
+                    
+                } else {
+                    console.log('❌ Usuario no autenticado');
+                    redirectToLogin();
+                }
+            });
+
+            // Timeout de seguridad
+            setTimeout(() => {
+                if (!securityCheckPassed) {
+                    console.log('⏰ Timeout de verificación');
+                    redirectToLogin();
+                }
+            }, 10000); // 10 segundos máximo
+        }
+
+        function handleInvalidAccess() {
+            verificationAttempts++;
+            
+            if (verificationAttempts >= MAX_VERIFICATION_ATTEMPTS) {
+                console.log('🚫 Máximos intentos alcanzados, cerrando sesión');
+                auth.signOut();
+                localStorage.clear();
+                redirectToLogin();
+                return;
+            }
+            
+            // Intentar verificación alternativa
+            const hasPreviousAuth = localStorage.getItem('userAuthenticated') === 'true';
+            if (hasPreviousAuth) {
+                console.log('⚠️ Acceso con autenticación previa, permitiendo con advertencia');
+                securityCheckPassed = true;
+                showContent();
+            } else {
+                console.log('❌ Acceso no autorizado');
+                redirectToLogin();
+            }
+        }
+
+        function showContent() {
+            console.log('🎉 Mostrando contenido seguro');
+            document.getElementById('securityCheck').style.display = 'none';
+            document.getElementById('modal-container').style.display = 'grid';
+            
+            // Marcar sesión como válida
+            localStorage.setItem('userAuthenticated', 'true');
+            localStorage.setItem('passedCaptcha', 'true');
+            
+            // Inicializar contenido
+            initializeContent();
+        }
+
+        function redirectToLogin() {
+            console.log('🔄 Redirigiendo al login...');
+            auth.signOut(); // Cerrar cualquier sesión residual
+            localStorage.removeItem('userAuthenticated');
+            localStorage.removeItem('passedCaptcha');
+            window.location.href = 'index.html';
+        }
+
+        function redirectToStore() {
+            // Verificación final antes de redirigir
+            if (!securityCheckPassed) {
+                alert('❌ Error de verificación. Redirigiendo al inicio.');
+                redirectToLogin();
+                return;
+            }
+            
+            console.log('🛒 Redirigiendo a la tienda...');
+            window.location.href = 'cupones.html';
+        }
+
+        // =======================================================
+        // INICIALIZACIÓN DEL CONTENIDO
+        // =======================================================
+        function initializeContent() {
+            // Fecha actual
+            const fechaElemento = document.getElementById('fecha-actual');
+            const hoy = new Date();
+            const dia = String(hoy.getDate()).padStart(2, '0');
+            const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+            const anio = hoy.getFullYear();
+            fechaElemento.innerHTML = `<i class="fas fa-calendar"></i> Actualizado: ${dia}/${mes}/${anio}`;
+
+            // Tracking para enlace de Telegram
+            const telegramLinks = document.querySelectorAll('.telegram-link');
+            telegramLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    console.log('📞 Telegram link clicked - Customer support');
+                    // Aquí puedes agregar Google Analytics si quieres
+                    // gtag('event', 'telegram_click', { 'event_category': 'contact' });
+                });
+            });
+
+            console.log('✅ Contenido inicializado correctamente');
+        }
+
+        // =======================================================
+        // PROTECCIÓN ADICIONAL
+        // =======================================================
+        document.addEventListener('contextmenu', (e) => e.preventDefault());
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+                e.preventDefault();
+            }
+        });
+
+        // Detectar cierre de pestaña/navegador
+        window.addEventListener('beforeunload', (e) => {
+            if (securityCheckPassed) {
+                // Opcional: Limpiar localStorage al salir
+                // localStorage.removeItem('userAuthenticated');
+            }
+        });
+
+        // =======================================================
+        // INICIALIZACIÓN DE LA APLICACIÓN
+        // =======================================================
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 Iniciando CCSHOP - Anuncio Seguro');
+            performSecurityVerification();
+        });
+
+        // Manejo de errores global
+        window.addEventListener('error', (e) => {
+            console.error('Error global:', e.error);
+        });
+    </script>
+</body>
+</html>
