@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Depósito Crypto - CCSHOP</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0d0d0d 100%);
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            min-height: 100vh; 
+            color: white; 
+            padding: 20px;
+        }
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 30px; 
+            padding: 20px 0;
+            border-bottom: 2px solid rgba(255, 0, 0, 0.3);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .header h1 {
+            font-size: 26px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff0000 0%, #ff4444 50%, #ffffff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .btn-volver {
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.1), rgba(20, 20, 20, 0.8));
+            border: 1px solid rgba(255, 0, 0, 0.4);
+            color: white; 
+            padding: 12px 24px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .btn-ver-activos {
+            background: linear-gradient(135deg, #00aaff, #0066cc);
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-ver-activos:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 170, 255, 0.5);
+        }
+        .container { max-width: 700px; margin: 0 auto; }
+        
+        /* Progress */
+        .progress-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        .progress-container::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 30px;
+            right: 30px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .step { display: flex; flex-direction: column; align-items: center; position: relative; z-index: 2; flex: 1; }
+        .step-number {
+            width: 42px; height: 42px; border-radius: 50%;
+            background: rgba(30, 30, 30, 0.9);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; margin-bottom: 8px;
+        }
+        .step.active .step-number { background: linear-gradient(135deg, #ff0000, #cc0000); border-color: #ff0000; }
+        .step.completed .step-number { background: #00ff00; border-color: #00ff00; color: #000; }
+        .step-label { font-size: 11px; color: rgba(255, 255, 255, 0.5); text-transform: uppercase; }
+        
+        /* Steps */
+        .step-content { display: none; animation: fadeIn 0.5s ease; }
+        .step-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .step-title { font-size: 24px; font-weight: 700; text-align: center; margin-bottom: 10px; }
+        .step-subtitle { text-align: center; color: rgba(255, 255, 255, 0.6); margin-bottom: 30px; font-size: 14px; }
+        
+        /* Amount */
+        .amount-input-container {
+            background: linear-gradient(145deg, rgba(20, 20, 20, 0.95), rgba(30, 30, 30, 0.98));
+            border: 2px solid rgba(255, 0, 0, 0.2);
+            border-radius: 20px; padding: 30px; text-align: center; margin-bottom: 20px;
+        }
+        .currency-symbol { font-size: 48px; color: #00ff00; font-weight: 300; }
+        .amount-input {
+            width: 100%; background: transparent; border: none; color: white;
+            font-size: 48px; font-weight: 700; text-align: center;
+            font-family: 'Courier New', monospace;
+        }
+        .min-amount { color: rgba(255, 255, 255, 0.5); font-size: 13px; margin-top: 15px; }
+        .quick-amounts { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
+        .quick-amount {
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: 600;
+        }
+        
+        /* Crypto */
+        .crypto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .crypto-option {
+            background: linear-gradient(145deg, rgba(20, 20, 20, 0.95), rgba(30, 30, 30, 0.98));
+            border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 16px;
+            padding: 25px 15px; text-align: center; cursor: pointer; transition: all 0.4s ease;
+        }
+        .crypto-option.selected { border-color: #00ff00; background: linear-gradient(145deg, rgba(0, 255, 0, 0.1), rgba(0, 50, 0, 0.2)); }
+        .crypto-icon { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 12px; }
+        .btc-icon { background: rgba(247, 147, 26, 0.2); color: #f7931a; }
+        .eth-icon { background: rgba(98, 126, 234, 0.2); color: #627eea; }
+        .usdt-icon { background: rgba(0, 255, 0, 0.2); color: #00ff00; }
+        .usdc-icon { background: rgba(39, 117, 202, 0.2); color: #2775ca; }
+        .sol-icon { background: rgba(20, 241, 149, 0.2); color: #14f195; }
+        
+        /* Confirm */
+        .confirm-box {
+            background: linear-gradient(145deg, rgba(20, 20, 20, 0.95), rgba(30, 30, 30, 0.98));
+            border: 2px solid rgba(255, 0, 0, 0.3); border-radius: 20px; padding: 30px; margin-bottom: 20px;
+        }
+        .confirm-row { display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .confirm-value { font-weight: 700; }
+        .confirm-value.amount { color: #00ff00; font-size: 20px; }
+        
+        /* Wallet */
+        .wallet-display {
+            background: linear-gradient(145deg, rgba(0, 20, 0, 0.9), rgba(0, 10, 0, 0.95));
+            border: 2px solid rgba(0, 255, 0, 0.3); border-radius: 20px;
+            padding: 30px; text-align: center; margin-bottom: 20px;
+        }
+        .wallet-address {
+            font-family: 'Courier New', monospace; font-size: 18px; color: #00ff00;
+            word-break: break-all; padding: 15px; background: rgba(0, 0, 0, 0.4);
+            border-radius: 10px; margin: 15px 0;
+            cursor: pointer;
+        }
+        .wallet-address:hover {
+            background: rgba(0, 255, 0, 0.1);
+        }
+        .code-generator-section {
+            background: linear-gradient(145deg, rgba(20, 0, 0, 0.9), rgba(10, 0, 0, 0.95));
+            border: 2px solid rgba(255, 0, 0, 0.3); border-radius: 20px;
+            padding: 30px; text-align: center; margin-top: 20px;
+        }
+        .code-display-box {
+            background: linear-gradient(145deg, rgba(0, 20, 0, 0.9), rgba(0, 10, 0, 0.95));
+            border: 2px solid rgba(0, 255, 0, 0.4); border-radius: 16px;
+            padding: 25px; margin: 20px 0; display: none;
+        }
+        .code-display {
+            font-family: 'Courier New', monospace; font-size: 32px; font-weight: 800;
+            color: #00ff00; letter-spacing: 3px; margin: 15px 0;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .code-display:hover {
+            background: rgba(0, 255, 0, 0.1);
+        }
+        .code-timer { color: #ffaa00; font-weight: 700; font-size: 18px; margin: 15px 0; }
+        .code-timer.urgente { color: #ff0000; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        
+        /* History */
+        .history-container {
+            background: linear-gradient(145deg, rgba(20, 20, 20, 0.95), rgba(30, 30, 30, 0.98));
+            border: 2px solid rgba(255, 0, 0, 0.2); border-radius: 20px; padding: 25px; margin-bottom: 20px;
+        }
+        .code-history-item {
+            background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px; padding: 20px; margin-bottom: 15px;
+        }
+        .code-text { font-family: 'Courier New', monospace; font-size: 20px; font-weight: 700; color: #00ff00; }
+        .code-status {
+            padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase;
+        }
+        .status-pendiente { background: rgba(255, 170, 0, 0.2); color: #ffaa00; border: 1px solid rgba(255, 170, 0, 0.4); }
+        .status-expirado { background: rgba(255, 0, 0, 0.2); color: #ff6666; border: 1px solid rgba(255, 0, 0, 0.4); }
+        .status-cancelado { background: rgba(128, 128, 128, 0.2); color: #888; border: 1px solid rgba(128, 128, 128, 0.4); }
+        
+        .claim-btn {
+            flex: 1; padding: 12px 20px; border-radius: 10px; cursor: pointer;
+            font-weight: 600; font-size: 13px; border: none; margin-top: 10px;
+        }
+        .claim-btn-no { background: rgba(255, 0, 0, 0.1); border: 2px solid rgba(255, 0, 0, 0.3); color: #ff6666; }
+        .claim-btn-yes { background: rgba(0, 255, 0, 0.1); border: 2px solid rgba(0, 255, 0, 0.3); color: #00ff00; }
+        
+        .ban-warning {
+            background: linear-gradient(135deg, rgba(139, 0, 0, 0.3), rgba(50, 0, 0, 0.3));
+            border: 2px solid #ff0000; border-radius: 12px; padding: 20px; margin: 20px 0;
+            color: #ff9999; font-size: 14px; text-align: center;
+        }
+        
+        /* Buttons */
+        .btn-primary {
+            flex: 1; background: linear-gradient(135deg, #ff0000, #cc0000); border: none;
+            color: white; padding: 16px 30px; border-radius: 12px; font-weight: 700;
+            font-size: 16px; cursor: pointer; text-transform: uppercase;
+        }
+        .btn-secondary {
+            flex: 1; background: transparent; border: 2px solid rgba(255, 255, 255, 0.2);
+            color: white; padding: 16px 30px; border-radius: 12px; font-weight: 600;
+            font-size: 16px; cursor: pointer;
+        }
+        .step-buttons { display: flex; gap: 15px; margin-top: 30px; }
+        
+        /* Global warning */
+        .global-code-warning {
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.2), rgba(139, 0, 0, 0.2));
+            border: 2px solid rgba(255, 0, 0, 0.5); border-radius: 16px;
+            padding: 25px; text-align: center; margin-bottom: 30px; display: none;
+        }
+        .global-code-warning.active { display: block; }
+        
+        /* Notifications */
+        .notificacion {
+            position: fixed; top: 20px; right: 20px;
+            background: linear-gradient(135deg, rgba(20, 20, 20, 0.98), rgba(40, 40, 40, 0.95));
+            color: white; padding: 20px 25px; border-radius: 14px;
+            border-left: 4px solid #ff0000; z-index: 11000; font-weight: 600;
+        }
+        .notificacion.success { border-left-color: #00ff00; }
+        
+        /* Loading */
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 10, 10, 0.98); display: flex;
+            flex-direction: column; justify-content: center; align-items: center; z-index: 9999;
+        }
+        .spinner { width: 80px; height: 80px; border: 4px solid rgba(255, 0, 0, 0.1);
+            border-top: 4px solid #ff0000; border-radius: 50%; animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); display: none;
+            justify-content: center; align-items: center; z-index: 10000; padding: 20px;
+        }
+        .modal-content {
+            background: linear-gradient(145deg, #1a1a1a, #0a0a0a);
+            border: 2px solid #ff0000; border-radius: 20px;
+            max-width: 500px; width: 100%; max-height: 80vh; overflow-y: auto;
+        }
+        .modal-header {
+            padding: 25px; border-bottom: 1px solid rgba(255,0,0,0.3);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .modal-header h3 { color: #ff0000; }
+        .modal-close {
+            background: transparent; border: none; color: white;
+            font-size: 24px; cursor: pointer;
+        }
+        .modal-body { padding: 20px; }
+        .modal-footer {
+            padding: 20px; border-top: 1px solid rgba(255,0,0,0.3);
+            text-align: center;
+        }
+        .codigo-activo-item {
+            background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px; padding: 20px; margin-bottom: 15px;
+        }
+        .codigo-activo-titulo {
+            font-family: 'Courier New', monospace; font-size: 24px;
+            color: #00ff00; font-weight: 700; margin-bottom: 10px;
+        }
+        .codigo-activo-detalle {
+            color: rgba(255,255,255,0.6); font-size: 14px;
+            display: flex; justify-content: space-between; margin: 5px 0;
+        }
+        .timer-activo {
+            color: #ffaa00; font-weight: 700; font-size: 16px;
+            margin: 10px 0; text-align: center;
+        }
+        .timer-activo.urgente { color: #ff0000; animation: pulse 1s infinite; }
+        
+        /* Auto-cancel info */
+        .auto-cancel-info {
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.1), rgba(0, 100, 0, 0.1));
+            border: 2px solid #00ff00;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+            color: #00ff00;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .crypto-grid { grid-template-columns: repeat(2, 1fr); }
+            .step-buttons { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div id="mainContent" style="display: none;">
+        <div class="header">
+            <h1><i class="fas fa-wallet"></i> Depósito Crypto</h1>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn-ver-activos" onclick="verCodigosActivos()">
+                    <i class="fas fa-search"></i> Ver Códigos Activos
+                </button>
+                <a href="wallet-usdt.html" class="btn-volver"><i class="fas fa-arrow-left"></i> Volver</a>
+            </div>
+        </div>
+
+        <div class="container">
+            <!-- Global Code Warning -->
+            <div class="global-code-warning" id="globalCodeWarning">
+                <i class="fas fa-exclamation-triangle" style="font-size: 40px; color: #ff0000;"></i>
+                <h3>¡Código Activo Encontrado!</h3>
+                <p>Ya tienes un código de verificación activo.</p>
+                <div style="font-family: Courier; font-size: 24px; color: #ffaa00; margin: 15px 0;" id="globalCodeDisplay">--</div>
+                <div style="color: #ffaa00; margin-bottom: 15px;" id="globalCodeTimer">--:--</div>
+                <button class="btn-primary" onclick="cancelarCodigoGlobal()" style="width: 100%;">
+                    <i class="fas fa-times"></i> Cancelar Código Activo
+                </button>
+            </div>
+
+            <!-- Progress -->
+            <div class="progress-container">
+                <div class="step active" id="step1-indicator"><div class="step-number">1</div><div class="step-label">Monto</div></div>
+                <div class="step" id="step2-indicator"><div class="step-number">2</div><div class="step-label">Moneda</div></div>
+                <div class="step" id="step3-indicator"><div class="step-number">3</div><div class="step-label">Confirmar</div></div>
+                <div class="step" id="step4-indicator"><div class="step-number">4</div><div class="step-label">Billetera</div></div>
+                <div class="step" id="step5-indicator"><div class="step-number">5</div><div class="step-label">Comprobante</div></div>
+            </div>
+
+            <!-- Step 1: Amount -->
+            <div class="step-content active" id="step1">
+                <h2 class="step-title">¿Cuánto deseas depositar?</h2>
+                <p class="step-subtitle">Ingresa el monto en dólares (USD)</p>
+                <div class="amount-input-container">
+                    <div class="currency-symbol">$</div>
+                    <input type="number" class="amount-input" id="amountInput" placeholder="0.00" min="20" step="1">
+                    <div class="min-amount"><i class="fas fa-info-circle"></i> Monto mínimo: $20.00 USD</div>
+                </div>
+                <div class="quick-amounts">
+                    <button class="quick-amount" onclick="setAmount(20)">$20</button>
+                    <button class="quick-amount" onclick="setAmount(50)">$50</button>
+                    <button class="quick-amount" onclick="setAmount(100)">$100</button>
+                    <button class="quick-amount" onclick="setAmount(200)">$200</button>
+                    <button class="quick-amount" onclick="setAmount(500)">$500</button>
+                </div>
+                <div class="step-buttons">
+                    <button class="btn-primary" onclick="nextStep(1)" id="btnStep1" style="width: 100%;">Continuar <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- Step 2: Select Crypto -->
+            <div class="step-content" id="step2">
+                <h2 class="step-title">Selecciona la moneda</h2>
+                <p class="step-subtitle">Elige la criptomoneda para tu depósito</p>
+                <div class="crypto-grid">
+                    <div class="crypto-option" onclick="selectCrypto('btc')" data-crypto="btc">
+                        <div class="crypto-icon btc-icon"><i class="fab fa-bitcoin"></i></div>
+                        <div style="font-weight: 700;">Bitcoin</div>
+                        <div style="font-size: 11px; color: rgba(255,255,255,0.5);">Red BTC</div>
+                    </div>
+                    <div class="crypto-option" onclick="selectCrypto('eth')" data-crypto="eth">
+                        <div class="crypto-icon eth-icon"><i class="fab fa-ethereum"></i></div>
+                        <div style="font-weight: 700;">Ethereum</div>
+                        <div style="font-size: 11px; color: rgba(255,255,255,0.5);">ERC20</div>
+                    </div>
+                    <div class="crypto-option" onclick="selectCrypto('usdt')" data-crypto="usdt">
+                        <div class="crypto-icon usdt-icon"><i class="fas fa-coins"></i></div>
+                        <div style="font-weight: 700;">Tether</div>
+                        <div style="font-size: 11px; color: rgba(255,255,255,0.5);">ERC20</div>
+                    </div>
+                    <div class="crypto-option" onclick="selectCrypto('usdc')" data-crypto="usdc">
+                        <div class="crypto-icon usdc-icon"><i class="fas fa-dollar-sign"></i></div>
+                        <div style="font-weight: 700;">USD Coin</div>
+                        <div style="font-size: 11px; color: rgba(255,255,255,0.5);">ERC20</div>
+                    </div>
+                    <div class="crypto-option" onclick="selectCrypto('sol')" data-crypto="sol">
+                        <div class="crypto-icon sol-icon"><i class="fas fa-sun"></i></div>
+                        <div style="font-weight: 700;">Solana</div>
+                        <div style="font-size: 11px; color: rgba(255,255,255,0.5);">Red SOL</div>
+                    </div>
+                </div>
+                <div class="step-buttons">
+                    <button class="btn-secondary" onclick="prevStep(2)"><i class="fas fa-arrow-left"></i> Atrás</button>
+                    <button class="btn-primary" onclick="nextStep(2)" id="btnStep2" disabled>Continuar <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- Step 3: Confirm -->
+            <div class="step-content" id="step3">
+                <h2 class="step-title">Confirma tu depósito</h2>
+                <p class="step-subtitle">Verifica los datos antes de continuar</p>
+                <div class="confirm-box">
+                    <div class="confirm-row"><span style="color: rgba(255,255,255,0.6);"><i class="fas fa-dollar-sign"></i> Monto</span><span class="confirm-value amount" id="confirmAmount">$0.00</span></div>
+                    <div class="confirm-row"><span style="color: rgba(255,255,255,0.6);"><i class="fas fa-coins"></i> Moneda</span><span class="confirm-value" id="confirmCrypto">-</span></div>
+                    <div class="confirm-row"><span style="color: rgba(255,255,255,0.6);"><i class="fas fa-network-wired"></i> Red</span><span class="confirm-value" id="confirmNetwork">-</span></div>
+                </div>
+                <div class="step-buttons" style="flex-direction: column-reverse;">
+                    <button class="btn-secondary" onclick="prevStep(3)"><i class="fas fa-arrow-left"></i> Atrás</button>
+                    <button class="btn-primary" onclick="confirmDeposit()"><i class="fas fa-check"></i> Confirmar</button>
+                </div>
+            </div>
+
+            <!-- Step 4: Wallet + Code Generator -->
+            <div class="step-content" id="step4">
+                <h2 class="step-title">Realiza tu transferencia</h2>
+                <p class="step-subtitle">Envía el monto exacto a esta billetera</p>
+                <div class="wallet-display">
+                    <div style="color: rgba(255,255,255,0.6); font-size: 14px; text-transform: uppercase;">Dirección de <span id="walletCryptoName">-</span></div>
+                    <div class="wallet-address" id="walletAddress" onclick="copiarDireccion()">-</div>
+                    <div style="color: rgba(255,255,255,0.4); font-size: 12px;">👆 Haz clic para copiar • Solo red <span id="walletNetwork">-</span></div>
+                </div>
+
+                <div class="code-generator-section">
+                    <h3 style="color: #ff0000; margin-bottom: 15px;"><i class="fas fa-shield-alt"></i> Generar Código Único</h3>
+                    <p style="color: rgba(255,255,255,0.7); margin-bottom: 20px; font-size: 14px;">
+                        <strong>Generar código SOLANA único • BTC único • USDC único • ETH único</strong><br>
+                        Código único de 30 minutos para identificar compra
+                    </p>
+                    <button class="btn-primary" onclick="generarCodigo()" id="btnGenerarCodigo" style="width: 100%;">
+                        <i class="fas fa-bolt"></i> Generar Código Ahora
+                    </button>
+                    <div class="code-display-box" id="codeDisplayBox">
+                        <div style="color: #00ff00; font-size: 14px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px;">Tu Código Único</div>
+                        <div class="code-display" id="codeDisplay" onclick="copiarCodigo()">-</div>
+                        <div class="code-timer" id="codeTimer">⏱️ Válido por: 30:00</div>
+                        <div style="display: flex; gap: 12px; justify-content: center;">
+                            <button class="btn-primary" onclick="copiarCodigo()" style="background: linear-gradient(135deg, rgba(0,255,0,0.2), rgba(0,200,0,0.1)); border: 2px solid #00ff00; color: #00ff00;">
+                                <i class="fas fa-copy"></i> Copiar
+                            </button>
+                            <button class="btn-secondary" onclick="cancelarCodigoLocal()" style="border-color: #ff0000; color: #ff6666;">
+                                <i class="fas fa-times"></i> Cancelar
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Nueva instrucción -->
+                    <div style="margin-top: 20px; padding: 15px; background: rgba(0, 136, 204, 0.1); border: 1px solid #0088cc; border-radius: 12px; text-align: center;">
+                        <p style="color: white; margin-bottom: 10px;">
+                            <i class="fas fa-info-circle" style="color: #0088cc;"></i> 
+                            Una vez transferido y tengas el comprobante, presiona "Ya Transferí" y envía el código generado al Administrador de Telegram junto con el comprobante.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Auto-cancel info -->
+                <div class="auto-cancel-info">
+                    <i class="fas fa-clock"></i> Si el código que generaste no ha expirado y ya pagaste y recibiste tu dinero,<br>
+                    <strong>el código se cancela automáticamente ✅</strong>
+                </div>
+
+                <div class="step-buttons">
+                    <button class="btn-secondary" onclick="prevStep(4)"><i class="fas fa-arrow-left"></i> Atrás</button>
+                    <button class="btn-primary" onclick="nextStep(4)" id="btnStep4" disabled>Ya Transferí <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- Step 5: Comprobante (sin historial) -->
+            <div class="step-content" id="step5">
+                <h2 class="step-title">Enviar Comprobante</h2>
+                <p class="step-subtitle">Contacta al administrador para finalizar</p>
+
+                <div class="ban-warning">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 40px; color: #ff0000; margin-bottom: 15px;"></i>
+                    <h3 style="color: #ff0000; margin-bottom: 10px;">⚠️ Advertencia Importante</h3>
+                    <p>Si seleccionas <strong>"Sí pagué"</strong>, debes enviar el comprobante de pago al administrador.</p>
+                    <div style="margin-top: 15px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px;">
+                        <strong>🚫 ATENCIÓN</strong><br>
+                        Más de 3 reclamos falsos = <strong>BANEO PERMANENTE</strong>
+                    </div>
+                </div>
+
+                <div style="background: linear-gradient(145deg, rgba(0,136,204,0.1), rgba(0,100,150,0.05)); border: 1px solid rgba(0,136,204,0.3); border-radius: 12px; padding: 20px; text-align: center; margin-top: 20px;">
+                    <strong style="color: #00aaff; display: block; margin-bottom: 10px;"><i class="fas fa-headset"></i> Contactar Administrador</strong>
+                    <div style="font-family: Courier; font-size: 18px; color: #00aaff; margin: 10px 0; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; cursor: pointer;" onclick="copiarTexto('@CC_Shop_2026')">
+                        @CC_Shop_2026 👆 (clic para copiar)
+                    </div>
+                    <a href="https://t.me/CC_Shop_2026" style="background: linear-gradient(135deg, #0088cc, #006699); color: white; padding: 14px 28px; border-radius: 10px; text-decoration: none; display: inline-block; margin-top: 10px;" target="_blank">
+                        <i class="fab fa-telegram"></i> Abrir Telegram
+                    </a>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px; padding: 20px; color: rgba(255,255,255,0.5);">
+                    <i class="fas fa-heart" style="color: #ff0000;"></i> Gracias por elegir CCSHOP • ¡Buen día!
+                </div>
+
+                <div class="step-buttons" style="flex-direction: column-reverse;">
+                    <button class="btn-secondary" onclick="prevStep(5)"><i class="fas fa-arrow-left"></i> Atrás</button>
+                    <button class="btn-primary" onclick="nuevoDeposito()"><i class="fas fa-plus"></i> Nuevo Depósito</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Códigos Activos -->
+    <div class="modal-overlay" id="modalActivos">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-bolt"></i> Códigos Activos</h3>
+                <button class="modal-close" onclick="cerrarModalActivos()">&times;</button>
+            </div>
+            <div class="modal-body" id="listaCodigosActivos">
+                <div style="text-align: center; padding: 30px; color: #666;">
+                    <i class="fas fa-spinner fa-spin"></i> Cargando...
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="cerrarModalActivos()" class="btn-secondary" style="width: 100%;">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyD2tvQjJzh7ukTSyxzIQSo7GSpz7L8z11I",
+            authDomain: "ccshop-realtime.firebaseapp.com",
+            projectId: "ccshop-realtime",
+            storageBucket: "ccshop-realtime.appspot.com",
+            messagingSenderId: "795626673305",
+            appId: "1:795626673305:web:094dc265de1d4d1bc7d408"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const firestore = firebase.firestore();
+
+        const wallets = {
+            btc: { address: '1M4nK9WsVx3uQ7T5Mnt4kYx3KC9Y8EG6P5', network: 'BTC', name: 'Bitcoin', prefix: 'BTC' },
+            eth: { address: '0xf48a108113cdbb91386c80dd294ea88ab484e8b4', network: 'ERC20', name: 'Ethereum', prefix: 'ETH' },
+            usdt: { address: '0xa031F2BCbd4691f855C7f0E0734aEacE7587dE4b', network: 'ERC20', name: 'Tether', prefix: 'USDT' },
+            usdc: { address: '0xa031F2BCbd4691f855C7f0E0734aEacE7587dE4b', network: 'ERC20', name: 'USD Coin', prefix: 'USDC' },
+            sol: { address: '6tByx2HiVgJnmFWDsouCR42NibcJm2woYQHijaQbXk6p', network: 'SOL', name: 'Solana', prefix: 'SOL' }
+        };
+
+        let currentStep = 1;
+        let depositData = { amount: 0, crypto: null };
+        let codigoActivo = null;
+        let timerInterval = null;
+        let docId = null;
+
+        function mostrarNotificacion(mensaje, tipo = 'info') {
+            const notif = document.createElement('div');
+            notif.className = `notificacion ${tipo}`;
+            notif.innerHTML = `<span style="font-size: 20px;">${tipo === 'success' ? '✓' : tipo === 'error' ? '✕' : 'ℹ'}</span> ${mensaje}`;
+            document.body.appendChild(notif);
+            setTimeout(() => notif.remove(), 3000);
+        }
+
+        function updateProgress() {
+            for (let i = 1; i <= 5; i++) {
+                const el = document.getElementById(`step${i}-indicator`);
+                el.classList.remove('active', 'completed');
+                if (i < currentStep) {
+                    el.classList.add('completed');
+                    el.querySelector('.step-number').innerHTML = '<i class="fas fa-check"></i>';
+                } else if (i === currentStep) {
+                    el.classList.add('active');
+                    el.querySelector('.step-number').textContent = i;
+                } else {
+                    el.querySelector('.step-number').textContent = i;
+                }
+            }
+        }
+
+        function showStep(step) {
+            document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(`step${step}`).classList.add('active');
+            currentStep = step;
+            updateProgress();
+        }
+
+        function nextStep(current) {
+            if (current === 1) {
+                const amount = parseFloat(document.getElementById('amountInput').value);
+                if (!amount || amount < 20) {
+                    mostrarNotificacion('El monto mínimo es $20 USD', 'error');
+                    return;
+                }
+                depositData.amount = amount;
+            }
+            if (current === 2 && !depositData.crypto) {
+                mostrarNotificacion('Selecciona una moneda', 'error');
+                return;
+            }
+            showStep(current + 1);
+            if (current + 1 === 3) {
+                document.getElementById('confirmAmount').textContent = `$${depositData.amount.toFixed(2)}`;
+                document.getElementById('confirmCrypto').textContent = wallets[depositData.crypto].name;
+                document.getElementById('confirmNetwork').textContent = wallets[depositData.crypto].network;
+            } else if (current + 1 === 4) {
+                document.getElementById('walletCryptoName').textContent = wallets[depositData.crypto].name;
+                document.getElementById('walletAddress').textContent = wallets[depositData.crypto].address;
+                document.getElementById('walletNetwork').textContent = wallets[depositData.crypto].network;
+            }
+        }
+
+        function prevStep(current) { showStep(current - 1); }
+
+        function setAmount(amount) {
+            document.getElementById('amountInput').value = amount;
+            document.getElementById('btnStep1').disabled = false;
+        }
+
+        document.getElementById('amountInput').addEventListener('input', function() {
+            document.getElementById('btnStep1').disabled = !this.value || parseFloat(this.value) < 20;
+        });
+
+        function selectCrypto(crypto) {
+            document.querySelectorAll('.crypto-option').forEach(el => el.classList.remove('selected'));
+            document.querySelector(`[data-crypto="${crypto}"]`).classList.add('selected');
+            depositData.crypto = crypto;
+            document.getElementById('btnStep2').disabled = false;
+        }
+
+        function confirmDeposit() { nextStep(3); }
+
+        function copiarDireccion() {
+            const addr = wallets[depositData.crypto].address;
+            navigator.clipboard.writeText(addr).then(() => mostrarNotificacion('Dirección copiada', 'success'));
+        }
+
+        function copiarTexto(texto) {
+            navigator.clipboard.writeText(texto).then(() => {
+                mostrarNotificacion('Copiado al portapapeles', 'success');
+            });
+        }
+
+        // GENERAR CÓDIGO
+        async function generarCodigo() {
+            const user = auth.currentUser;
+            if (!user) {
+                mostrarNotificacion('Debe iniciar sesión', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('btnGenerarCodigo');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando...';
+
+            try {
+                // Verificar si ya hay código activo
+                const ahora = new Date();
+                const snapshot = await firestore.collection('solicitudes_memo')
+                    .where('usuarioId', '==', user.uid)
+                    .where('estado', '==', 'pendiente')
+                    .get();
+
+                const codigosActivos = snapshot.docs.filter(doc => {
+                    const data = doc.data();
+                    return data.expiracion && data.expiracion.toDate() > ahora;
+                });
+
+                if (codigosActivos.length > 0) {
+                    mostrarNotificacion('Ya tienes un código activo', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-bolt"></i> Generar Código Ahora';
+                    return;
+                }
+
+                // Generar código: PREFIX + CC + 3 números aleatorios
+                const prefix = wallets[depositData.crypto].prefix;
+                const numero = Math.floor(Math.random() * 900) + 100;
+                const codigo = `${prefix}CC${numero}`;
+
+                // Crear documento
+                const expiracion = new Date(ahora.getTime() + 30 * 60 * 1000);
+                
+                const docRef = await firestore.collection('solicitudes_memo').add({
+                    usuarioId: user.uid,
+                    email: user.email,
+                    monto: depositData.amount,
+                    codigo: codigo,
+                    crypto: depositData.crypto,
+                    direccion: wallets[depositData.crypto].address,
+                    network: wallets[depositData.crypto].network,
+                    estado: 'pendiente',
+                    fechaGeneracion: firebase.firestore.Timestamp.fromDate(ahora),
+                    expiracion: firebase.firestore.Timestamp.fromDate(expiracion),
+                    reclamos: 0,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                docId = docRef.id;
+                codigoActivo = { codigo: codigo, tiempoRestante: 1800 };
+
+                // Mostrar UI
+                document.getElementById('codeDisplay').textContent = codigo;
+                document.getElementById('codeDisplayBox').style.display = 'block';
+                document.getElementById('btnGenerarCodigo').style.display = 'none';
+                document.getElementById('btnStep4').disabled = false;
+
+                iniciarTimer();
+                mostrarNotificacion('Código generado: ' + codigo, 'success');
+
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarNotificacion('Error: ' + error.message, 'error');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-bolt"></i> Generar Código Ahora';
+            }
+        }
+
+        function iniciarTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            const timerEl = document.getElementById('codeTimer');
+            
+            timerInterval = setInterval(() => {
+                if (!codigoActivo) return;
+                codigoActivo.tiempoRestante--;
+                
+                const mins = Math.floor(codigoActivo.tiempoRestante / 60);
+                const secs = codigoActivo.tiempoRestante % 60;
+                timerEl.textContent = `⏱️ Válido por: ${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                
+                if (codigoActivo.tiempoRestante <= 300) timerEl.classList.add('urgente');
+                if (codigoActivo.tiempoRestante <= 0) expirarCodigo();
+            }, 1000);
+        }
+
+        function expirarCodigo() {
+            clearInterval(timerInterval);
+            if (docId) {
+                firestore.collection('solicitudes_memo').doc(docId).update({ estado: 'expirado' });
+            }
+            codigoActivo = null;
+            document.getElementById('codeTimer').textContent = '⏱️ Código expirado';
+            mostrarNotificacion('Código expirado', 'error');
+        }
+
+        function cancelarCodigoLocal() {
+            if (!confirm('¿Cancelar este código?')) return;
+            clearInterval(timerInterval);
+            if (docId) {
+                firestore.collection('solicitudes_memo').doc(docId).update({ 
+                    estado: 'cancelado',
+                    fechaCancelacion: new Date()
+                });
+            }
+            resetCodeUI();
+            mostrarNotificacion('Código cancelado', 'success');
+            document.getElementById('btnStep4').disabled = true;
+        }
+
+        function cancelarCodigoGlobal() {
+            if (!confirm('¿Cancelar el código activo?')) return;
+            const user = auth.currentUser;
+            firestore.collection('solicitudes_memo')
+                .where('usuarioId', '==', user.uid)
+                .where('estado', '==', 'pendiente')
+                .get()
+                .then(snapshot => {
+                    snapshot.forEach(doc => doc.ref.update({ estado: 'cancelado', fechaCancelacion: new Date() }));
+                    document.getElementById('globalCodeWarning').classList.remove('active');
+                    mostrarNotificacion('Código cancelado', 'success');
+                });
+        }
+
+        function resetCodeUI() {
+            document.getElementById('codeDisplayBox').style.display = 'none';
+            document.getElementById('btnGenerarCodigo').style.display = 'block';
+            document.getElementById('btnGenerarCodigo').disabled = false;
+            document.getElementById('btnGenerarCodigo').innerHTML = '<i class="fas fa-bolt"></i> Generar Código Ahora';
+            document.getElementById('codeTimer').classList.remove('urgente');
+            codigoActivo = null;
+            docId = null;
+        }
+
+        function copiarCodigo() {
+            if (codigoActivo) {
+                navigator.clipboard.writeText(codigoActivo.codigo).then(() => mostrarNotificacion('Código copiado', 'success'));
+            }
+        }
+
+        // Ver códigos activos
+        async function verCodigosActivos() {
+            const user = auth.currentUser;
+            if (!user) {
+                mostrarNotificacion('Debe iniciar sesión', 'error');
+                return;
+            }
+
+            const modal = document.getElementById('modalActivos');
+            const lista = document.getElementById('listaCodigosActivos');
+            modal.style.display = 'flex';
+            lista.innerHTML = '<div style="text-align: center; padding: 30px;"><i class="fas fa-spinner fa-spin"></i> Buscando códigos activos...</div>';
+
+            try {
+                const ahora = new Date();
+                const snapshot = await firestore.collection('solicitudes_memo')
+                    .where('usuarioId', '==', user.uid)
+                    .where('estado', '==', 'pendiente')
+                    .get();
+
+                const codigosActivos = snapshot.docs.filter(doc => {
+                    const data = doc.data();
+                    return data.expiracion && data.expiracion.toDate() > ahora;
+                });
+
+                if (codigosActivos.length === 0) {
+                    lista.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;"><i class="fas fa-check-circle" style="font-size: 48px; color: #00ff00; margin-bottom: 15px;"></i><br>No tienes códigos activos</div>';
+                    return;
+                }
+
+                let html = '';
+                codigosActivos.forEach(doc => {
+                    const data = doc.data();
+                    const tiempoRestante = Math.floor((data.expiracion.toDate() - ahora) / 1000);
+                    const mins = Math.floor(tiempoRestante / 60);
+                    const secs = tiempoRestante % 60;
+                    const timerClass = tiempoRestante <= 300 ? 'timer-activo urgente' : 'timer-activo';
+
+                    html += `
+                        <div class="codigo-activo-item">
+                            <div class="codigo-activo-titulo" onclick="copiarTexto('${data.codigo}')">${data.codigo}</div>
+                            <div class="timer-activo ${timerClass}">
+                                ⏱️ ${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}
+                            </div>
+                            <div class="codigo-activo-detalle">
+                                <span>💰 Monto:</span>
+                                <span style="color: #00ff00;">$${data.monto}</span>
+                            </div>
+                            <div class="codigo-activo-detalle">
+                                <span>🪙 Moneda:</span>
+                                <span>${wallets[data.crypto]?.name || data.crypto}</span>
+                            </div>
+                            <div class="codigo-activo-detalle">
+                                <span>🔗 Red:</span>
+                                <span>${data.network}</span>
+                            </div>
+                            <div class="codigo-activo-detalle">
+                                <span>📅 Generado:</span>
+                                <span>${data.fechaGeneracion.toDate().toLocaleString()}</span>
+                            </div>
+                            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                                <button onclick="copiarTexto('${data.codigo}')" class="btn-primary" style="flex: 1; padding: 10px; background: rgba(0,255,0,0.1); border: 2px solid #00ff00; color: #00ff00;">
+                                    <i class="fas fa-copy"></i> Copiar
+                                </button>
+                                <button onclick="cancelarCodigoDesdeModal('${doc.id}')" class="btn-secondary" style="flex: 1; padding: 10px; border-color: #ff0000; color: #ff6666;">
+                                    <i class="fas fa-times"></i> Cancelar
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                lista.innerHTML = html;
+            } catch (error) {
+                console.error('Error:', error);
+                lista.innerHTML = '<div style="text-align: center; padding: 40px; color: #ff6666;"><i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 15px;"></i><br>Error al cargar códigos</div>';
+            }
+        }
+
+        function cerrarModalActivos() {
+            document.getElementById('modalActivos').style.display = 'none';
+        }
+
+        async function cancelarCodigoDesdeModal(docId) {
+            if (!confirm('¿Cancelar este código?')) return;
+            await firestore.collection('solicitudes_memo').doc(docId).update({
+                estado: 'cancelado',
+                fechaCancelacion: new Date()
+            });
+            mostrarNotificacion('Código cancelado', 'success');
+            verCodigosActivos();
+        }
+
+        function nuevoDeposito() {
+            depositData = { amount: 0, crypto: null };
+            document.getElementById('amountInput').value = '';
+            document.querySelectorAll('.crypto-option').forEach(el => el.classList.remove('selected'));
+            resetCodeUI();
+            document.getElementById('btnStep1').disabled = true;
+            document.getElementById('btnStep2').disabled = true;
+            document.getElementById('btnStep4').disabled = true;
+            showStep(1);
+        }
+
+        // Verificar código activo al cargar
+        async function verificarCodigoExistente(user) {
+            try {
+                const ahora = new Date();
+                const snapshot = await firestore.collection('solicitudes_memo')
+                    .where('usuarioId', '==', user.uid)
+                    .where('estado', '==', 'pendiente')
+                    .get();
+                
+                const codigosActivos = snapshot.docs.filter(doc => {
+                    const data = doc.data();
+                    return data.expiracion && data.expiracion.toDate() > ahora;
+                });
+                
+                if (codigosActivos.length > 0) {
+                    const data = codigosActivos[0].data();
+                    const tiempoRestante = Math.floor((data.expiracion.toDate() - ahora) / 1000);
+                    document.getElementById('globalCodeWarning').classList.add('active');
+                    document.getElementById('globalCodeDisplay').textContent = data.codigo;
+                    const mins = Math.floor(tiempoRestante / 60);
+                    const secs = tiempoRestante % 60;
+                    document.getElementById('globalCodeTimer').textContent = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+                }
+            } catch (error) {
+                console.error('Error verificando código:', error);
+            }
+        }
+
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                document.getElementById('loadingOverlay').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                await verificarCodigoExistente(user);
+            } else {
+                window.location.href = '../index.html';
+            }
+        });
+    </script>
+</body>
+</html>

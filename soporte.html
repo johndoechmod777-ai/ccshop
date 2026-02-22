@@ -1,0 +1,1082 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soporte 24/7 - CCshop</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='text' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23ff0000'/><stop offset='100%' stop-color='%23cc0000'/></linearGradient></defs><path d='M8 8 L24 8 L24 24 L8 24 Z' transform='rotate(45 16 16)' fill='none' stroke='%23ff0000' stroke-width='1.5'/><text x='12' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text><text x='20' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text></svg>">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+    <style>
+        /* Estilos CSS Mejorados */
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body { 
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            min-height: 100vh;
+            color: white; 
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            background: radial-gradient(circle, rgba(255, 0, 0, 0.3) 0%, rgba(255, 0, 0, 0.05) 70%);
+            border-radius: 50%;
+            animation: float 8s infinite ease-in-out;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.2);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); opacity: 0.6; }
+            50% { transform: translateY(-40px) rotate(180deg) scale(1.2); opacity: 0.3; }
+        }
+
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 15px 25px; 
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(25px);
+            border-bottom: 2px solid rgba(255, 0, 0, 0.5);
+            height: 70px; 
+            position: sticky; 
+            top: 0; 
+            z-index: 999;
+            box-shadow: 0 4px 40px rgba(255, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .header-left { 
+            display: flex; 
+            align-items: center; 
+            gap: 20px; 
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-icon {
+            font-size: 28px;
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 15px rgba(255, 0, 0, 0.8));
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+
+        .brand-text {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff0000, #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .back-btn { 
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border: 1px solid rgba(255, 0, 0, 0.5);
+            color: white; 
+            cursor: pointer; 
+            padding: 12px 24px;
+            font-size: 14px; 
+            border-radius: 14px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            text-decoration: none;
+            gap: 8px;
+        }
+
+        .back-btn i {
+            font-size: 16px;
+            transition: transform 0.3s ease;
+        }
+
+        .back-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        .back-btn:hover { 
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.3), rgba(255, 0, 0, 0.1));
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 10px 30px rgba(255, 0, 0, 0.5), 0 0 0 1px rgba(255, 0, 0, 0.6);
+            border-color: rgba(255, 0, 0, 0.8);
+        }
+
+        .back-btn:hover i {
+            transform: scale(1.1);
+        }
+
+        .back-btn:hover::before {
+            left: 100%;
+        }
+
+        .main-content {
+            margin-top: 90px;
+            padding: 20px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .page-title {
+            color: #ff0000;
+            font-size: 32px;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #ff0000, #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.5)); }
+            to { filter: drop-shadow(0 0 20px rgba(255, 0, 0, 0.8)); }
+        }
+        
+        .status-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.1), rgba(0, 255, 0, 0.05));
+            padding: 15px 25px;
+            border-radius: 50px;
+            border: 2px solid rgba(0, 255, 0, 0.4);
+            backdrop-filter: blur(15px);
+            box-shadow: 0 4px 20px rgba(0, 255, 0, 0.2), inset 0 0 20px rgba(0, 255, 0, 0.1);
+            margin-bottom: 40px;
+            animation: borderPulse 2s infinite;
+        }
+
+        @keyframes borderPulse {
+            0%, 100% { border-color: rgba(0, 255, 0, 0.4); box-shadow: 0 4px 20px rgba(0, 255, 0, 0.2); }
+            50% { border-color: rgba(0, 255, 0, 0.8); box-shadow: 0 4px 30px rgba(0, 255, 0, 0.4); }
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #00ff00;
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 10px #00ff00;
+        }
+
+        .status-text {
+            color: #00ff00;
+            font-size: 16px;
+            font-weight: 600;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+        
+        .support-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin: 30px 0;
+        }
+        
+        .support-card {
+            background: linear-gradient(145deg, rgba(26, 26, 26, 0.95), rgba(42, 42, 42, 0.95));
+            border: 1px solid rgba(255, 0, 0, 0.4);
+            border-radius: 20px;
+            padding: 30px 20px;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .support-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #ff0000, #cc0000, #ff0000);
+            background-size: 200% 100%;
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        .support-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: #ff0000;
+            box-shadow: 0 15px 40px rgba(255, 0, 0, 0.4);
+        }
+        
+        .support-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #00ff00;
+            filter: drop-shadow(0 0 10px rgba(0, 255, 0, 0.5));
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+            color: #fff;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            animation: pulse 1.5s infinite;
+            z-index: 10;
+            display: none;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
+        }
+
+        .support-icon-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .support-title {
+            color: #ff0000;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+        }
+        
+        .support-desc {
+            color: #aaa;
+            font-size: 14px;
+            margin-bottom: 20px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.4;
+        }
+        
+        .contact-username {
+            background: linear-gradient(135deg, rgba(255, 165, 0, 0.15), rgba(255, 165, 0, 0.1));
+            padding: 12px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            border: 1px solid rgba(255, 165, 0, 0.4);
+            color: #ff9900;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 2px 15px rgba(255, 165, 0, 0.2);
+            font-size: 14px;
+            word-break: break-all;
+        }
+        
+        .support-btn {
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.2), rgba(255, 0, 0, 0.1));
+            color: white; 
+            border: 1px solid rgba(255, 0, 0, 0.5);
+            padding: 14px 25px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%;
+            font-weight: bold;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            font-family: 'Segoe UI', sans-serif;
+            margin-bottom: 10px;
+        }
+
+        .support-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        .support-btn:hover { 
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.4), rgba(255, 0, 0, 0.2));
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(255, 0, 0, 0.5);
+            border-color: rgba(255, 0, 0, 0.8);
+        }
+
+        .support-btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-payment { 
+            background: linear-gradient(135deg, rgba(0, 136, 204, 0.2), rgba(0, 136, 204, 0.1));
+            border-color: rgba(0, 136, 204, 0.5);
+        }
+        .btn-payment:hover { 
+            background: linear-gradient(135deg, rgba(0, 136, 204, 0.4), rgba(0, 136, 204, 0.2));
+            border-color: rgba(0, 136, 204, 0.8);
+            box-shadow: 0 8px 25px rgba(0, 136, 204, 0.4);
+        }
+
+        .btn-email { 
+            background: linear-gradient(135deg, rgba(234, 67, 53, 0.2), rgba(234, 67, 53, 0.1));
+            border-color: rgba(234, 67, 53, 0.5);
+        }
+        .btn-email:hover { 
+            background: linear-gradient(135deg, rgba(234, 67, 53, 0.4), rgba(234, 67, 53, 0.2));
+            border-color: rgba(234, 67, 53, 0.8);
+            box-shadow: 0 8px 25px rgba(234, 67, 53, 0.4);
+        }
+
+        .btn-tickets { 
+            background: linear-gradient(135deg, rgba(0, 191, 255, 0.2), rgba(0, 191, 255, 0.1));
+            border-color: rgba(0, 191, 255, 0.5);
+        }
+        .btn-tickets:hover { 
+            background: linear-gradient(135deg, rgba(0, 191, 255, 0.4), rgba(0, 191, 255, 0.2));
+            border-color: rgba(0, 191, 255, 0.8);
+            box-shadow: 0 8px 25px rgba(0, 191, 255, 0.4);
+        }
+
+        .btn-copy {
+            background: linear-gradient(135deg, rgba(255, 165, 0, 0.2), rgba(255, 165, 0, 0.1));
+            border-color: rgba(255, 165, 0, 0.5);
+            font-size: 14px;
+            padding: 10px 20px;
+        }
+        .btn-copy:hover {
+            background: linear-gradient(135deg, rgba(255, 165, 0, 0.4), rgba(255, 165, 0, 0.2));
+            border-color: rgba(255, 165, 0, 0.8);
+            box-shadow: 0 8px 25px rgba(255, 165, 0, 0.4);
+        }
+
+        .btn-desc {
+            color: #888; 
+            font-size: 12px; 
+            margin-top: 10px;
+            text-align: center;
+            font-style: italic;
+        }
+
+        .contact-info {
+            background: linear-gradient(145deg, rgba(26, 26, 26, 0.95), rgba(42, 42, 42, 0.95));
+            border: 1px solid rgba(255, 0, 0, 0.4);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .contact-info::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #ff0000, #cc0000, #ff0000);
+            background-size: 200% 100%;
+            animation: shimmer 3s infinite;
+        }
+
+        .contact-email {
+            color: #00ff00;
+            font-weight: bold;
+            font-size: 20px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+            letter-spacing: 1px;
+        }
+
+        .copy-btn {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border: 1px solid rgba(255, 0, 0, 0.5);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            margin: 5px;
+        }
+
+        .copy-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        .copy-btn:hover { 
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.3), rgba(255, 0, 0, 0.1));
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 20px rgba(255, 0, 0, 0.4);
+            border-color: rgba(255, 0, 0, 0.8);
+        }
+
+        .copy-btn:hover::before {
+            left: 100%;
+        }
+
+        .copy-btn.copied {
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.3), rgba(0, 255, 0, 0.1));
+            border-color: rgba(0, 255, 0, 0.8);
+            color: #00ff00;
+        }
+
+        .contact-desc {
+            color: #888; 
+            font-size: 13px; 
+            margin-top: 15px;
+        }
+
+        .info-section {
+            background: linear-gradient(145deg, rgba(26, 26, 26, 0.95), rgba(42, 42, 42, 0.95));
+            border: 1px solid rgba(255, 0, 0, 0.4);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 40px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .info-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #ff0000, #cc0000, #ff0000);
+            background-size: 200% 100%;
+            animation: shimmer 3s infinite;
+        }
+
+        .info-title {
+            color: #ff0000;
+            font-size: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+        }
+
+        .faq-item {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(42, 42, 42, 0.6);
+            padding-left: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .faq-item:hover {
+            padding-left: 20px;
+            border-left: 3px solid #ff0000;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .faq-question {
+            color: #fff;
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+        }
+
+        .faq-answer {
+            color: #aaa;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .faq-answer strong {
+            color: #ff0000;
+        }
+
+        .footer {
+            background: rgba(10, 10, 10, 0.95);
+            padding: 20px;
+            text-align: center;
+            border-top: 2px solid rgba(255, 0, 0, 0.4);
+            margin-top: 50px;
+            font-size: 13px;
+            color: #666;
+            backdrop-filter: blur(10px);
+        }
+
+        .footer i {
+            color: #ff0000;
+            animation: pulse 2s infinite;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.9), rgba(0, 200, 0, 0.9));
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-weight: bold;
+            box-shadow: 0 10px 30px rgba(0, 255, 0, 0.4);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast i {
+            font-size: 20px;
+        }
+
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: rgba(26, 26, 26, 0.9); border-radius: 5px; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(135deg, #ff0000, #cc0000); border-radius: 5px; border: 1px solid rgba(255, 255, 255, 0.1); }
+        ::-webkit-scrollbar-thumb:hover { background: linear-gradient(135deg, #cc0000, #990000); }
+        
+        /* MEDIA QUERIES */
+        @media (max-width: 900px) {
+            .support-grid {
+                grid-template-columns: 1fr;
+            }
+            .support-desc {
+                height: auto;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header { padding: 12px 20px; height: 65px; }
+            .header-left { gap: 15px; }
+            .brand-text { font-size: 22px; }
+            .main-content { padding: 15px; margin-top: 80px; }
+            .page-title { font-size: 28px; }
+            .support-grid { gap: 20px; }
+        }
+        
+        @media (max-width: 480px) {
+            .header { flex-direction: column; height: auto; padding: 15px; gap: 15px; }
+            .header-left { width: 100%; justify-content: space-between; }
+            .back-btn { width: 100%; justify-content: center; }
+            .contact-email { font-size: 16px; }
+            .support-card { padding: 25px 15px; }
+        }
+    </style>
+</head>
+<body>
+    
+    <div id="securityLoading" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0a0a;display:flex;justify-content:center;align-items:center;z-index:9999;">
+        <div style="text-align:center;">
+            <div style="font-size:3rem;margin-bottom:20px;animation:spin 1s linear infinite;">🔒</div>
+            <div style="font-size:18px;color:#ff0000;font-weight:bold;">Verificando seguridad...</div>
+        </div>
+    </div>
+
+    <div class="particles" id="particles"></div>
+
+    <div class="header">
+        <div class="header-left">
+            <div class="brand">
+                <div class="brand-icon"><i class="fas fa-credit-card"></i></div>
+                <div class="brand-text">CCSHOP</div>
+            </div>
+        </div>
+        <a href="tienda.html" class="back-btn" title="Volver al Dashboard" onclick="return verificarBackButton()">
+            <i class="fas fa-arrow-left"></i>
+            Volver al Dashboard
+        </a>
+    </div>
+
+    <div class="main-content">
+        <h1 class="page-title"><i class="fas fa-shield-alt"></i> Soporte 24/7</h1>
+        
+        <div class="status-container">
+            <div class="status-indicator"></div>
+            <span class="status-text"><i class="fas fa-circle" style="font-size:8px;margin-right:5px;"></i> Soporte en línea - 24/7 Disponible</span>
+        </div>
+        
+        <div class="support-grid">
+            
+            <div class="support-card">
+                <div class="support-icon"><i class="fas fa-envelope"></i></div>
+                <div class="support-title">Soporte por Email</div>
+                <div class="support-desc">Para casos complejos que requieren atención personalizada y documentación detallada.</div>
+                <a href="mailto:jonhdoechmod777@gmail.com?subject=Soporte CCSHOP - Asistencia Técnica&body=Hola equipo de CCSHOP,%0D%0A%0D%0ANecesito ayuda con:%0D%0A%0D%0A[Describe tu problema aquí]%0D%0A%0D%0AMi email registrado: [tu-email@ejemplo.com]%0D%0A%0D%0AGracias." class="support-btn btn-email">
+                    <i class="fas fa-paper-plane"></i> Enviar Email
+                </a>
+                <button class="support-btn btn-copy" onclick="copiarTexto('jonhdoechmod777@gmail.com', 'email')">
+                    <i class="fas fa-copy"></i> Copiar Email
+                </button>
+            </div>
+
+            <div class="support-card">
+                <div class="support-icon-container">
+                    <div class="support-icon"><i class="fas fa-ticket-alt"></i></div>
+                    <span class="notification-badge" id="ticketNotification">!</span>
+                </div>
+                <div class="support-title">Sistema de Tickets</div>
+                <div class="support-desc">Gestiona tus consultas con nuestro sistema de tickets en tiempo real.</div>
+                
+                <a href="tickets.html" class="support-btn btn-tickets" onclick="acknowledgeNotifications(); return false;">
+                    <i class="fas fa-ticket-alt"></i> Ver Mis Tickets
+                </a>
+                <p class="btn-desc">Seguimiento en tiempo real de tus consultas</p>
+            </div>
+
+            <div class="support-card">
+                <div class="support-icon"><i class="fab fa-telegram-plane"></i></div>
+                <div class="support-title">Soporte Telegram</div>
+                <div class="support-desc">Para problemas urgentes de <strong>pagos</strong> y <strong>depósitos</strong>. Respuesta rápida.</div>
+                
+                <div class="contact-username" id="telegramText">
+                    @CC_Shop_2026
+                </div>
+                
+                <a href="https://t.me/CC_Shop_2026" class="support-btn btn-payment" target="_blank">
+                    <i class="fab fa-telegram-plane"></i> Abrir Telegram
+                </a>
+                <button class="support-btn btn-copy" onclick="copiarTexto('@CC_Shop_2026', 'telegram')">
+                    <i class="fas fa-copy"></i> Copiar Usuario
+                </button>
+                <p class="btn-desc">Solo para problemas críticos de pago</p>
+            </div>
+            
+        </div>
+        
+        <div class="contact-info">
+            <p style="font-size:18px;margin-bottom:10px;"><i class="fas fa-address-card" style="color:#ff0000;margin-right:10px;"></i><strong>Contactos Directos</strong></p>
+            <div style="margin:20px 0;">
+                <p style="color:#888;font-size:14px;margin-bottom:5px;">Email de Soporte:</p>
+                <div class="contact-email" id="emailDisplay">jonhdoechmod777@gmail.com</div>
+            </div>
+            <div style="margin:20px 0;">
+                <p style="color:#888;font-size:14px;margin-bottom:5px;">Telegram:</p>
+                <div class="contact-email" style="color:#0088cc;text-shadow:0 0 10px rgba(0,136,204,0.3);">@CC_Shop_2026</div>
+            </div>
+            <div style="margin-top:20px;">
+                <button class="copy-btn" onclick="copiarTexto('jonhdoechmod777@gmail.com', 'email')">
+                    <i class="fas fa-envelope"></i> Copiar Email
+                </button>
+                <button class="copy-btn" onclick="copiarTexto('@CC_Shop_2026', 'telegram')">
+                    <i class="fab fa-telegram"></i> Copiar Telegram
+                </button>
+            </div>
+            <p class="contact-desc">Haz clic en los botones para copiar al portapapeles</p>
+        </div>
+        
+        <div class="info-section">
+            <h3 class="info-title"><i class="fas fa-info-circle"></i> Información Importante para Soporte Rápido</h3>
+            
+            <div class="faq-item">
+                <div class="faq-question"><i class="fas fa-clock" style="color:#ff0000;"></i> ¿Cuál es el tiempo de respuesta?</div>
+                <div class="faq-answer"><strong>Email/Tickets:</strong> 1-2 horas máximo (horario extendido 24/7)<br><strong>Telegram:</strong> 15-30 minutos en horario prioritario (pagos urgentes)</div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question"><i class="fas fa-search" style="color:#ff0000;"></i> ¿Qué información debo incluir?</div>
+                <div class="faq-answer">• Tu email registrado en CCSHOP<br>• Descripción detallada del problema<br>• Capturas de pantalla si es posible<br>• Para recargas: monto, método y comprobantes</div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question"><i class="fas fa-bullseye" style="color:#ff0000;"></i> ¿Cuándo usar cada método?</div>
+                <div class="faq-answer">
+                    <strong style="color:#00ff00;">Email / Tickets:</strong> Consultas generales, estado de servicios, soporte técnico.
+                    <br><br>
+                    <strong style="color:#0088cc;">Telegram:</strong> <strong>Solo</strong> para problemas de <strong>depósito</strong> (ej. USDT-TRC20 fallido, PayPal, o métodos alternativos).
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <i class="fas fa-shield-alt"></i> CCSHOP © 2024 | Soporte 24/7 Disponible <i class="fas fa-check-circle"></i>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Copiado al portapapeles</span>
+    </div>
+
+    <script>
+        // ========================================
+        // CONFIGURACIÓN FIREBASE PARA CONEXIÓN CON TICKETS
+        // ========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyD2tvQjJzh7ukTSyxzIQSo7GSpz7L8z11I",
+            authDomain: "ccshop-realtime.firebaseapp.com",
+            databaseURL: "https://ccshop-realtime-default-rtdb.firebaseio.com",
+            projectId: "ccshop-realtime",
+            storageBucket: "ccshop-realtime.appspot.com",
+            messagingSenderId: "795626673305",
+            appId: "1:795626673305:web:094dc265de1d4d1bc7d408"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let usuarioActual = null;
+        let ticketsListener = null;
+        
+        // ** DATOS DE CONTACTO OFICIALES **
+        const EMAIL_SOPORTE = 'jonhdoechmod777@gmail.com';
+        const TELEGRAM_SOPORTE = '@CC_Shop_2026';
+
+        // ========================================
+        // VERIFICACIÓN DE SEGURIDAD MEJORADA
+        // ========================================
+        function verificarAccesoSeguro() {
+            const referrer = document.referrer;
+            const origin = window.location.origin;
+            const allowedReferrers = [
+                origin + '/tienda.html',
+                origin + '/verificacion.html'
+            ];
+
+            const isValidReferrer = allowedReferrers.some(ref => referrer.includes(ref));
+            const hasSessionAuth = sessionStorage.getItem('auth_verified') === 'true';
+
+            if (!isValidReferrer && !hasSessionAuth) {
+                console.warn('🚫 Acceso no autorizado (Flujo) - Redirigiendo a verificación');
+                window.location.href = 'index.html';
+                return false;
+            }
+            
+            sessionStorage.setItem('auth_verified', 'true');
+            return true;
+        }
+
+        function verificarBackButton() {
+            if (!verificarAccesoSeguro()) {
+                return false;
+            }
+            return true;
+        }
+
+        // ========================================
+        // PROTECCIÓN CONTRA INSPECCIÓN
+        // ========================================
+        document.addEventListener('contextmenu', (e) => e.preventDefault());
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I') || 
+                (e.ctrlKey && e.key === 'u') || (e.ctrlKey && e.key === 'U')) {
+                e.preventDefault();
+                return false;
+            }
+        });
+        
+        // Inicializar auth y tickets
+        function inicializarNotificacionesTickets() {
+            if (!verificarAccesoSeguro()) {
+                return;
+            }
+            
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    usuarioActual = user;
+                    const email = user.email ? user.email.toLowerCase() : 'desconocido';
+                    console.log('✅ Logueado:', email);
+                    cargarNotificacionesTickets(email);
+                    
+                    setTimeout(() => {
+                        const securityLoading = document.getElementById('securityLoading');
+                        if (securityLoading) securityLoading.style.display = 'none';
+                    }, 1000); 
+                } else {
+                    console.log('❌ No logueado - Redirigiendo a verificación');
+                    window.location.href = 'verificacion.html';
+                }
+            });
+        }
+
+        function cargarNotificacionesTickets(email) {
+            console.log('🔍 Buscando tickets para: ' + email);
+
+            const ticketsQuery = db.collection('tickets')
+                .where('usuario_email', '==', email)
+                .orderBy('fecha_creacion', 'desc');
+
+            ticketsListener = ticketsQuery.onSnapshot((snapshot) => {
+                console.log('Tickets encontrados: ' + snapshot.size);
+
+                let tieneNotificacion = false;
+                
+                snapshot.forEach((doc) => {
+                    const ticketData = doc.data();
+                    const ticketId = doc.id;
+                    const estado = ticketData.estado || 'abierto';
+                    const fechaActualizacion = ticketData.fecha_actualizacion?.toDate ? 
+                        ticketData.fecha_actualizacion.toDate() : new Date();
+                    
+                    if (ticketData.mensajes && Array.isArray(ticketData.mensajes)) {
+                        const mensajesAdmin = ticketData.mensajes.filter(msg => msg.tipo === 'admin');
+                        if (mensajesAdmin.length > 0) {
+                            const ultimoMensajeAdmin = mensajesAdmin[mensajesAdmin.length - 1];
+                            const ultimaVezVisto = localStorage.getItem(`ticket_visto_${ticketId}`);
+                            
+                            if (!ultimaVezVisto || new Date(ultimaVezVisto) < ultimoMensajeAdmin.fecha?.toDate()) {
+                                tieneNotificacion = true;
+                            }
+                        }
+                    }
+
+                    if (estado === 'pendiente' || estado === 'cerrado') {
+                        const ultimoEstadoVisto = localStorage.getItem(`estado_visto_${ticketId}`);
+                        const estadoActual = `${estado}_${fechaActualizacion.getTime()}`;
+                        
+                        if (!ultimoEstadoVisto || ultimoEstadoVisto !== estadoActual) {
+                            tieneNotificacion = true;
+                        }
+                    }
+                });
+
+                const badge = document.getElementById('ticketNotification');
+                if (tieneNotificacion && badge) {
+                    badge.style.display = 'flex';
+                } else {
+                    if (badge) {
+                        badge.style.display = 'none';
+                    }
+                }
+            }, (error) => {
+                console.error('❌ Error Firebase: ' + error.message);
+            });
+        }
+
+        function acknowledgeNotifications() {
+            if (!verificarAccesoSeguro()) {
+                return false;
+            }
+
+            const badge = document.getElementById('ticketNotification');
+            
+            if (badge) badge.style.display = 'none';
+            
+            if (usuarioActual && usuarioActual.email) {
+                const email = usuarioActual.email.toLowerCase();
+                const ticketsQuery = db.collection('tickets')
+                    .where('usuario_email', '==', email);
+
+                ticketsQuery.get().then((snapshot) => {
+                    snapshot.forEach((doc) => {
+                        const ticketData = doc.data();
+                        const ticketId = doc.id;
+                        const fechaActualizacion = ticketData.fecha_actualizacion?.toDate ? 
+                            ticketData.fecha_actualizacion.toDate() : new Date();
+                        
+                        localStorage.setItem(`ticket_visto_${ticketId}`, new Date().toISOString());
+                        
+                        const estado = ticketData.estado || 'abierto';
+                        localStorage.setItem(`estado_visto_${ticketId}`, `${estado}_${fechaActualizacion.getTime()}`);
+                    });
+                    
+                    window.location.href = 'tickets.html';
+                }).catch((error) => {
+                    console.error('Error al marcar notificaciones:', error);
+                    window.location.href = 'tickets.html';
+                });
+            } else {
+                window.location.href = 'tickets.html';
+            }
+            return false;
+        }
+
+        // ========================================
+        // SISTEMA DE COPIAR MEJORADO CON TOAST
+        // ========================================
+        function copiarTexto(texto, tipo) {
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(texto).then(() => {
+                    mostrarToast(tipo === 'email' ? '✅ Email copiado' : '✅ Usuario de Telegram copiado');
+                    
+                    // Efecto visual en el botón
+                    event.target.closest('button').classList.add('copied');
+                    setTimeout(() => {
+                        event.target.closest('button').classList.remove('copied');
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Error:', err);
+                    copiarFallback(texto, tipo);
+                });
+            } else {
+                copiarFallback(texto, tipo);
+            }
+        }
+
+        function copiarFallback(texto, tipo) {
+            const textArea = document.createElement("textarea");
+            textArea.value = texto;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    mostrarToast(tipo === 'email' ? '✅ Email copiado' : '✅ Usuario copiado');
+                } else {
+                    mostrarToast('❌ Error al copiar', true);
+                }
+            } catch (err) {
+                console.error('Fallback error:', err);
+                mostrarToast('❌ Copia manual: ' + texto, true);
+            }
+
+            document.body.removeChild(textArea);
+        }
+
+        function mostrarToast(mensaje, esError = false) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.textContent = mensaje;
+            
+            if (esError) {
+                toast.style.background = 'linear-gradient(135deg, rgba(255, 0, 0, 0.9), rgba(200, 0, 0, 0.9))';
+                toast.style.boxShadow = '0 10px 30px rgba(255, 0, 0, 0.4)';
+            } else {
+                toast.style.background = 'linear-gradient(135deg, rgba(0, 255, 0, 0.9), rgba(0, 200, 0, 0.9))';
+                toast.style.boxShadow = '0 10px 30px rgba(0, 255, 0, 0.4)';
+            }
+            
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // SISTEMA DE PARTÍCULAS ANIMADAS MEJORADO
+        function crearParticulas() {
+            const particlesContainer = document.getElementById('particles');
+            if (!particlesContainer) return; 
+            
+            const particleCount = 20;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                const size = Math.random() * 120 + 60;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                
+                particle.style.opacity = Math.random() * 0.15 + 0.03;
+                
+                particle.style.animationDelay = `${Math.random() * 8}s`;
+                particle.style.animationDuration = `${Math.random() * 15 + 10}s`;
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // INICIALIZACIÓN
+        crearParticulas();
+        inicializarNotificacionesTickets();
+    </script>
+</body>
+</html>

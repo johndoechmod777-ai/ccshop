@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Código - CCSHOP</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='text' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23ff0000'/><stop offset='100%' stop-color='%23cc0000'/></stop></linearGradient></defs><path d='M8 8 L24 8 L24 24 L8 24 Z' transform='rotate(45 16 16)' fill='none' stroke='%23ff0000' stroke-width='1.5'/><text x='12' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text><text x='20' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text></svg>">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body { 
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0d0d0d 100%);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            min-height: 100vh; 
+            color: white; 
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(255, 0, 0, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 0, 0, 0.06) 0%, transparent 40%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .linea-decorativa {
+            position: fixed;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 0, 0, 0.3), transparent);
+            width: 100%;
+            animation: scan 8s linear infinite;
+            pointer-events: none;
+        }
+
+        .linea-decorativa:nth-child(1) { top: 20%; animation-delay: 0s; }
+        .linea-decorativa:nth-child(2) { top: 60%; animation-delay: 4s; }
+
+        @keyframes scan {
+            0% { transform: translateX(-100%); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateX(100%); opacity: 0; }
+        }
+
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 30px; 
+            padding: 20px 0;
+            border-bottom: 2px solid rgba(255, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ff0000, transparent);
+            animation: pulse-border 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse-border {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .header h1 {
+            font-size: 26px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff0000 0%, #ff4444 50%, #ffffff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-volver {
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.1), rgba(20, 20, 20, 0.8));
+            border: 1px solid rgba(255, 0, 0, 0.4);
+            color: white; 
+            padding: 12px 24px;
+            border-radius: 12px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-volver:hover { 
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.2), rgba(40, 0, 0, 0.9));
+            transform: translateX(-3px);
+            box-shadow: 0 8px 25px rgba(255, 0, 0, 0.3);
+        }
+
+        .container {
+            max-width: 650px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .card {
+            background: linear-gradient(145deg, rgba(20, 20, 20, 0.95), rgba(30, 30, 30, 0.98));
+            padding: 35px;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 0, 0, 0.2);
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(255, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #ff0000, #8b0000, transparent);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        .input-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #ffcccc; 
+            margin-bottom: 12px;
+            font-weight: 600;
+            font-size: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-group label i {
+            color: #ff0000;
+            font-size: 14px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 18px 20px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid rgba(255, 0, 0, 0.2);
+            border-radius: 14px;
+            color: #ffffff; 
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-family: 'Courier New', monospace;
+        }
+
+        .input-field:focus {
+            border-color: #ff0000;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.2);
+            outline: none;
+        }
+
+        .input-field:disabled {
+            background: rgba(255, 0, 0, 0.05);
+            border-color: rgba(255, 0, 0, 0.1);
+            color: rgba(255, 255, 255, 0.5);
+            cursor: not-allowed;
+        }
+
+        .btn-generar {
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.15), rgba(139, 0, 0, 0.1));
+            border: 2px solid rgba(255, 0, 0, 0.4);
+            color: white;
+            padding: 18px 40px;
+            border-radius: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 0 auto 25px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 16px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-generar:hover:not(:disabled) {
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.25), rgba(139, 0, 0, 0.2));
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(255, 0, 0, 0.3);
+        }
+
+        .btn-generar:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+            display: none;
+        }
+
+        .spinner-container {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+        }
+
+        .spinner {
+            width: 100%;
+            height: 100%;
+            border: 3px solid rgba(255, 0, 0, 0.1);
+            border-top: 3px solid #ff0000;
+            border-right: 3px solid #ff0000;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .spinner-inner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            border: 2px solid rgba(255, 0, 0, 0.1);
+            border-bottom: 2px solid #ff4444;
+            border-left: 2px solid #ff4444;
+            border-radius: 50%;
+            animation: spin-reverse 1.5s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes spin-reverse {
+            to { transform: translate(-50%, -50%) rotate(-360deg); }
+        }
+
+        .codigo-box {
+            background: linear-gradient(145deg, rgba(0, 20, 0, 0.9), rgba(0, 10, 0, 0.95));
+            border: 2px solid rgba(0, 255, 0, 0.3);
+            border-radius: 16px;
+            padding: 30px;
+            margin: 25px 0;
+            text-align: center;
+            display: none;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.1);
+        }
+
+        .codigo-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 30%, rgba(0, 255, 0, 0.03) 50%, transparent 70%);
+            animation: hologram 3s ease-in-out infinite;
+        }
+
+        @keyframes hologram {
+            0% { transform: translateY(-100%) rotate(0deg); }
+            100% { transform: translateY(100%) rotate(0deg); }
+        }
+
+        .codigo {
+            font-family: 'Courier New', monospace;
+            font-size: 28px;
+            font-weight: 800;
+            color: #00ff00; 
+            letter-spacing: 3px;
+            margin: 20px 0;
+            text-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
+            position: relative;
+            z-index: 1;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 255, 0, 0.2);
+            word-break: break-all;
+            user-select: all;
+            cursor: pointer;
+        }
+
+        .codigo-hint {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .timer {
+            color: #ffaa00; 
+            font-weight: 700;
+            margin: 20px 0;
+            font-size: 16px;
+            letter-spacing: 1px;
+        }
+
+        .timer.urgente {
+            color: #ff0000;
+            animation: pulse-urgente 1s ease-in-out infinite;
+        }
+
+        @keyframes pulse-urgente {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+        }
+
+        .acciones-codigo {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-copiar, .btn-cancelar {
+            padding: 14px 28px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 14px;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-copiar {
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.15), rgba(0, 200, 0, 0.1));
+            border: 2px solid rgba(0, 255, 0, 0.3);
+            color: #00ff00;
+        }
+
+        .btn-copiar:hover {
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.25), rgba(0, 200, 0, 0.2));
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 255, 0, 0.2);
+        }
+
+        .btn-copiar:active {
+            transform: scale(0.95);
+        }
+
+        .btn-cancelar {
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.15), rgba(200, 0, 0, 0.1));
+            border: 2px solid rgba(255, 0, 0, 0.3);
+            color: #ff6666;
+        }
+
+        .btn-cancelar:hover {
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.25), rgba(200, 0, 0, 0.2));
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 0, 0, 0.2);
+        }
+
+        .admin-seccion {
+            margin-top: 25px;
+            padding: 25px;
+            background: linear-gradient(145deg, rgba(255, 140, 0, 0.08), rgba(200, 100, 0, 0.05));
+            border-radius: 16px;
+            border: 2px solid rgba(255, 140, 0, 0.3);
+            position: relative;
+        }
+
+        .admin-seccion strong {
+            color: #ffffff;
+            font-size: 15px;
+            display: block;
+            margin-bottom: 15px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .admin-handle {
+            font-size: 20px;
+            color: #ffaa00;
+            font-weight: 700;
+            text-align: center;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .btn-admin {
+            background: linear-gradient(135deg, #ff8800, #cc6600);
+            border: none;
+            color: white;
+            padding: 16px 32px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            margin: 15px auto 0;
+            transition: all 0.4s ease;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 15px;
+            box-shadow: 0 8px 25px rgba(255, 136, 0, 0.3);
+        }
+
+        .btn-admin:hover {
+            background: linear-gradient(135deg, #ff9900, #dd7700);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(255, 170, 0, 0.4);
+        }
+
+        .admin-info {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 140, 0, 0.2);
+            color: rgba(255, 220, 180, 0.9);
+            font-size: 13px;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .info-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .info-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 0, 0, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .info-icon {
+            color: #ff0000;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .info-label {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .instrucciones {
+            margin-top: 35px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 0, 0, 0.2);
+        }
+
+        .instrucciones-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .instrucciones-header h3 {
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .paso {
+            display: flex;
+            align-items: flex-start;
+            gap: 18px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 14px;
+            border-left: 4px solid rgba(255, 0, 0, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .paso:hover {
+            background: rgba(255, 255, 255, 0.06);
+            transform: translateX(8px);
+            border-left-color: #ff0000;
+        }
+
+        .paso-numero {
+            background: linear-gradient(135deg, #ff0000, #8b0000);
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 800;
+            flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.4);
+        }
+
+        .paso-contenido {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .paso-titulo {
+            color: #ffcccc;
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .paso-descripcion {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .advertencias {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(145deg, rgba(50, 0, 0, 0.6), rgba(30, 0, 0, 0.8));
+            border-radius: 16px;
+            border: 2px solid rgba(255, 0, 0, 0.3);
+        }
+
+        .advertencias-titulo {
+            color: #ff6666;
+            font-weight: 700;
+            font-size: 16px;
+            text-align: center;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .advertencia-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+            color: rgba(255, 200, 200, 0.9);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .advertencia-item::before {
+            content: '▸';
+            color: #ff0000;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .notificacion {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, rgba(20, 20, 20, 0.98), rgba(40, 40, 40, 0.95));
+            color: white;
+            padding: 20px 25px;
+            border-radius: 14px;
+            border-left: 4px solid #ff0000;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slide-in-right 0.4s ease;
+            backdrop-filter: blur(20px);
+            max-width: 90vw;
+            word-wrap: break-word;
+        }
+
+        .notificacion.success {
+            border-left-color: #00ff00;
+        }
+
+        @keyframes slide-in-right {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(145deg, rgba(30, 30, 30, 0.98), rgba(20, 20, 20, 0.95));
+            border: 2px solid rgba(255, 0, 0, 0.4);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-title {
+            color: #ff0000;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .modal-texto {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid rgba(0, 255, 0, 0.3);
+            border-radius: 10px;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            text-align: center;
+            margin-bottom: 20px;
+            word-break: break-all;
+        }
+
+        .modal-btn {
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.2), rgba(139, 0, 0, 0.1));
+            border: 2px solid rgba(255, 0, 0, 0.4);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .modal-btn:hover {
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.3), rgba(139, 0, 0, 0.2));
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 15px; }
+            .header { flex-direction: column; gap: 20px; text-align: center; }
+            .header h1 { font-size: 22px; }
+            .card { padding: 25px; }
+            .codigo { font-size: 22px; letter-spacing: 2px; padding: 15px; }
+            .acciones-codigo { flex-direction: column; }
+            .btn-copiar, .btn-cancelar { width: 100%; justify-content: center; }
+            .paso { padding: 15px; gap: 12px; }
+            .paso-numero { width: 30px; height: 30px; font-size: 14px; }
+            .paso-titulo { font-size: 14px; }
+            .paso-descripcion { font-size: 13px; }
+            .info-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 480px) {
+            .card { padding: 20px; }
+            .codigo { font-size: 18px; padding: 12px; }
+            .btn-generar { padding: 15px 25px; font-size: 14px; }
+            .admin-handle { font-size: 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="linea-decorativa"></div>
+    <div class="linea-decorativa"></div>
+
+    <div class="header">
+        <h1><i class="fas fa-code"></i> Generador de Código de Verificación</h1>
+        <a href="wallet-usdt.html" class="btn-volver" onclick="guardarEstadoAntesDeVolver(event)">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <!-- INFO GRID -->
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-icon"><i class="fas fa-dollar-sign"></i></div>
+                    <div class="info-label">Monto Mínimo</div>
+                    <div class="info-value">$10 USD</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon"><i class="fas fa-clock"></i></div>
+                    <div class="info-label">Validez del Código</div>
+                    <div class="info-value">30 Minutos</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon"><i class="fas fa-user-shield"></i></div>
+                    <div class="info-label">Verificación</div>
+                    <div class="info-value">Con Administrador</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon"><i class="fas fa-credit-card"></i></div>
+                    <div class="info-label">Métodos Alternativos</div>
+                    <div class="info-value">PayPal / Otros</div>
+                </div>
+            </div>
+
+            <!-- INPUT -->
+            <div class="input-group">
+                <label for="monto"><i class="fas fa-dollar-sign"></i> Monto a Recargar (USD)</label>
+                <input type="number" id="monto" class="input-field" placeholder="Mínimo $10.00" min="10" step="0.01">
+            </div>
+
+            <!-- BOTÓN -->
+            <button class="btn-generar" onclick="generarCodigoMemo()" id="btnGenerar">
+                <i class="fas fa-bolt"></i> Generar Código de Verificación
+            </button>
+
+            <!-- LOADING -->
+            <div class="loading" id="loading">
+                <div class="spinner-container">
+                    <div class="spinner"></div>
+                    <div class="spinner-inner"></div>
+                </div>
+                <p>Generando código único de seguridad...</p>
+            </div>
+
+            <!-- CÓDIGO GENERADO -->
+            <div class="codigo-box" id="codigoBox">
+                <h3 style="color: #00ff00; font-size: 14px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px;">
+                    <i class="fas fa-shield-alt"></i> Código de Verificación Único
+                </h3>
+                <div class="codigo" id="codigoMemo" onclick="seleccionarTexto(this)">MEMO_XXXXXXXX_XXXX</div>
+                <div class="codigo-hint">👆 Toca el código para seleccionarlo, luego copia</div>
+                <div class="timer" id="timer">⏱️ Válido por: 30:00</div>
+                
+                <div class="acciones-codigo">
+                    <button class="btn-copiar" onclick="copiarCodigo()">
+                        <i class="fas fa-copy"></i> Copiar Código
+                    </button>
+                    <button class="btn-cancelar" onclick="cancelarMemo()">
+                        <i class="fas fa-times-circle"></i> Cancelar
+                    </button>
+                </div>
+
+                <!-- SECCIÓN ADMINISTRADOR - CONTACTO PARA PAGOS ALTERNATIVOS -->
+                <div class="admin-seccion">
+                    <strong><i class="fas fa-user-tie"></i> Coordinación de Pago con Administrador</strong>
+                    <div class="admin-handle">@CC_Shop_2026</div>
+                    <a href="https://t.me/CC_Shop_2026" class="btn-admin" target="_blank">
+                        <i class="fab fa-telegram"></i> Contactar Administrador
+                    </a>
+                    <div class="admin-info">
+                        <strong>¿No tienes criptomonedas? Podemos ayudarte.</strong><br>
+                        Una vez generado tu código, contacta al administrador vía Telegram para coordinar un método de pago alternativo como <strong>PayPal, transferencia bancaria, pago móvil, o monederos electrónicos</strong>. Envíale tu <strong>Código de Verificación</strong> y el monto a recargar para que te indique las instrucciones personalizadas. Luego de recibir la confirmación de tu pago, el administrador acreditará el saldo en tu cuenta.
+                    </div>
+                </div>
+            </div>
+
+            <!-- INSTRUCCIONES ACTUALIZADAS -->
+            <div class="instrucciones">
+                <div class="instrucciones-header">
+                    <i class="fas fa-list-ol" style="color: #ff0000; font-size: 24px;"></i>
+                    <h3>Procedimiento para Recargar</h3>
+                </div>
+                
+                <div class="paso">
+                    <div class="paso-numero">1</div>
+                    <div class="paso-contenido">
+                        <div class="paso-titulo"><i class="fas fa-coins"></i> Genera tu Código</div>
+                        <div class="paso-descripcion">Ingresa el monto deseado (mínimo $10 USD) y presiona el botón para generar tu código único de verificación. Este código tendrá una validez de 30 minutos.</div>
+                    </div>
+                </div>
+                
+                <div class="paso">
+                    <div class="paso-numero">2</div>
+                    <div class="paso-contenido">
+                        <div class="paso-titulo"><i class="fab fa-telegram"></i> Contacta al Administrador</div>
+                        <div class="paso-descripcion">Inicia una conversación en Telegram con <strong>@CC_Shop_2026</strong> y proporciona tu <strong>Código de Verificación</strong> y el monto. El administrador te informará sobre los métodos de pago alternativos disponibles en ese momento (PayPal, transferencias, otros).</div>
+                    </div>
+                </div>
+                
+                <div class="paso">
+                    <div class="paso-numero">3</div>
+                    <div class="paso-contenido">
+                        <div class="paso-titulo"><i class="fas fa-hand-holding-usd"></i> Realiza el Pago</div>
+                        <div class="paso-descripcion">Sigue las instrucciones personalizadas que te dará el administrador para completar el pago por el método acordado. Guarda el comprobante de tu transacción.</div>
+                    </div>
+                </div>
+
+                <div class="paso">
+                    <div class="paso-numero">4</div>
+                    <div class="paso-contenido">
+                        <div class="paso-titulo"><i class="fas fa-check-circle"></i> Verificación y Acreditación</div>
+                        <div class="paso-descripcion">Una vez que el administrador confirme la recepción de tu pago, procederá a acreditar el saldo en tu cuenta CCSHOP en un plazo máximo de 10 minutos.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ADVERTENCIAS ACTUALIZADAS -->
+            <div class="advertencias">
+                <div class="advertencias-titulo">Términos y Condiciones</div>
+                <div class="advertencia-item">Monto mínimo de operación: <strong>$10.00 USD</strong></div>
+                <div class="advertencia-item">Validez del código de verificación: <strong>30 minutos</strong> desde su generación. Si el código expira, deberás generar uno nuevo.</div>
+                <div class="advertencia-item">El código generado es <strong>intransferible</strong> y de un solo uso. Debe ser proporcionado al administrador para iniciar el proceso.</div>
+                <div class="advertencia-item">Sin un código válido y la coordinación con el administrador, <strong>no se procesará</strong> la solicitud de recarga por métodos alternativos.</div>
+                <div class="advertencia-item">Tiempo máximo de procesamiento tras confirmación del pago: <strong>10 minutos</strong>.</div>
+                <div class="advertencia-item">Para pagos con PayPal, el administrador te solicitará el correo asociado y el comprobante de la transacción.</div>
+                <div class="advertencia-item">CCSHOP no se hace responsable por pagos realizados sin un código de verificación activo o a cuentas no autorizadas.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL COPIA -->
+    <div class="modal-overlay" id="modalCopia">
+        <div class="modal-content">
+            <div class="modal-title"><i class="fas fa-copy"></i> Copiar Texto</div>
+            <div class="modal-texto">Selecciona el texto y usa "Copiar" (Ctrl+C):</div>
+            <input type="text" class="modal-input" id="modalInput" readonly>
+            <button class="modal-btn" onclick="cerrarModal()">Entendido</button>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyD2tvQjJzh7ukTSyxzIQSo7GSpz7L8z11I",
+            authDomain: "ccshop-realtime.firebaseapp.com",
+            projectId: "ccshop-realtime",
+            storageBucket: "ccshop-realtime.appspot.com",
+            messagingSenderId: "795626673305",
+            appId: "1:795626673305:web:094dc265de1d4d1bc7d408"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const firestore = firebase.firestore();
+
+        let timerInterval;
+        let tiempoRestante = 1800;
+        let docId = null;
+
+        function mostrarNotificacion(mensaje, tipo = 'info') {
+            const notif = document.createElement('div');
+            notif.className = `notificacion ${tipo}`;
+            const icono = tipo === 'success' ? '✓' : tipo === 'error' ? '✕' : 'ℹ';
+            notif.innerHTML = `<span style="font-size: 20px;">${icono}</span> <span style="flex: 1;">${mensaje}</span>`;
+            document.body.appendChild(notif);
+            
+            setTimeout(() => {
+                notif.style.animation = 'slide-out-right 0.4s ease forwards';
+                setTimeout(() => notif.remove(), 400);
+            }, 3000);
+        }
+
+        function seleccionarTexto(elemento) {
+            const selection = window.getSelection();
+            const range = document.createRange();
+            range.selectNodeContents(elemento);
+            selection.removeAllRanges();
+            selection.addRange(range);
+            
+            try {
+                document.execCommand('copy');
+                mostrarNotificacion('✅ Texto seleccionado y copiado', 'success');
+            } catch (err) {
+                mostrarNotificacion('👆 Texto seleccionado. Use Ctrl+C para copiar', 'info');
+            }
+        }
+
+        function mostrarModalCopia(texto) {
+            const modal = document.getElementById('modalCopia');
+            const input = document.getElementById('modalInput');
+            input.value = texto;
+            modal.classList.add('active');
+            input.select();
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalCopia').classList.remove('active');
+        }
+
+        async function copiarAlPortapapeles(texto, descripcion) {
+            if (navigator.clipboard && window.isSecureContext) {
+                try {
+                    await navigator.clipboard.writeText(texto);
+                    mostrarNotificacion(`${descripcion} copiado correctamente`, 'success');
+                    return true;
+                } catch (err) {
+                    console.log('Método 1 falló:', err);
+                }
+            }
+            
+            try {
+                const textarea = document.createElement('textarea');
+                textarea.value = texto;
+                textarea.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0;';
+                document.body.appendChild(textarea);
+                
+                textarea.focus();
+                textarea.select();
+                
+                const exito = document.execCommand('copy');
+                document.body.removeChild(textarea);
+                
+                if (exito) {
+                    mostrarNotificacion(`${descripcion} copiado correctamente`, 'success');
+                    return true;
+                }
+            } catch (err) {
+                console.log('Método 2 falló:', err);
+            }
+            
+            mostrarModalCopia(texto);
+            return false;
+        }
+
+        function copiarCodigo() {
+            const codigo = document.getElementById('codigoMemo').textContent;
+            copiarAlPortapapeles(codigo, 'Código');
+        }
+
+        function guardarEstadoAntesDeVolver(event) {
+            if (docId && tiempoRestante > 0) {
+                if (!confirm('Tienes un código de verificación activo. ¿Deseas salir? El código permanecerá válido hasta su expiración.')) {
+                    event.preventDefault();
+                }
+            }
+        }
+
+        async function checkForActiveMemo(user) {
+            const now = new Date();
+            try {
+                const snapshot = await firestore.collection('solicitudes_memo')
+                    .where('usuarioId', '==', user.uid)
+                    .where('estado', '==', 'pendiente')
+                    .where('expiracion', '>', firebase.firestore.Timestamp.fromDate(now))
+                    .orderBy('fechaGeneracion', 'desc')
+                    .limit(1)
+                    .get();
+
+                if (!snapshot.empty) {
+                    const doc = snapshot.docs[0];
+                    docId = doc.id;
+                    const data = doc.data();
+                    const expiration = data.expiracion.toDate();
+                    const remainingMs = expiration.getTime() - now.getTime();
+                    tiempoRestante = Math.max(0, Math.floor(remainingMs / 1000));
+
+                    if (tiempoRestante > 0) {
+                        mostrarCodigoExistente(data);
+                        return true;
+                    } else {
+                        await firestore.collection('solicitudes_memo').doc(docId).update({
+                            estado: 'expirado'
+                        });
+                        docId = null;
+                    }
+                }
+                document.getElementById('btnGenerar').disabled = false;
+                document.getElementById('monto').disabled = false;
+                document.getElementById('monto').value = '';
+                return false;
+            } catch (error) {
+                console.error('Error checking active memo:', error);
+                return false;
+            }
+        }
+
+        async function cleanupOldMemos(user) {
+            const now = new Date();
+            try {
+                const oldSnapshot = await firestore.collection('solicitudes_memo')
+                    .where('usuarioId', '==', user.uid)
+                    .where('estado', '==', 'pendiente')
+                    .where('expiracion', '<=', firebase.firestore.Timestamp.fromDate(now))
+                    .get();
+                for (let doc of oldSnapshot.docs) {
+                    await doc.ref.update({ estado: 'expirado' });
+                }
+            } catch (error) {
+                console.error('Error cleaning old memos:', error);
+            }
+        }
+
+        function mostrarCodigoExistente(data) {
+            document.getElementById('codigoMemo').textContent = data.codigo;
+            document.getElementById('codigoBox').style.display = 'block';
+            document.getElementById('btnGenerar').disabled = true;
+            document.getElementById('monto').value = data.monto;
+            document.getElementById('monto').disabled = true;
+            
+            if (tiempoRestante > 0) {
+                iniciarTimer();
+            } else {
+                resetUI();
+            }
+        }
+
+        async function generarCodigoMemo() {
+            const monto = parseFloat(document.getElementById('monto').value);
+            const btnGenerar = document.getElementById('btnGenerar');
+            const loading = document.getElementById('loading');
+
+            if (!monto || monto < 10) {
+                mostrarNotificacion('El monto mínimo de operación es $10.00 USD', 'error');
+                return;
+            }
+
+            const user = auth.currentUser;
+            if (!user) {
+                mostrarNotificacion('Debe iniciar sesión para continuar', 'error');
+                return;
+            }
+
+            btnGenerar.disabled = true;
+            loading.style.display = 'block';
+
+            try {
+                const codigo = 'CC-' + Math.random().toString(36).substr(2, 9).toUpperCase() + '-' + Date.now().toString(36).substr(-4).toUpperCase();
+                
+                const fechaGeneracion = new Date();
+                const fechaExpiracion = new Date(fechaGeneracion.getTime() + 30 * 60 * 1000);
+                
+                const memoData = {
+                    usuarioId: user.uid,
+                    email: user.email,
+                    monto: monto,
+                    codigo: codigo,
+                    estado: 'pendiente',
+                    fechaGeneracion: firebase.firestore.Timestamp.fromDate(fechaGeneracion),
+                    expiracion: firebase.firestore.Timestamp.fromDate(fechaExpiracion),
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                const docRef = await firestore.collection('solicitudes_memo').add(memoData);
+                
+                docId = docRef.id;
+                
+                document.getElementById('monto').disabled = true;
+                document.getElementById('codigoMemo').textContent = codigo;
+                loading.style.display = 'none';
+                document.getElementById('codigoBox').style.display = 'block';
+                tiempoRestante = 1800;
+                iniciarTimer();
+                mostrarNotificacion('Código de verificación generado exitosamente', 'success');
+                
+            } catch (error) {
+                console.error('Error:', error);
+                
+                let mensajeError = 'Error al generar código';
+                
+                if (error.code === 'permission-denied') {
+                    mensajeError = 'Sin permisos para generar códigos';
+                } else if (error.code === 'unavailable') {
+                    mensajeError = 'Error de conexión. Verifica tu internet';
+                } else if (error.code === 'invalid-argument') {
+                    mensajeError = 'Datos inválidos. Contacta al soporte';
+                }
+                
+                mostrarNotificacion(mensajeError, 'error');
+                btnGenerar.disabled = false;
+                loading.style.display = 'none';
+            }
+        }
+
+        function cancelarMemo() {
+            if (!docId) {
+                mostrarNotificacion('No hay un código activo para cancelar', 'error');
+                return;
+            }
+
+            if (confirm('¿Confirmas la cancelación de este código? Esta acción es irreversible.')) {
+                firestore.collection('solicitudes_memo').doc(docId).update({
+                    estado: 'cancelado',
+                    fechaCancelacion: new Date()
+                })
+                .then(() => {
+                    resetUI();
+                    mostrarNotificacion('Código cancelado correctamente', 'success');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    mostrarNotificacion('Error al cancelar el código', 'error');
+                });
+            }
+        }
+
+        function resetUI() {
+            clearInterval(timerInterval);
+            document.getElementById('codigoBox').style.display = 'none';
+            document.getElementById('btnGenerar').disabled = false;
+            document.getElementById('monto').disabled = false;
+            document.getElementById('monto').value = '';
+            docId = null;
+            tiempoRestante = 1800;
+        }
+
+        function iniciarTimer() {
+            clearInterval(timerInterval);
+            const timerElement = document.getElementById('timer');
+            
+            timerInterval = setInterval(() => {
+                tiempoRestante--;
+                
+                const minutos = Math.floor(tiempoRestante / 60);
+                const segundos = tiempoRestante % 60;
+                
+                timerElement.textContent = `⏱️ Válido por: ${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
+                
+                if (tiempoRestante <= 300) {
+                    timerElement.classList.add('urgente');
+                } else {
+                    timerElement.classList.remove('urgente');
+                }
+                
+                if (tiempoRestante <= 0) {
+                    clearInterval(timerInterval);
+                    timerElement.textContent = '⏱️ Código expirado';
+                    
+                    if (docId) {
+                        firestore.collection('solicitudes_memo').doc(docId).update({
+                            estado: 'expirado'
+                        }).catch(console.error);
+                    }
+                    resetUI();
+                    mostrarNotificacion('El código ha expirado', 'error');
+                }
+            }, 1000);
+        }
+
+        let unsubscribe = null;
+        
+        auth.onAuthStateChanged((user) => {
+            if (!user) {
+                window.location.href = '../index.html';
+                return;
+            }
+
+            if (unsubscribe) unsubscribe();
+
+            cleanupOldMemos(user);
+            checkForActiveMemo(user);
+
+            unsubscribe = firestore.collection('solicitudes_memo')
+                .where('usuarioId', '==', user.uid)
+                .where('estado', '==', 'pendiente')
+                .onSnapshot((snapshot) => {
+                    const now = new Date();
+                    let hasActive = false;
+                    
+                    snapshot.forEach((doc) => {
+                        const data = doc.data();
+                        const expirationDate = data.expiracion.toDate();
+
+                        if (expirationDate > now) {
+                            hasActive = true;
+                            if (!docId || docId !== doc.id) {
+                                docId = doc.id;
+                                document.getElementById('monto').value = data.monto;
+                                document.getElementById('monto').disabled = true;
+                                document.getElementById('codigoMemo').textContent = data.codigo;
+                                document.getElementById('codigoBox').style.display = 'block';
+                                document.getElementById('btnGenerar').disabled = true;
+                                const remainingMs = expirationDate.getTime() - now.getTime();
+                                tiempoRestante = Math.max(0, Math.floor(remainingMs / 1000));
+                                iniciarTimer();
+                            }
+                        }
+                    });
+                    
+                    if (!hasActive && docId) {
+                        resetUI();
+                    }
+                });
+        });
+
+        window.addEventListener('beforeunload', () => {
+            if (unsubscribe) unsubscribe();
+        });
+    </script>
+</body>
+</html>

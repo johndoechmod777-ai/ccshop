@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Inventario Tarjetas Puerto Rico – CCSHOP</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='text' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23ff0000'/><stop offset='100%' stop-color='%23cc0000'/></stop></linearGradient></defs><path d='M8 8 L24 8 L24 24 L8 24 Z' transform='rotate(45 16 16)' fill='none' stroke='%23ff0000' stroke-width='1.5'/><text x='12' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text><text x='20' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text></svg>">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        #videoFondo {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: -1;
+        }
+        
+        body {
+            background: #111;
+            color: #fff;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            padding: 20px;
+            position: relative;
+            min-height: 100vh;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            background: rgba(0, 0, 0, 0.9);
+            margin-bottom: 40px;
+            border-bottom: 4px solid #ED0000; 
+            border-left: 4px solid #0015BC;
+            border-radius: 16px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 8px 30px rgba(237, 0, 0, 0.6);
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+        
+        .back-button {
+            padding: 14px 25px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #ED0000, #9A0000);
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(237, 0, 0, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .back-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(237, 0, 0, 0.8);
+        }
+        
+        #btnSaldo {
+            padding: 14px 25px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #00a86b, #00c853);
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 18px;
+            box-shadow: 0 6px 20px rgba(0, 200, 83, 0.5);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #btnSaldo:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 200, 83, 0.7);
+        }
+        
+        h1 {
+            color: #ffcc00;
+            margin: 0;
+            font-size: 36px;
+            text-shadow: 0 0 20px rgba(255, 204, 0, 0.9);
+            animation: titleGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { text-shadow: 0 0 20px rgba(255, 204, 0, 0.9); }
+            50% { text-shadow: 0 0 30px rgba(255, 204, 0, 1), 0 0 40px rgba(255, 204, 0, 0.5); }
+        }
+
+        /* ===== SISTEMA DE BÚSQUEDA AUTOMÁTICA ===== */
+        .auto-search-panel {
+            background: linear-gradient(135deg, rgba(237, 0, 0, 0.2), rgba(0, 21, 188, 0.2));
+            border: 3px solid #ffcc00;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 40px;
+            display: none;
+            animation: slideDown 0.5s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .auto-search-panel.active {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .auto-search-title {
+            font-size: 22px;
+            color: #ffcc00;
+            font-weight: 800;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .auto-search-status {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 18px;
+            color: #fff;
+        }
+
+        .search-spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(255, 204, 0, 0.3);
+            border-top: 3px solid #ffcc00;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .search-progress {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+
+        .search-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ffcc00, #ff6600);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            width: 0%;
+            box-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+        }
+
+        /* ===== ESTILO PARA TARJETA DESTACADA ===== */
+        .card-container.tarjeta-destacada {
+            animation: cardSuperHighlight 2s ease infinite;
+            z-index: 100;
+            position: relative;
+        }
+
+        .card-container.tarjeta-destacada .card {
+            border: 4px solid #ffd700 !important;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.8), 0 0 100px rgba(255, 215, 0, 0.4) !important;
+            transform: scale(1.05);
+        }
+
+        @keyframes cardSuperHighlight {
+            0%, 100% { 
+                filter: drop-shadow(0 0 20px #ffd700) drop-shadow(0 0 40px #ffaa00);
+                transform: scale(1.05);
+            }
+            50% { 
+                filter: drop-shadow(0 0 40px #ffd700) drop-shadow(0 0 80px #ffaa00);
+                transform: scale(1.08);
+            }
+        }
+
+        .found-badge {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            background: linear-gradient(135deg, #ffd700, #ffaa00);
+            color: #000;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 900;
+            font-size: 14px;
+            text-transform: uppercase;
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.6);
+            z-index: 200;
+            animation: badgePulse 1s ease infinite;
+        }
+
+        @keyframes badgePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* NOTIFICACIÓN FLOTANTE */
+        .floating-notification {
+            position: fixed;
+            top: 100px;
+            right: 30px;
+            background: linear-gradient(135deg, #ffcc00, #ffaa00);
+            color: #000;
+            padding: 20px 30px;
+            border-radius: 16px;
+            font-weight: 800;
+            font-size: 16px;
+            box-shadow: 0 10px 40px rgba(255, 204, 0, 0.5);
+            z-index: 9999;
+            display: none;
+            animation: slideInRight 0.5s ease;
+            max-width: 400px;
+            border: 3px solid #fff;
+        }
+
+        .floating-notification.show {
+            display: block;
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(100px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .floating-notification.error {
+            background: linear-gradient(135deg, #ff4444, #cc0000);
+            color: #fff;
+            border-color: #ff6666;
+        }
+
+        .floating-notification.success {
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            color: #000;
+            border-color: #fff;
+        }
+
+        /* --- ESTILOS DE LISTA Y TARJETA --- */
+        #listaTarjetas {
+            padding: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2.5rem;
+            justify-content: center;
+            min-height: 1200px; 
+        }
+        
+        .card-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.3s ease;
+            scroll-margin-top: 150px;
+        }
+        
+        .card {
+            width: 420px;
+            height: 260px;
+            background: linear-gradient(135deg, #2a2a2a, #1a1a1a); 
+            border-radius: 20px;
+            padding: 20px;
+            position: relative;
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.9);
+            border: 2px solid rgba(237, 0, 0, 0.6); 
+            overflow: hidden;
+            font-family: 'Courier New', monospace;
+            backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9);
+        }
+        
+        .card::before {
+            content: '🇵🇷'; 
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 80px;
+            opacity: 0.2;
+            z-index: 0;
+        }
+        
+        .card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 1;
+        }
+        
+        .card-content {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .chip-real {
+            width: 65px;
+            height: 50px;
+            background: linear-gradient(135deg, #FFD700, #FFA500, #FFD700, #B8860B);
+            border-radius: 10px;
+            border: 2px solid rgba(0, 21, 188, 0.8);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.6), inset 0 2px 5px rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chip-real::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: rgba(0, 0, 0, 0.3);
+            transform: translateY(-50%);
+        }
+
+        .chip-real::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: rgba(0, 0, 0, 0.3);
+            transform: translateX(-50%);
+        }
+        
+        .card-logo {
+            width: 100px;
+            height: 65px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.8));
+        }
+
+        .visa-logo { background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/800px-Visa_Inc._logo.svg.png'); }
+        .mastercard-logo { background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/800px-Mastercard-logo.svg.png'); }
+        .diners-logo { background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/Diners_Club_Logo3.svg/800px-Diners_Club_Logo3.svg.png'); }
+        .discover-logo { background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Discover_Card_logo.svg/800px-Discover_Card_logo.svg.png'); }
+
+        .card-number {
+            font-size: 26px;
+            letter-spacing: 4px;
+            font-weight: bold;
+            text-shadow: 0 3px 10px rgba(0, 0, 0, 0.9);
+            margin: 12px 0;
+            color: #0015BC;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            background: rgba(154, 0, 0, 0.9); 
+            padding: 12px;
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        .card-holder {
+            font-size: 18px;
+            margin: 8px 0;
+            color: #ffffff; 
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: bold;
+            text-align: left;
+            text-shadow: 0 3px 8px rgba(0, 0, 0, 0.9);
+        }
+
+        .card-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 10px;
+        }
+
+        .bank-name, .cvv-info, .exp-label, .exp-value {
+            color: #ffffff; 
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+            font-weight: bold;
+        }
+
+        .bank-name {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .cvv-info {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .exp-date {
+            text-align: right;
+        }
+
+        .exp-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.8;
+        }
+
+        .exp-value {
+            font-size: 18px;
+            letter-spacing: 1px;
+        }
+
+        .card-status {
+            width: 420px;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+        }
+        
+        .status-available {
+            background: linear-gradient(135deg, #00a86b, #00c853);
+            box-shadow: 0 6px 20px rgba(0, 200, 83, 0.5);
+            animation: pulseAvailable 2s infinite;
+        }
+
+        @keyframes pulseAvailable {
+            0%, 100% { transform: scale(1); box-shadow: 0 6px 20px rgba(0, 200, 83, 0.5); }
+            50% { transform: scale(1.02); box-shadow: 0 8px 25px rgba(0, 200, 83, 0.7); }
+        }
+        
+        .status-sold {
+            background: linear-gradient(135deg, #ff4757, #ff3742);
+            box-shadow: 0 6px 20px rgba(255, 71, 87, 0.5);
+        }
+        
+        .buy-button {
+            width: 420px;
+            padding: 18px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(90deg, #ED0000, #0015BC);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 18px;
+            box-shadow: 0 8px 25px rgba(237, 0, 0, 0.6);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .buy-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .buy-button:hover::before {
+            left: 100%;
+        }
+
+        .buy-button:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(237, 0, 0, 0.8);
+        }
+        
+        .buy-button:disabled {
+            background: linear-gradient(135deg, #444, #666);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.7;
+        }
+        
+        /* PANTALLA DE CARGA MEJORADA */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.98);
+            z-index: 1001;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #ffcc00;
+            font-size: 32px;
+            font-weight: bold;
+            text-shadow: 0 0 20px rgba(255, 204, 0, 0.8);
+            transition: opacity 0.5s ease-out;
+        }
+
+        .flag-container {
+            width: 400px; 
+            height: 266px;
+            position: relative;
+            margin-bottom: 40px;
+            overflow: hidden;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            border: 4px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .stripe-pr {
+            position: absolute;
+            width: 100%;
+            height: 20%;
+            opacity: 0;
+            animation: stripe-slide-in 0.8s ease-out forwards;
+        }
+
+        .stripe-pr:nth-child(1) { background: #ED0000; top: 0%; animation-delay: 0s; transform: translateY(-100%); }
+        .stripe-pr:nth-child(2) { background: white; top: 20%; animation-delay: 0.1s; transform: translateX(100%); }
+        .stripe-pr:nth-child(3) { background: #ED0000; top: 40%; animation-delay: 0.2s; transform: translateX(-100%); }
+        .stripe-pr:nth-child(4) { background: white; top: 60%; animation-delay: 0.3s; transform: translateX(100%); }
+        .stripe-pr:nth-child(5) { background: #ED0000; top: 80%; animation-delay: 0.4s; transform: translateY(100%); }
+        
+        @keyframes stripe-slide-in {
+            0% { opacity: 0; transform: none; }
+            100% { opacity: 1; transform: translate(0, 0); }
+        }
+
+        .triangle-star {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            opacity: 0;
+            animation: fadeIn 0.5s ease-out forwards 0.5s; 
+            z-index: 10;
+        }
+        
+        .triangle-shape {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0015BC;
+            clip-path: polygon(0 0, 33.33% 50%, 0 100%); 
+        }
+
+        .star-pr {
+            position: absolute;
+            top: 50%;
+            left: 16.66%;
+            transform: translate(-50%, -50%);
+            font-size: 45px;
+            color: white; 
+            text-shadow: 0 0 10px #00FFFF, 0 0 30px #00FFFF, 0 0 60px #00BFFF;
+            animation: neon-pulse-pr 1.5s infinite alternate; 
+            z-index: 11;
+        }
+
+        @keyframes neon-pulse-pr {
+            0% { 
+                opacity: 0.8; 
+                transform: translate(-50%, -50%) scale(1);
+                text-shadow: 0 0 10px #00FFFF, 0 0 20px #00FFFF;
+            }
+            100% { 
+                opacity: 1; 
+                transform: translate(-50%, -50%) scale(1.1);
+                text-shadow: 0 0 20px #00FFFF, 0 0 40px #00FFFF, 0 0 80px #00BFFF;
+            }
+        }
+        
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        
+        .loading-text {
+            margin-top: 30px;
+            animation: blink 1s infinite;
+            font-size: 24px;
+            letter-spacing: 3px;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* MODAL MEJORADO - CON DATOS COMPLETOS (CVV Y FECHA) */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .modal-content {
+            background: linear-gradient(145deg, #1a1a1a, #2a2a2a);
+            border-radius: 24px;
+            padding: 40px;
+            width: 90%;
+            max-width: 550px;
+            border: 3px solid #ED0000;
+            text-align: center;
+            box-shadow: 0 25px 80px rgba(237, 0, 0, 0.4);
+            animation: modalSlideIn 0.4s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: scale(0.8) translateY(-50px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-title {
+            font-size: 28px;
+            color: #00ff88;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+
+        .card-data {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 25px;
+            border-radius: 16px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            text-align: left;
+            color: #ffcc00; 
+            border: 2px solid rgba(255, 204, 0, 0.3);
+        }
+
+        .data-item {
+            margin: 15px 0;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border-left: 4px solid #ffcc00;
+            transition: all 0.3s ease;
+        }
+
+        .data-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .data-label {
+            color: #aaa;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .data-value {
+            color: #ffcc00; 
+            font-weight: bold;
+            font-size: 18px;
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.3);
+        }
+
+        .btn-modal {
+            padding: 15px 35px;
+            margin: 10px;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-success { 
+            background: linear-gradient(135deg, #00a86b, #00c853); 
+            color: white; 
+            box-shadow: 0 6px 20px rgba(0, 200, 83, 0.4);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 200, 83, 0.6);
+        }
+
+        .btn-secondary { 
+            background: linear-gradient(135deg, #666, #888); 
+            color: white; 
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #777, #999);
+            transform: translateY(-3px);
+        }
+        
+        /* PAGINACIÓN MEJORADA */
+        .pagination-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            margin-top: 40px;
+            gap: 30px;
+        }
+
+        .pagination-controls button {
+            padding: 15px 35px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #ED0000, #0015BC);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(237, 0, 0, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pagination-controls button:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(237, 0, 0, 0.6);
+        }
+
+        .pagination-controls button:disabled {
+            background: #333;
+            color: #666;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+            opacity: 0.5;
+        }
+
+        .page-indicator {
+            font-size: 22px;
+            color: #ffcc00;
+            font-weight: bold;
+            min-width: 150px;
+            text-align: center;
+            text-shadow: 0 0 15px rgba(255, 204, 0, 0.5);
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px 30px;
+            border-radius: 12px;
+            border: 2px solid rgba(255, 204, 0, 0.3);
+        }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+</head>
+<body>
+    <div id="loading-screen">
+        <div class="flag-container">
+            <div class="stripe-pr"></div>
+            <div class="stripe-pr"></div>
+            <div class="stripe-pr"></div>
+            <div class="stripe-pr"></div>
+            <div class="stripe-pr"></div>
+            <div class="triangle-star">
+                <div class="triangle-shape"></div>
+                <span class="star-pr">★</span>
+            </div>
+        </div>
+        <div class="loading-text">CARGANDO INVENTARIO PUERTO RICO...</div>
+    </div>
+
+    <!-- PANEL DE BÚSQUEDA AUTOMÁTICA -->
+    <div id="autoSearchPanel" class="auto-search-panel">
+        <div class="auto-search-title">
+            🎯 Búsqueda Automática Activada
+        </div>
+        <div class="auto-search-status">
+            <div class="search-spinner"></div>
+            <span id="searchStatusText">Buscando tarjeta específica...</span>
+        </div>
+        <div class="search-progress">
+            <div id="searchProgressBar" class="search-progress-bar"></div>
+        </div>
+        <div style="margin-top: 10px; font-size: 14px; color: #aaa;">
+            Página <span id="currentSearchPage">1</span> de búsqueda
+        </div>
+    </div>
+
+    <!-- NOTIFICACIÓN FLOTANTE -->
+    <div id="floatingNotification" class="floating-notification"></div>
+
+    <video id="videoFondo" autoplay muted loop>
+        <source src="infinito.mp4" type="video/mp4">
+        Tu navegador no soporta videos HTML5.
+    </video>
+    <div class="overlay"></div>
+
+    <div id="compraModal" class="modal">
+        <div class="modal-content">
+            <h2 class="modal-title">✅ COMPRA EXITOSA</h2>
+            <div class="card-data" id="modalCardData">
+                <!-- Los datos se insertarán aquí dinámicamente -->
+            </div>
+            <p style="color: #ffff00; margin: 20px 0; font-size: 16px;">
+                📧 <strong>Revisa tu correo electrónico</strong><br>
+                Hemos enviado los datos completos de la tarjeta a tu email registrado.
+            </p>
+            <div>
+                <button class="btn-modal btn-success" onclick="cerrarModal()">Aceptar</button>
+                <button class="btn-modal btn-secondary" onclick="reenviarEmail()">Reenviar Email</button>
+            </div>
+        </div>
+    </div>
+
+    <header>
+        <div class="header-left">
+            <a href="../catalogo.html" class="back-button">← Volver al Catálogo</a>
+            <h1>🇵🇷 Inventario Puerto Rico</h1>
+        </div>
+        <button id="btnSaldo">💰 Saldo: <span id="saldo">0.00</span> USDT</button>
+    </header>
+
+    <main id="listaTarjetas"></main>
+
+    <div class="pagination-controls">
+        <button id="prevPage" onclick="prevPage()" disabled>← Anterior</button>
+        <div id="pageIndicator" class="page-indicator">Página 1</div>
+        <button id="nextPage" onclick="nextPage()">Siguiente →</button>
+    </div>
+
+    <script>
+        // --- CONFIGURACIÓN Y VARIABLES ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyD2tvQjJzh7ukTSyxzIQSo7GSpz7L8z11I",
+            authDomain: "ccshop-realtime.firebaseapp.com",
+            databaseURL: "https://ccshop-realtime-default-rtdb.firebaseio.com",
+            projectId: "ccshop-realtime",
+            storageBucket: "ccshop-realtime.appspot.com",
+            messagingSenderId: "795626673305",
+            appId: "1:795626673305:web:094dc265de1d4d1bc7d408"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const rtdb = firebase.database();
+        const auth = firebase.auth();
+        emailjs.init("qWfGHNJ4lphrdXcBH");
+
+        let usuarioActual = null;
+        let saldoActual = 0;
+        let tarjetaComprada = null;
+        
+        // Variables para búsqueda automática
+        let targetCardId = null;
+        let targetCardPrice = null;
+        let isAutoSearching = false;
+        let autoSearchAttempts = 0;
+        const MAX_SEARCH_ATTEMPTS = 20;
+
+        const PAGE_SIZE = 30;
+        let lastVisible = null; 
+        let pageHistory = [null]; 
+        let currentPage = 1;
+
+        // --- SISTEMA DE NOTIFICACIONES ---
+        function showFloatingNotification(message, type = 'info') {
+            const notif = document.getElementById('floatingNotification');
+            notif.textContent = message;
+            notif.className = 'floating-notification show ' + type;
+            
+            setTimeout(() => {
+                notif.classList.remove('show');
+            }, 4000);
+        }
+
+        // --- SISTEMA DE BÚSQUEDA AUTOMÁTICA MEJORADO ---
+        function getUrlParameters() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                destacar: params.get('destacar'),
+                precio: params.get('precio')
+            };
+        }
+
+        function initAutoSearch() {
+            const params = getUrlParameters();
+            
+            if (params.destacar) {
+                targetCardId = params.destacar;
+                targetCardPrice = params.precio;
+                isAutoSearching = true;
+                
+                // Mostrar panel de búsqueda
+                document.getElementById('autoSearchPanel').classList.add('active');
+                
+                showFloatingNotification('🔍 Iniciando búsqueda automática de tarjeta...', 'info');
+                
+                // Iniciar búsqueda después de que cargue la primera página
+                setTimeout(() => startAutoSearch(), 1000);
+                
+                return true;
+            }
+            return false;
+        }
+
+        async function startAutoSearch() {
+            if (!isAutoSearching || !targetCardId) return;
+            
+            const cardFound = await searchForCardAcrossPages();
+            
+            if (cardFound) {
+                // Éxito - la tarjeta se encontró y se destacó
+                document.getElementById('autoSearchPanel').classList.remove('active');
+                showFloatingNotification('✅ ¡Tarjeta encontrada! Desplazándose automáticamente...', 'success');
+            } else {
+                // No se encontró después de buscar en todas las páginas posibles
+                document.getElementById('autoSearchPanel').classList.remove('active');
+                showFloatingNotification('❌ Tarjeta no encontrada. Puede haber sido vendida.', 'error');
+                
+                // Limpiar URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+            
+            isAutoSearching = false;
+        }
+
+        async function searchForCardAcrossPages() {
+            autoSearchAttempts = 0;
+            
+            while (autoSearchAttempts < MAX_SEARCH_ATTEMPTS) {
+                autoSearchAttempts++;
+                
+                // Actualizar UI de progreso
+                updateSearchProgress(autoSearchAttempts);
+                
+                // Buscar en la página actual
+                const found = await checkCurrentPageForCard();
+                if (found) {
+                    return true;
+                }
+                
+                // Si no está en esta página, ir a la siguiente
+                const hasMorePages = await loadNextPageForSearch();
+                if (!hasMorePages) {
+                    // No hay más páginas
+                    break;
+                }
+                
+                // Pequeña pausa para permitir que la UI se actualice
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+            
+            return false;
+        }
+
+        function updateSearchProgress(attempt) {
+            document.getElementById('currentSearchPage').textContent = attempt;
+            const progress = Math.min((attempt / 10) * 100, 100);
+            document.getElementById('searchProgressBar').style.width = progress + '%';
+            document.getElementById('searchStatusText').textContent = 
+                `Buscando en página ${attempt}...`;
+        }
+
+        async function checkCurrentPageForCard() {
+            // Buscar el botón que tiene el data-card-id con el ID de la tarjeta
+            const botonTarjeta = document.querySelector(`button[data-card-id="${targetCardId}"]`);
+            
+            if (botonTarjeta) {
+                const container = botonTarjeta.closest('.card-container');
+                if (container) {
+                    // Añadir badge de encontrado
+                    const badge = document.createElement('div');
+                    badge.className = 'found-badge';
+                    badge.textContent = '¡ENCONTRADA!';
+                    container.appendChild(badge);
+                    
+                    // Scroll suave hacia la tarjeta
+                    container.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'center' 
+                    });
+                    
+                    // Añadir clase para destacar con animación
+                    container.classList.add('tarjeta-destacada');
+                    
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        async function loadNextPageForSearch() {
+            const nextButton = document.getElementById('nextPage');
+            if (nextButton.disabled) {
+                return false; // No hay más páginas
+            }
+            
+            // Simular click en siguiente pero sin el scroll
+            if (pageHistory.length === currentPage) {
+                pageHistory.push(lastVisible);
+            }
+            currentPage++;
+            lastVisible = pageHistory[currentPage - 1];
+            
+            await cargarTarjetas(true); // true = es búsqueda automática, no hacer scroll
+            
+            // Actualizar indicador de página
+            document.getElementById('pageIndicator').textContent = `Página ${currentPage}`;
+            
+            return true;
+        }
+
+        // --- FUNCIÓN DE INICIALIZACIÓN SINCRONIZADA ---
+        document.addEventListener('DOMContentLoaded', function() {
+            const video = document.getElementById('videoFondo');
+            video.loop = true;
+            video.muted = true;
+            video.play();
+            
+            // Verificar si hay búsqueda automática pendiente
+            const hasAutoSearch = initAutoSearch();
+            
+            const animacionTerminada = new Promise(resolve => {
+                setTimeout(resolve, 2500); 
+            });
+
+            const cargaDatos = new Promise(resolve => {
+                auth.onAuthStateChanged((user) => {
+                    if (user) {
+                        usuarioActual = user;
+                        cargarSaldoRealTime();
+                        cargarTarjetas(true).then(() => {
+                            resolve();
+                        }).catch(resolve); 
+                    } else {
+                        alert('⚠️ Debes iniciar sesión primero');
+                        window.location.href = "../index.html";
+                        resolve();
+                    }
+                });
+            });
+
+            Promise.all([animacionTerminada, cargaDatos])
+                .then(() => {
+                    const loadingScreen = document.getElementById('loading-screen');
+                    loadingScreen.style.opacity = '0';
+                    setTimeout(() => {
+                        loadingScreen.style.display = 'none';
+                    }, 500); 
+                })
+                .catch(error => {
+                    console.error('Error durante la carga:', error);
+                    document.getElementById('loading-screen').style.display = 'none';
+                });
+        });
+
+        // --- FUNCIONES AUXILIARES ---
+
+        function cargarSaldoRealTime() {
+            if (!usuarioActual) return;
+            const saldoRef = rtdb.ref('users/' + usuarioActual.uid + '/saldo');
+            saldoRef.on('value', (snapshot) => {
+                const saldo = snapshot.val();
+                if (saldo !== null && saldo !== undefined) {
+                    saldoActual = parseFloat(saldo);
+                    document.getElementById('saldo').textContent = saldoActual.toFixed(2);
+                    const saldoElement = document.getElementById('saldo');
+                    saldoElement.style.color = '#ffff00';
+                    saldoElement.style.fontSize = '20px';
+                    setTimeout(() => {
+                        saldoElement.style.color = '#ffffff';
+                        saldoElement.style.fontSize = '18px';
+                    }, 1000);
+                } else {
+                    crearSaldoInicial();
+                }
+            }, (error) => {
+                console.error('Error cargando saldo:', error);
+                document.getElementById('saldo').textContent = 'Error';
+            });
+        }
+
+        async function crearSaldoInicial() {
+            if (!usuarioActual) return;
+            try {
+                await rtdb.ref('users/' + usuarioActual.uid).set({
+                    comprador: usuarioActual.email,
+                    nombre: usuarioActual.displayName || 'Usuario',
+                    saldo: 50.00,
+                    fechaRegistro: Date.now()
+                });
+            } catch (error) {
+                console.error('Error creando saldo inicial:', error);
+            }
+        }
+
+        function formatearNombre(nombreCompleto) {
+            if (!nombreCompleto) return 'TITULAR NO DISPONIBLE';
+            return nombreCompleto.toUpperCase();
+        }
+
+        function obtenerLogoMarca(marca) {
+            if (!marca) return 'visa-logo';
+            const marcaLower = marca.toLowerCase();
+            if (marcaLower === 'visa') return 'visa-logo';
+            if (marcaLower === 'mastercard') return 'mastercard-logo';
+            if (marcaLower === 'diners' || marcaLower === 'diners club') return 'diners-logo';
+            if (marcaLower === 'discover') return 'discover-logo';
+            return 'visa-logo';
+        }
+        
+        // --- FUNCIÓN DE CARGA PRINCIPAL (MODIFICADA PARA BÚSQUEDA AUTOMÁTICA) ---
+        async function cargarTarjetas(isAutoSearchLoad = false) {
+            if (!usuarioActual) return;
+
+            const cont = document.getElementById("listaTarjetas");
+            const prevButton = document.getElementById('prevPage');
+            const nextButton = document.getElementById('nextPage');
+            const pageIndicator = document.getElementById('pageIndicator');
+            
+            if (!isAutoSearchLoad) {
+                cont.innerHTML = '<p style="color:#ffcc00; font-size: 24px; text-align: center; padding: 50px;">Cargando...</p>';
+            }
+
+            try {
+                let query = db.collection("paises").doc("puertorico").collection("cards") 
+                    .where('vendida', '==', false)
+                    .orderBy('precio', 'desc')
+                    .limit(PAGE_SIZE);
+
+                if (lastVisible) {
+                    query = query.startAfter(lastVisible);
+                }
+
+                const snapshot = await query.get();
+                
+                if (!isAutoSearchLoad) {
+                    cont.innerHTML = "";
+                }
+
+                if (snapshot.empty) {
+                    if (!isAutoSearchLoad) {
+                        cont.innerHTML = '<p style="color:#ff4757; font-size: 22px; text-align: center; padding: 50px;">No hay más tarjetas disponibles.</p>';
+                    }
+                    lastVisible = null;
+                    nextButton.disabled = true;
+                    if(currentPage === 1) prevButton.disabled = true; 
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const c = doc.data();
+                    const marcaLogo = obtenerLogoMarca(c.marca);
+                    const estaVendida = c.vendida === true;
+                    
+                    const numeroOculto = c.numero_formateado || `${c.bin} ****** ****`;
+                    const nombreFormateado = formatearNombre(c.nombre);
+                    
+                    const cardHTML = `
+                        <div class="card-container" id="card-container-${doc.id}">
+                            <div class="card">
+                                <div class="card-content">
+                                    <div class="card-top">
+                                        <div class="chip-real"></div>
+                                        <div class="card-logo ${marcaLogo}"></div>
+                                    </div>
+                                    <div class="card-number">${numeroOculto}</div>
+                                    <div class="card-holder">${nombreFormateado}</div>
+                                    <div class="card-info">
+                                        <div>
+                                            <div class="bank-name">${c.banco}</div>
+                                            <div class="cvv-info">CVV: ***</div>
+                                        </div>
+                                        <div class="exp-date">
+                                            <div class="exp-label">EXPIRA</div>
+                                            <div class="exp-value">${c.fecha}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-status ${estaVendida ? 'status-sold' : 'status-available'}">
+                                ${estaVendida ? '🔴 VENDIDA' : '🟢 DISPONIBLE'}
+                            </div>
+                            <button class="buy-button" 
+                                    onclick="comprar('${doc.id}', ${c.precio})" 
+                                    ${estaVendida ? 'disabled' : ''}
+                                    data-card-id="${doc.id}">
+                                ${estaVendida ? '❌ NO DISPONIBLE' : `💳 COMPRAR ${c.precio} USDT`}
+                            </button>
+                        </div>`;
+                    
+                    if (isAutoSearchLoad) {
+                        // En búsqueda automática, añadir al final sin borrar
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = cardHTML;
+                        cont.appendChild(tempDiv.firstElementChild);
+                    } else {
+                        cont.innerHTML += cardHTML;
+                    }
+                });
+
+                lastVisible = snapshot.docs[snapshot.docs.length - 1];
+                nextButton.disabled = snapshot.size < PAGE_SIZE;
+                prevButton.disabled = currentPage === 1;
+                pageIndicator.textContent = `Página ${currentPage}`; 
+
+            } catch (error) {
+                console.error("Error al cargar tarjetas:", error);
+                if (!isAutoSearchLoad) {
+                    cont.innerHTML = '<p style="color:#ff4757; font-size: 22px; text-align: center; padding: 50px;">Error al cargar. Intenta de nuevo.</p>';
+                }
+                throw error; 
+            }
+        }
+        
+        // --- FUNCIONES DE PAGINACIÓN ---
+        function nextPage() {
+            if (document.getElementById('nextPage').disabled) return;
+            if (pageHistory.length === currentPage) {
+                pageHistory.push(lastVisible);
+            }
+            currentPage++;
+            lastVisible = pageHistory[currentPage - 1]; 
+            cargarTarjetas();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function prevPage() {
+            if (currentPage <= 1 || document.getElementById('prevPage').disabled) return;
+            currentPage--;
+            lastVisible = pageHistory[currentPage - 1];
+            cargarTarjetas();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // --- FUNCIÓN DE COMPRA Y MODAL ---
+
+        async function comprar(idCard, precio) {
+            if (!usuarioActual) { 
+                alert("⚠️ Debes iniciar sesión primero");
+                window.location.href = "../index.html";
+                return; 
+            }
+
+            if (saldoActual < precio) { 
+                alert(`❌ Saldo insuficiente.\n\n💰 Tu saldo: $${saldoActual.toFixed(2)}\n💳 Precio: $${precio}`);
+                window.location.href = "../pagos/wallet-usdt.html";
+                return; 
+            }
+
+            if (!confirm(`¿Confirmar compra por ${precio} USDT?\n\nLos datos se enviarán a tu correo.`)) {
+                return;
+            }
+
+            try {
+                const doc = await db.collection("paises").doc("puertorico").collection("cards").doc(idCard).get();
+                const tarjetaData = doc.data();
+
+                let nombreCompleto = tarjetaData.nombre;
+                
+                if (nombreCompleto && (nombreCompleto.includes('*') || nombreCompleto.includes('****'))) {
+                    nombreCompleto = tarjetaData.nombre_real || tarjetaData.titular_completo || tarjetaData.nombre_completo || 'NOMBRE NO DISPONIBLE';
+                }
+                
+                await db.collection("paises").doc("puertorico").collection("cards").doc(idCard)
+                  .update({ 
+                      vendida: true, 
+                      comprador: usuarioActual.uid,
+                      comprador_email: usuarioActual.email,
+                      fecha_venta: new Date()
+                  });
+
+                const nuevoSaldo = saldoActual - precio;
+                await rtdb.ref('users/' + usuarioActual.uid + '/saldo').set(nuevoSaldo);
+                
+                tarjetaComprada = {
+                    ...tarjetaData,
+                    numero_completo: tarjetaData.numero,
+                    nombre_completo: nombreCompleto,
+                    id: doc.id
+                };
+                
+                const emailEnviado = await enviarEmailConfirmacion(tarjetaComprada);
+                
+                mostrarModalConfirmacion(tarjetaComprada, nuevoSaldo, emailEnviado);
+                
+                saldoActual = nuevoSaldo;
+                document.getElementById('saldo').textContent = nuevoSaldo.toFixed(2);
+                
+                setTimeout(() => {
+                    const botonComprado = document.querySelector(`button[data-card-id="${idCard}"]`);
+                    if (botonComprado) {
+                        const container = botonComprado.closest('.card-container');
+                        if (container) {
+                            container.style.display = 'none';
+                        }
+                    }
+                }, 100);
+                
+            } catch (error) {
+                console.error('Error en la compra:', error);
+                alert("❌ Error en la compra: " + error.message);
+            }
+        }
+
+        function getPaisActual() {
+            return 'puertorico';
+        }
+
+        async function enviarEmailConfirmacion(tarjeta) {
+            try {
+                const compraData = {
+                    usuario_id: usuarioActual.uid,
+                    usuario_email: usuarioActual.email,
+                    tarjeta_id: tarjeta.id,
+                    pais: getPaisActual(),
+                    marca: tarjeta.marca,
+                    numero: tarjeta.numero_completo,
+                    cvv: tarjeta.cvv,
+                    fecha_vencimiento: tarjeta.fecha,
+                    titular: tarjeta.nombre_completo,
+                    banco: tarjeta.banco,
+                    precio: tarjeta.precio,
+                    fecha_compra: new Date(),
+                    estado: 'completada',
+                    email_enviado: false,
+                    bin: tarjeta.bin,
+                    final: tarjeta.final,
+                    numero_formateado: `${tarjeta.bin} ****** ${tarjeta.final}`,
+                    leido: false
+                };
+
+                const compraRef = await db.collection('compras').add(compraData);
+                
+                try {
+                    const templateParams = {
+                        to_email: usuarioActual.email,
+                        usuario_nombre: usuarioActual.displayName || 'Cliente CCSHOP',
+                        tarjeta_marca: tarjeta.marca,
+                        tarjeta_numero: tarjeta.numero_completo,
+                        tarjeta_cvv: tarjeta.cvv,
+                        tarjeta_fecha: tarjeta.fecha,
+                        tarjeta_titular: tarjeta.nombre_completo,
+                        tarjeta_banco: tarjeta.banco,
+                        tarjeta_precio: tarjeta.precio,
+                        fecha_compra: new Date().toLocaleDateString('es-ES'),
+                        compra_id: compraRef.id, 
+                        from_name: "Soporte CCSHOP",
+                        reply_to: "soporte_ccshop@proton.me"
+                    };
+
+                    await emailjs.send(
+                        'service_zgzl6vd', 
+                        'template_dc5a2qw', 
+                        templateParams
+                    );
+                    
+                    await compraRef.update({ 
+                        email_enviado: true,
+                        email_fecha_envio: new Date()
+                    });
+                    
+                    return true;
+                    
+                } catch (emailError) {
+                    await compraRef.update({ 
+                        email_enviado: false, 
+                        email_error: emailError.text || emailError.message
+                    });
+                    return false;
+                }
+
+            } catch (error) {
+                return false;
+            }
+        }
+
+        // --- MODAL CON DATOS COMPLETOS (CVV Y FECHA DE EXPIRACIÓN) ---
+        function mostrarModalConfirmacion(tarjeta, nuevoSaldo, emailEnviado) {
+            const modal = document.getElementById('compraModal');
+            const modalData = document.getElementById('modalCardData');
+            
+            modalData.innerHTML = `
+                <div class="data-item">
+                    <div class="data-label">TARJETA COMPLETA</div>
+                    <div class="data-value" style="font-size: 20px; color: #ffcc00;">${tarjeta.marca} ${tarjeta.numero_completo}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">CVV</div>
+                    <div class="data-value" style="font-size: 20px; color: #ffcc00;">${tarjeta.cvv}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">FECHA DE EXPIRACIÓN</div>
+                    <div class="data-value" style="font-size: 20px; color: #ffcc00;">${tarjeta.fecha}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">TITULAR COMPLETO</div>
+                    <div class="data-value">${tarjeta.nombre_completo}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">BANCO</div>
+                    <div class="data-value">${tarjeta.banco}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">PRECIO</div>
+                    <div class="data-value">$${tarjeta.precio} USDT</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">NUEVO SALDO</div>
+                    <div class="data-value" style="color: #00ffcc; font-size: 20px;">$${nuevoSaldo.toFixed(2)} USDT</div>
+                </div>
+            `;
+            
+            if (!emailEnviado) {
+                modalData.innerHTML += `
+                    <div style="background: rgba(255, 204, 0, 0.1); padding: 20px; border-radius: 12px; margin-top: 20px; border: 2px solid #ffcc00;">
+                        <p style="color: #ffcc00; margin: 0; text-align: center; font-weight: bold;">
+                            ⚠️ GUARDA ESTOS DATOS<br>
+                            El email falló. Esta información no se mostrará nuevamente.
+                        </p>
+                    </div>
+                `;
+            }
+            
+            modal.style.display = 'flex';
+        }
+
+        function cerrarModal() {
+            document.getElementById('compraModal').style.display = 'none';
+        }
+
+        function reenviarEmail() {
+            if (tarjetaComprada) {
+                enviarEmailConfirmacion(tarjetaComprada).then(success => {
+                    if(success) {
+                        alert('📧 Email reenviado exitosamente');
+                    } else {
+                        alert('❌ Fallo al reenviar el email');
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>
