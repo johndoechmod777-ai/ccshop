@@ -1,11 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CCshop - Acceso Exclusivo</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='text' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23ff0000'/><stop offset='100%' stop-color='%23cc0000'/></linearGradient></defs><path d='M8 8 L24 8 L24 24 L8 24 Z' transform='rotate(45 16 16)' fill='none' stroke='%23ff0000' stroke-width='1.5'/><text x='12' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text><text x='20' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='text' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23ff0000'/><stop offset='100%' stop-color='%23cc0000'/></linearGradient></defs><path d='M8 8 L24 8 L24 24 L8 24 Z' transform='rotate(45 16 16)' fill='none' stroke='%23ff0000' stroke-width='1.5'/><text x='12' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text><text x='20' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text></svg>">
     
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -309,6 +308,40 @@
                 opacity: 1;
                 transform: translateY(0);
             }
+        }
+
+        /* ADVERTENCIA DE ANONIMATO - INTEGRADA SIN ROMPER DISEÑO */
+        .anonymity-warning {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.5);
+            border-radius: 10px;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 12px;
+            color: #ffcccc;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            animation: warningPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes warningPulse {
+            0%, 100% { 
+                border-color: rgba(255, 0, 0, 0.5);
+                box-shadow: 0 0 10px rgba(255, 0, 0, 0.2);
+            }
+            50% { 
+                border-color: rgba(255, 0, 0, 0.8);
+                box-shadow: 0 0 20px rgba(255, 0, 0, 0.4);
+            }
+        }
+
+        .anonymity-warning span {
+            font-size: 16px;
         }
 
         /* BOTÓN DE GOOGLE */
@@ -799,6 +832,13 @@
             #securityForm {
                 padding: 30px 25px;
             }
+
+            /* Responsive para advertencia */
+            .anonymity-warning {
+                padding: 10px 12px;
+                font-size: 11px;
+                margin-bottom: 15px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -807,7 +847,8 @@
             }
             
             .security-video {
-                height: 140px;
+ {
+                height:                height: 140px;
             }
             
             .google-button {
@@ -835,6 +876,18 @@
 
             #securityForm h2 {
                 font-size: 20px;
+            }
+
+            /* Responsive para advertencia en móviles pequeños */
+            .anonymity-warning {
+                padding: 8px 10px;
+                font-size: 10px;
+                letter-spacing: 0.3px;
+                gap: 6px;
+            }
+
+            .anonymity-warning span {
+                font-size: 14px;
             }
         }
     </style>
@@ -898,6 +951,13 @@
             </video>
             
             <div class="security-title">Iniciar Sesión Segura</div>
+            
+            <!-- ADVERTENCIA DE ANONIMATO - SIMPLE Y LIMPIA -->
+            <div class="anonymity-warning">
+                <span>🚫</span>
+                NO USES UN CORREO PERSONAL PARA INGRESAR, MANTEN TU ANONIMATO
+                <span>👤</span>
+            </div>
             
             <button class="google-button" id="googleButton" onclick="initiateGoogleSignIn()">
                 <svg class="google-icon" viewBox="0 0 24 24">
