@@ -2,12 +2,17 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Inventario Tarjetas México – Mira</title>
+    <title>Inventario Tarjetas México – CCSHOP</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='text' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23ff0000'/><stop offset='100%' stop-color='%23cc0000'/></linearGradient></defs><path d='M8 8 L24 8 L24 24 L8 24 Z' transform='rotate(45 16 16)' fill='none' stroke='%23ff0000' stroke-width='1.5'/><text x='12' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text><text x='20' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text></svg>">
     
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     
     <style>
+        /* --- COLORES DE MÉXICO --- */
+        /* Verde: #006847 */
+        /* Blanco: #FFFFFF */
+        /* Rojo: #C40A30 */
+
         /* --- ESTILOS GENERALES Y LAYOUT --- */
         * {
             margin: 0;
@@ -15,7 +20,6 @@
             box-sizing: border-box;
         }
         
-        /* VIDEO DE FONDO - MANTENIENDO EL CÓDIGO ORIGINAL */
         #videoFondo {
             position: fixed;
             top: 0;
@@ -39,7 +43,7 @@
         body {
             background: #111;
             color: #fff;
-            font-family: 'Arial', sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             padding: 20px;
             position: relative;
             min-height: 100vh;
@@ -49,63 +53,159 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1rem 2rem;
-            background: rgba(0, 0, 0, 0.85);
-            margin-bottom: 30px;
-            /* Tema MX - Rojo bandera */
-            border-bottom: 2px solid #C40A30; 
-            border-radius: 12px;
-            backdrop-filter: blur(15px);
+            padding: 1.5rem 2rem;
+            background: rgba(0, 0, 0, 0.9);
+            margin-bottom: 40px;
+            border-bottom: 4px solid #C40A30; 
+            border-left: 4px solid #006847;
+            border-radius: 16px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 8px 30px rgba(196, 10, 48, 0.6);
         }
         
         .header-left {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 25px;
         }
         
         .back-button {
-            padding: 12px 20px;
+            padding: 14px 25px;
             border: none;
-            border-radius: 10px;
-            /* Tema MX - Verde/Rojo */
+            border-radius: 12px;
             background: linear-gradient(135deg, #006847, #C40A30);
             color: #fff;
             font-weight: bold;
             cursor: pointer;
-            font-size: 15px;
+            font-size: 16px;
             text-decoration: none;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 104, 71, 0.5);
+            box-shadow: 0 6px 20px rgba(0, 104, 71, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .back-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 104, 71, 0.8);
         }
         
         #btnSaldo {
-            padding: 12px 20px;
+            padding: 14px 25px;
             border: none;
-            border-radius: 10px;
-            background: linear-gradient(135deg, #00a86b, #00c853);
+            border-radius: 12px;
+            background: linear-gradient(135deg, #006847, #00c853);
             color: #fff;
             font-weight: bold;
             cursor: pointer;
-            font-size: 16px;
-            box-shadow: 0 4px 15px rgba(0, 200, 83, 0.4);
+            font-size: 18px;
+            box-shadow: 0 6px 20px rgba(0, 104, 71, 0.5);
             transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #btnSaldo:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 104, 71, 0.7);
         }
         
         h1 {
-            color: #00ffcc; 
+            color: #FFFFFF;
             margin: 0;
-            font-size: 30px;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+            font-size: 36px;
+            text-shadow: 0 0 20px rgba(196, 10, 48, 0.9);
+            animation: titleGlow 2s ease-in-out infinite;
         }
 
-        /* --- ESTILOS DE LISTA Y TARJETA --- */
+        @keyframes titleGlow {
+            0%, 100% { text-shadow: 0 0 20px rgba(196, 10, 48, 0.9); }
+            50% { text-shadow: 0 0 30px rgba(196, 10, 48, 1), 0 0 40px rgba(0, 104, 71, 0.5); }
+        }
+
+        /* ===== SISTEMA DE BÚSQUEDA AUTOMÁTICA (NUEVO) ===== */
+        .auto-search-panel {
+            background: linear-gradient(135deg, rgba(0, 104, 71, 0.2), rgba(196, 10, 48, 0.2));
+            border: 3px solid #FFFFFF;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 40px;
+            display: none;
+            animation: slideDown 0.5s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .auto-search-panel.active {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .auto-search-title {
+            font-size: 22px;
+            color: #FFFFFF;
+            font-weight: 800;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .auto-search-status {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 18px;
+            color: #fff;
+        }
+
+        .search-spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid #FFFFFF;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .search-progress {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+
+        .search-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #FFFFFF, #006847);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            width: 0%;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        /* ===== ESTILOS DE LISTA Y TARJETA ===== */
         #listaTarjetas {
             padding: 1rem;
             display: flex;
             flex-wrap: wrap;
-            gap: 2rem;
+            gap: 2.5rem;
             justify-content: center;
             min-height: 1200px; 
         }
@@ -114,33 +214,38 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            transition: all 0.3s ease;
+            scroll-margin-top: 150px;
         }
         
         .card {
-            width: 400px;
-            height: 240px;
-            /* Fondo MX (Verde suave) */
-            background: #e0f8e0; 
-            border-radius: 16px;
-            padding: 15px;
+            width: 420px;
+            height: 280px; /* Aumentado para dar espacio a más información */
+            background: linear-gradient(135deg, #006847, #C40A30);
+            border-radius: 20px;
+            padding: 20px;
             position: relative;
-            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.8);
-            /* Borde MX (Verde) */
-            border: 1px solid rgba(0, 104, 71, 0.6); 
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.9);
+            border: 2px solid rgba(255, 255, 255, 0.6);
             overflow: hidden;
             font-family: 'Courier New', monospace;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9);
         }
         
         .card::before {
-            /* SÍMBOLO ADAPTADO: Bandera MX */
-            content: '🇲🇽'; 
+            content: '🇲🇽';
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 60px;
-            opacity: 0.3;
+            font-size: 80px;
+            opacity: 0.2;
             z-index: 0;
         }
         
@@ -151,7 +256,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.35);
+            background: rgba(0, 0, 0, 0.3);
             z-index: 1;
         }
         
@@ -168,28 +273,49 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
         .chip-real {
-            width: 55px;
-            height: 42px;
+            width: 65px;
+            height: 50px;
             background: linear-gradient(135deg, #FFD700, #FFA500, #FFD700);
-            border-radius: 6px;
-            /* Borde Chip MX (Rojo) */
-            border: 1px solid rgba(196, 10, 48, 0.8);
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.6);
+            border-radius: 10px;
+            border: 2px solid rgba(196, 10, 48, 0.8);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.6), inset 0 2px 5px rgba(255, 255, 255, 0.3);
             position: relative;
             overflow: hidden;
         }
+
+        .chip-real::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: rgba(0, 0, 0, 0.3);
+            transform: translateY(-50%);
+        }
+
+        .chip-real::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: rgba(0, 0, 0, 0.3);
+            transform: translateX(-50%);
+        }
         
         .card-logo {
-            width: 85px;
-            height: 55px;
+            width: 100px;
+            height: 65px;
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
+            filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.8));
         }
 
         .visa-logo { background-image: url('visa.png'); }
@@ -198,30 +324,79 @@
         .discover-logo { background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Discover_Card_logo.svg/800px-Discover_Card_logo.svg.png'); }
 
         .card-number {
-            font-size: 22px;
-            letter-spacing: 3px;
+            font-size: 26px;
+            letter-spacing: 4px;
             font-weight: bold;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+            text-shadow: 0 3px 10px rgba(0, 0, 0, 0.9);
             margin: 8px 0;
-            color: #00ffcc; 
+            color: #FFFFFF;
             font-family: 'Courier New', monospace;
             text-align: center;
-            /* Fondo Número MX (Verde Oscuro) */
-            background: rgba(0, 104, 71, 0.85); 
-            padding: 6px;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.5);
+            background: rgba(196, 10, 48, 0.9);
+            padding: 10px;
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
         }
         
         .card-holder {
-            font-size: 16px;
+            font-size: 18px;
             margin: 5px 0;
-            color: #00ffcc; 
+            color: #FFFFFF;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
+            letter-spacing: 2px;
             font-weight: bold;
             text-align: left;
-            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+            text-shadow: 0 3px 8px rgba(0, 0, 0, 0.9);
+        }
+
+        /* ESTILOS PARA INFORMACIÓN ADICIONAL (Banco, CVV, Fecha) */
+        .card-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 8px 0;
+            padding: 8px 12px;
+            background: rgba(0, 104, 71, 0.7);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            color: #FFFFFF;
+        }
+
+        .bank-info {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .bank-info span {
+            color: #FFFFFF;
+        }
+
+        .cvv-exp-info {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .cvv-info, .exp-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .info-label {
+            font-size: 11px;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .info-value {
+            color: #FFFFFF;
+            font-size: 16px;
+            font-weight: bold;
         }
 
         .card-info {
@@ -231,67 +406,150 @@
             margin-top: 5px;
         }
 
-        .bank-name, .cvv-info, .exp-label, .exp-value {
-            color: #00ffcc; 
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
-            font-weight: bold;
+        .bank-name {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .exp-date {
+            text-align: right;
+        }
+
+        .exp-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.8;
+        }
+
+        .exp-value {
+            font-size: 18px;
+            letter-spacing: 1px;
         }
 
         .card-status {
-            width: 400px;
-            padding: 12px;
-            margin-top: 10px;
-            border-radius: 10px;
-            font-size: 16px;
+            width: 420px;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 12px;
+            font-size: 18px;
             font-weight: bold;
             text-align: center;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
             transition: all 0.3s ease;
         }
         
         .status-available {
-            background: linear-gradient(135deg, #00a86b, #00c853);
-            box-shadow: 0 4px 15px rgba(0, 200, 83, 0.4);
-            animation: pulse 2s infinite;
+            background: linear-gradient(135deg, #006847, #00c853);
+            box-shadow: 0 6px 20px rgba(0, 104, 71, 0.5);
+            animation: pulseAvailable 2s infinite;
+        }
+
+        @keyframes pulseAvailable {
+            0%, 100% { transform: scale(1); box-shadow: 0 6px 20px rgba(0, 104, 71, 0.5); }
+            50% { transform: scale(1.02); box-shadow: 0 8px 25px rgba(0, 104, 71, 0.7); }
         }
         
         .status-sold {
             background: linear-gradient(135deg, #ff4757, #ff3742);
-            box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 4px 15px rgba(0, 200, 83, 0.4); }
-            50% { transform: scale(1.02); box-shadow: 0 6px 20px rgba(0, 200, 83, 0.6); }
-            100% { transform: scale(1); box-shadow: 0 4px 15px rgba(0, 200, 83, 0.4); }
+            box-shadow: 0 6px 20px rgba(255, 71, 87, 0.5);
         }
         
         .buy-button {
-            width: 400px;
-            padding: 16px;
-            margin-top: 12px;
+            width: 420px;
+            padding: 18px;
+            margin-top: 15px;
             border: none;
-            border-radius: 12px;
-            /* Botón Comprar MX (Rojo) */
-            background: linear-gradient(135deg, #C40A30, #ff1a40);
+            border-radius: 14px;
+            background: linear-gradient(90deg, #006847, #C40A30);
             color: white;
             font-weight: bold;
             cursor: pointer;
-            font-size: 17px;
-            box-shadow: 0 6px 20px rgba(196, 10, 48, 0.5);
+            font-size: 18px;
+            box-shadow: 0 8px 25px rgba(196, 10, 48, 0.6);
             transition: all 0.3s ease;
             backdrop-filter: blur(5px);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .buy-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .buy-button:hover::before {
+            left: 100%;
+        }
+
+        .buy-button:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(196, 10, 48, 0.8);
         }
         
         .buy-button:disabled {
-            background: linear-gradient(135deg, #666, #888);
+            background: linear-gradient(135deg, #444, #666);
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
+            opacity: 0.7;
+        }
+
+        /* ===== ESTILO PARA TARJETA DESTACADA MEJORADO ===== */
+        .card-container.tarjeta-destacada {
+            animation: cardSuperHighlight 2s ease infinite;
+            z-index: 100;
+            position: relative;
+        }
+
+        .card-container.tarjeta-destacada .card {
+            border: 4px solid #FFFFFF !important;
+            box-shadow: 0 0 50px rgba(255, 255, 255, 0.8), 0 0 100px rgba(196, 10, 48, 0.4) !important;
+            transform: scale(1.05);
+        }
+
+        @keyframes cardSuperHighlight {
+            0%, 100% { 
+                filter: drop-shadow(0 0 20px #FFFFFF) drop-shadow(0 0 40px #006847);
+                transform: scale(1.05);
+            }
+            50% { 
+                filter: drop-shadow(0 0 40px #FFFFFF) drop-shadow(0 0 80px #006847);
+                transform: scale(1.08);
+            }
+        }
+
+        .found-badge {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            background: linear-gradient(135deg, #FFFFFF, #006847);
+            color: #000;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 900;
+            font-size: 14px;
+            text-transform: uppercase;
+            box-shadow: 0 5px 20px rgba(255, 255, 255, 0.6);
+            z-index: 200;
+            animation: badgePulse 1s ease infinite;
+        }
+
+        @keyframes badgePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
         
-        /* --- ESTILOS PANTALLA DE CARGA CON BANDERA MX MEJORADA --- */
+        /* --- ESTILOS DE PANTALLA DE CARGA CON ANIMACIÓN DE BANDERA MÉXICO --- */
         
         #loading-screen {
             position: fixed;
@@ -299,16 +557,16 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.95);
+            background: rgba(0, 0, 0, 0.98);
             z-index: 1001;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            color: #00ffcc;
-            font-size: 28px;
+            color: #FFFFFF;
+            font-size: 32px;
             font-weight: bold;
-            text-shadow: 0 0 10px rgba(0, 255, 204, 0.7);
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
             transition: opacity 0.5s ease-out;
         }
 
@@ -319,7 +577,8 @@
             margin-bottom: 30px;
             overflow: hidden;
             border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            border: 4px solid rgba(255, 255, 255, 0.1);
         }
 
         /* TRES FRANJAS VERTICALES: Verde, Blanco, Rojo */
@@ -347,24 +606,21 @@
             justify-content: center;
         }
         
-        /* Escudo (Águila) - Animación de Zoom y Parpadeo */
+        /* Escudo (Águila) */
         .coat-of-arms {
             font-size: 35px; 
             z-index: 1;
             opacity: 0;
-            color: black; /* El águila debe ser oscura sobre el blanco */
-            /* Inicia la animación después de que las franjas estén visibles */
+            color: black;
             animation: zoom-pulse 1.5s infinite alternate 1s forwards; 
             filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5));
         }
         
-        /* Animación para que las franjas se deslicen de izquierda a derecha */
         @keyframes stripe-slide-in {
             0% { transform: translateX(100%); opacity: 0; }
             100% { transform: translateX(0); opacity: 1; }
         }
 
-        /* ANIMACIÓN DE ZOOM Y PARPADEO PARA EL ÁGUILA */
         @keyframes zoom-pulse {
             0% { 
                 opacity: 0.5; 
@@ -380,7 +636,6 @@
             }
         }
 
-
         .red-stripe-mx {
             background: #C40A30;
             left: 66.66%;
@@ -388,13 +643,15 @@
         }
         
         .loading-text {
-            margin-top: 20px;
+            margin-top: 30px;
             animation: blink 1s infinite;
+            font-size: 24px;
+            letter-spacing: 3px;
         }
 
         @keyframes blink {
             0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
+            50% { opacity: 0.5; }
         }
 
         /* --- ESTILOS DE MODAL Y PAGINACIÓN --- */
@@ -405,100 +662,206 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.95);
             z-index: 1000;
             align-items: center;
             justify-content: center;
+            backdrop-filter: blur(10px);
         }
 
         .modal-content {
-            background: #1a1a1a;
-            border-radius: 15px;
-            padding: 30px;
+            background: linear-gradient(145deg, #1a1a1a, #2a2a2a);
+            border-radius: 24px;
+            padding: 40px;
             width: 90%;
-            max-width: 500px;
-            border: 2px solid #00ff00;
+            max-width: 550px;
+            border: 3px solid #FFFFFF;
             text-align: center;
+            box-shadow: 0 25px 80px rgba(0, 104, 71, 0.4);
+            animation: modalSlideIn 0.4s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: scale(0.8) translateY(-50px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-title {
+            font-size: 28px;
+            color: #00ff88;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
         }
 
         .card-data {
-            background: #2a2a2a;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 15px 0;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 25px;
+            border-radius: 16px;
+            margin: 20px 0;
             font-family: 'Courier New', monospace;
             text-align: left;
-            color: #00ffcc; 
+            color: #FFFFFF;
+            border: 2px solid rgba(255, 255, 255, 0.3);
         }
 
         .data-item {
-            margin: 10px 0;
-            padding: 8px;
-            background: #333;
-            border-radius: 5px;
+            margin: 15px 0;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border-left: 4px solid #FFFFFF;
+            transition: all 0.3s ease;
+        }
+
+        .data-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
         }
 
         .data-label {
-            color: #ccc;
+            color: #aaa;
             font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
         }
 
         .data-value {
-            color: #00ffcc; 
+            color: #FFFFFF;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 18px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
         }
 
         .btn-modal {
-            padding: 12px 30px;
+            padding: 15px 35px;
             margin: 10px;
             border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        .btn-success { background: #00a86b; color: white; }
-        .btn-secondary { background: #666; color: white; }
-        
-        .pagination-controls {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            margin-top: 20px;
-            gap: 20px;
-        }
-
-        .pagination-controls button {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 8px;
-            /* Paginación MX (Rojo) */
-            background: linear-gradient(135deg, #C40A30, #ff1a40);
-            color: white;
+            border-radius: 12px;
             font-weight: bold;
             cursor: pointer;
             font-size: 16px;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(196, 10, 48, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-success { 
+            background: linear-gradient(135deg, #006847, #00c853); 
+            color: white; 
+            box-shadow: 0 6px 20px rgba(0, 104, 71, 0.4);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 104, 71, 0.6);
+        }
+
+        .btn-secondary { 
+            background: linear-gradient(135deg, #666, #888); 
+            color: white; 
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #777, #999);
+            transform: translateY(-3px);
+        }
+
+        /* ===== NOTIFICACIÓN FLOTANTE ===== */
+        .floating-notification {
+            position: fixed;
+            top: 100px;
+            right: 30px;
+            background: linear-gradient(135deg, #FFFFFF, #006847);
+            color: #000;
+            padding: 20px 30px;
+            border-radius: 16px;
+            font-weight: 800;
+            font-size: 16px;
+            box-shadow: 0 10px 40px rgba(255, 255, 255, 0.5);
+            z-index: 9999;
+            display: none;
+            animation: slideInRight 0.5s ease;
+            max-width: 400px;
+            border: 3px solid #fff;
+        }
+
+        .floating-notification.show {
+            display: block;
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(100px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .floating-notification.error {
+            background: linear-gradient(135deg, #ff4444, #cc0000);
+            color: #fff;
+            border-color: #ff6666;
+        }
+
+        .floating-notification.success {
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            color: #000;
+            border-color: #fff;
+        }
+        
+        /* ===== PAGINACIÓN MEJORADA ===== */
+        .pagination-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            margin-top: 40px;
+            gap: 30px;
+        }
+
+        .pagination-controls button {
+            padding: 15px 35px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #006847, #C40A30);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(196, 10, 48, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pagination-controls button:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(196, 10, 48, 0.6);
         }
 
         .pagination-controls button:disabled {
             background: #333;
-            color: #777;
+            color: #666;
             cursor: not-allowed;
             box-shadow: none;
             transform: none;
+            opacity: 0.5;
         }
 
         .page-indicator {
-            font-size: 18px;
-            color: #00ffcc;
+            font-size: 22px;
+            color: #FFFFFF;
             font-weight: bold;
-            min-width: 100px;
+            min-width: 150px;
             text-align: center;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px 30px;
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
         }
         
     </style>
@@ -516,8 +879,28 @@
             </div>
             <div class="stripe-mx red-stripe-mx"></div>
         </div>
-        <div class="loading-text">Cargando inventario de tarjetas México...</div>
+        <div class="loading-text">CARGANDO INVENTARIO MÉXICO...</div>
     </div>
+
+    <!-- ===== PANEL DE BÚSQUEDA AUTOMÁTICA (NUEVO) ===== -->
+    <div id="autoSearchPanel" class="auto-search-panel">
+        <div class="auto-search-title">
+            🔍 Búsqueda Automática Activada
+        </div>
+        <div class="auto-search-status">
+            <div class="search-spinner"></div>
+            <span id="searchStatusText">Buscando tarjeta específica...</span>
+        </div>
+        <div class="search-progress">
+            <div id="searchProgressBar" class="search-progress-bar"></div>
+        </div>
+        <div style="margin-top: 10px; font-size: 14px; color: #aaa;">
+            Página <span id="currentSearchPage">1</span> de búsqueda
+        </div>
+    </div>
+
+    <!-- ===== NOTIFICACIÓN FLOTANTE (NUEVO) ===== -->
+    <div id="floatingNotification" class="floating-notification"></div>
 
     <video id="videoFondo" autoplay muted loop>
         <source src="infinito.mp4" type="video/mp4">
@@ -530,7 +913,7 @@
             <h2 class="modal-title">✅ COMPRA EXITOSA</h2>
             <div class="card-data" id="modalCardData">
                 </div>
-            <p style="color: #ffff00; margin: 15px 0;">
+            <p style="color: #FFFFFF; margin: 20px 0; font-size: 16px;">
                 📧 <strong>Revisa tu correo electrónico</strong><br>
                 Hemos enviado los datos completos de la tarjeta a tu email registrado.
             </p>
@@ -546,7 +929,7 @@
             <a href="../catalogo.html" class="back-button">← Volver al Catálogo</a>
             <h1>🇲🇽 Inventario México</h1>
         </div>
-        <button id="btnSaldo">Saldo USDT: <span id="saldo">0.00</span></button>
+        <button id="btnSaldo">💰 Saldo: <span id="saldo">0.00</span> USDT</button>
     </header>
 
     <main id="listaTarjetas"></main>
@@ -559,7 +942,6 @@
 
     <script>
         // --- CONFIGURACIÓN Y VARIABLES ---
-        // ** MANTENER LA CONFIGURACIÓN DE FIREBASE IGUAL **
         const firebaseConfig = {
             apiKey: "AIzaSyD2tvQjJzh7ukTSyxzIQSo7GSpz7L8z11I",
             authDomain: "ccshop-realtime.firebaseapp.com",
@@ -579,36 +961,183 @@
         let usuarioActual = null;
         let saldoActual = 0;
         let tarjetaComprada = null;
+        
+        // Variables para búsqueda automática (NUEVO)
+        let targetCardId = null;
+        let targetCardPrice = null;
+        let isAutoSearching = false;
+        let autoSearchAttempts = 0;
+        const MAX_SEARCH_ATTEMPTS = 20;
 
         const PAGE_SIZE = 30;
         let lastVisible = null; 
         let pageHistory = [null]; 
         let currentPage = 1;
 
+        // --- SISTEMA DE NOTIFICACIONES (NUEVO) ---
+        function showFloatingNotification(message, type = 'info') {
+            const notif = document.getElementById('floatingNotification');
+            notif.textContent = message;
+            notif.className = 'floating-notification show ' + type;
+            
+            setTimeout(() => {
+                notif.classList.remove('show');
+            }, 4000);
+        }
+
+        // --- SISTEMA DE BÚSQUEDA AUTOMÁTICA (NUEVO) ---
+        function getUrlParameters() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                destacar: params.get('destacar'),
+                precio: params.get('precio')
+            };
+        }
+
+        function initAutoSearch() {
+            const params = getUrlParameters();
+            
+            if (params.destacar) {
+                targetCardId = params.destacar;
+                targetCardPrice = params.precio;
+                isAutoSearching = true;
+                
+                document.getElementById('autoSearchPanel').classList.add('active');
+                
+                showFloatingNotification('🔍 Iniciando búsqueda automática de tarjeta...', 'info');
+                
+                setTimeout(() => startAutoSearch(), 1000);
+                
+                return true;
+            }
+            return false;
+        }
+
+        async function startAutoSearch() {
+            if (!isAutoSearching || !targetCardId) return;
+            
+            const cardFound = await searchForCardAcrossPages();
+            
+            if (cardFound) {
+                document.getElementById('autoSearchPanel').classList.remove('active');
+                showFloatingNotification('🎉 ¡Tarjeta encontrada! Desplazándose automáticamente...', 'success');
+            } else {
+                document.getElementById('autoSearchPanel').classList.remove('active');
+                showFloatingNotification('❌ Tarjeta no encontrada. Puede haber sido vendida.', 'error');
+                
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+            
+            isAutoSearching = false;
+        }
+
+        async function searchForCardAcrossPages() {
+            autoSearchAttempts = 0;
+            
+            while (autoSearchAttempts < MAX_SEARCH_ATTEMPTS) {
+                autoSearchAttempts++;
+                
+                updateSearchProgress(autoSearchAttempts);
+                
+                const found = await checkCurrentPageForCard();
+                if (found) {
+                    return true;
+                }
+                
+                const hasMorePages = await loadNextPageForSearch();
+                if (!hasMorePages) {
+                    break;
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+            
+            return false;
+        }
+
+        function updateSearchProgress(attempt) {
+            document.getElementById('currentSearchPage').textContent = attempt;
+            const progress = Math.min((attempt / 10) * 100, 100);
+            document.getElementById('searchProgressBar').style.width = progress + '%';
+            document.getElementById('searchStatusText').textContent = 
+                `Buscando en página ${attempt}...`;
+        }
+
+        async function checkCurrentPageForCard() {
+            const botonTarjeta = document.querySelector(`button[data-card-id="${targetCardId}"]`);
+            
+            if (botonTarjeta) {
+                const container = botonTarjeta.closest('.card-container');
+                if (container) {
+                    const badge = document.createElement('div');
+                    badge.className = 'found-badge';
+                    badge.textContent = '¡ENCONTRADA!';
+                    container.appendChild(badge);
+                    
+                    container.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'center' 
+                    });
+                    
+                    container.classList.add('tarjeta-destacada');
+                    
+                    celebrateFound();
+                    
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function celebrateFound() {
+            const header = document.querySelector('header');
+            header.style.animation = 'none';
+            setTimeout(() => {
+                header.style.animation = 'titleGlow 0.5s ease 3';
+            }, 10);
+        }
+
+        async function loadNextPageForSearch() {
+            const nextButton = document.getElementById('nextPage');
+            if (nextButton.disabled) {
+                return false;
+            }
+            
+            if (pageHistory.length === currentPage) {
+                pageHistory.push(lastVisible);
+            }
+            currentPage++;
+            lastVisible = pageHistory[currentPage - 1];
+            
+            await cargarTarjetas(true);
+            
+            document.getElementById('pageIndicator').textContent = `Página ${currentPage}`;
+            
+            return true;
+        }
+
         // --- FUNCIÓN DE INICIALIZACIÓN SINCRONIZADA ---
         document.addEventListener('DOMContentLoaded', function() {
-            // El video debe ser "infinito.mp4"
             const video = document.getElementById('videoFondo');
             video.loop = true;
             video.muted = true;
             video.play();
             
-            // 1. Promesa: Tiempo de la animación visual (3 segundos)
-            // Esto da tiempo para que las franjas se deslicen y el águila parpadee/zoome
+            const hasAutoSearch = initAutoSearch();
+            
             const animacionTerminada = new Promise(resolve => {
                 setTimeout(resolve, 3000); 
             });
 
-            // 2. Promesa: Carga de autenticación y la primera página de tarjetas
             const cargaDatos = new Promise(resolve => {
                 auth.onAuthStateChanged((user) => {
                     if (user) {
                         usuarioActual = user;
                         cargarSaldoRealTime();
-                        cargarTarjetas(true).then(resolve).catch(resolve); 
+                        cargarTarjetas(true).then(() => {
+                            resolve();
+                        }).catch(resolve); 
                     } else {
-                        console.log('❌ No hay usuario autenticado');
-                        // TEXTO EN ESPAÑOL
                         alert('⚠️ Debes iniciar sesión primero');
                         window.location.href = "../index.html";
                         resolve();
@@ -616,19 +1145,16 @@
                 });
             });
 
-            // 3. Esperar que AMBAS (animación y datos) finalicen
             Promise.all([animacionTerminada, cargaDatos])
                 .then(() => {
                     const loadingScreen = document.getElementById('loading-screen');
-                    // Ocultar la pantalla de carga suavemente
                     loadingScreen.style.opacity = '0';
                     setTimeout(() => {
                         loadingScreen.style.display = 'none';
-                        console.log('✅ Carga finalizada y sincronizada.');
                     }, 500); 
                 })
                 .catch(error => {
-                    console.error('❌ Error durante la carga inicial:', error);
+                    console.error('Error durante la carga:', error);
                     document.getElementById('loading-screen').style.display = 'none';
                 });
         });
@@ -645,16 +1171,16 @@
                     document.getElementById('saldo').textContent = saldoActual.toFixed(2);
                     const saldoElement = document.getElementById('saldo');
                     saldoElement.style.color = '#ffff00';
-                    saldoElement.style.fontSize = '18px';
+                    saldoElement.style.fontSize = '20px';
                     setTimeout(() => {
                         saldoElement.style.color = '#ffffff';
-                        saldoElement.style.fontSize = '16px';
+                        saldoElement.style.fontSize = '18px';
                     }, 1000);
                 } else {
                     crearSaldoInicial();
                 }
             }, (error) => {
-                console.error('❌ Error cargando saldo:', error);
+                console.error('Error cargando saldo:', error);
                 document.getElementById('saldo').textContent = 'Error';
             });
         }
@@ -669,12 +1195,11 @@
                     fechaRegistro: Date.now()
                 });
             } catch (error) {
-                console.error('❌ Error creando saldo inicial:', error);
+                console.error('Error creando saldo inicial:', error);
             }
         }
 
         function formatearNombre(nombreCompleto) {
-            // TEXTO EN ESPAÑOL
             if (!nombreCompleto) return 'TITULAR NO DISPONIBLE';
             return nombreCompleto.toUpperCase();
         }
@@ -689,8 +1214,8 @@
             return 'visa-logo';
         }
         
-        // --- FUNCIÓN DE CARGA PRINCIPAL (OPTMIZADA) ---
-        async function cargarTarjetas(isInitialLoad = false) {
+        // --- FUNCIÓN DE CARGA PRINCIPAL (MODIFICADA PARA MOSTRAR MÁS INFORMACIÓN) ---
+        async function cargarTarjetas(isAutoSearchLoad = false) {
             if (!usuarioActual) return;
 
             const cont = document.getElementById("listaTarjetas");
@@ -698,14 +1223,12 @@
             const nextButton = document.getElementById('nextPage');
             const pageIndicator = document.getElementById('pageIndicator');
             
-            if (!isInitialLoad) {
-                // TEXTO EN ESPAÑOL
-                cont.innerHTML = '<p style="color:#00ffcc; font-size: 20px; text-align: center; padding: 50px;">Cargando página...</p>';
+            if (!isAutoSearchLoad) {
+                cont.innerHTML = '<p style="color:#FFFFFF; font-size: 24px; text-align: center; padding: 50px;">Cargando...</p>';
             }
 
             try {
-                // *** COLECCIÓN ADAPTADA A "MEXICO" ***
-                let query = db.collection("paises").doc("mexico").collection("cards") 
+                let query = db.collection("paises").doc("mexico").collection("cards")
                     .where('vendida', '==', false)
                     .orderBy('precio', 'desc')
                     .limit(PAGE_SIZE);
@@ -715,11 +1238,15 @@
                 }
 
                 const snapshot = await query.get();
-                cont.innerHTML = "";
+                
+                if (!isAutoSearchLoad) {
+                    cont.innerHTML = "";
+                }
 
                 if (snapshot.empty) {
-                    // TEXTO EN ESPAÑOL
-                    cont.innerHTML = '<p style="color:#ff4757; font-size: 20px; text-align: center; padding: 50px;">No hay más tarjetas disponibles por el momento.</p>';
+                    if (!isAutoSearchLoad) {
+                        cont.innerHTML = '<p style="color:#ff4757; font-size: 22px; text-align: center; padding: 50px;">No hay más tarjetas disponibles.</p>';
+                    }
                     lastVisible = null;
                     nextButton.disabled = true;
                     if(currentPage === 1) prevButton.disabled = true; 
@@ -734,9 +1261,9 @@
                     const numeroOculto = c.numero_formateado || `${c.bin} ****** ****`;
                     const nombreFormateado = formatearNombre(c.nombre);
                     
-                    // TEXTO EN ESPAÑOL
-                    cont.innerHTML += `
-                        <div class="card-container">
+                    // Construir el HTML de la tarjeta con toda la información (Banco, CVV, Fecha)
+                    const cardHTML = `
+                        <div class="card-container" id="card-container-${doc.id}">
                             <div class="card">
                                 <div class="card-content">
                                     <div class="card-top">
@@ -745,7 +1272,26 @@
                                     </div>
                                     <div class="card-number">${numeroOculto}</div>
                                     <div class="card-holder">${nombreFormateado}</div>
-                                    <div class="card-info">
+                                    
+                                    <!-- SECCIÓN: Banco, CVV y Fecha de Expiración -->
+                                    <div class="card-details">
+                                        <div class="bank-info">
+                                            🏦 <span>${c.banco || 'BANCO NO ESPECIFICADO'}</span>
+                                        </div>
+                                        <div class="cvv-exp-info">
+                                            <div class="cvv-info">
+                                                <span class="info-label">CVV</span>
+                                                <span class="info-value">***</span>
+                                            </div>
+                                            <div class="exp-info">
+                                                <span class="info-label">EXPIRA</span>
+                                                <span class="info-value">${c.fecha || '--/--'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Esta sección se mantiene oculta por compatibilidad -->
+                                    <div class="card-info" style="display: none;">
                                         <div>
                                             <div class="bank-name">${c.banco}</div>
                                             <div class="cvv-info">CVV: ***</div>
@@ -758,28 +1304,35 @@
                                 </div>
                             </div>
                             <div class="card-status ${estaVendida ? 'status-sold' : 'status-available'}">
-                                ${estaVendida ? '🔴 TARJETA VENDIDA' : '🟢 TARJETA DISPONIBLE'}
+                                ${estaVendida ? '🔴 VENDIDA' : '🟢 DISPONIBLE'}
                             </div>
                             <button class="buy-button" 
                                     onclick="comprar('${doc.id}', ${c.precio})" 
-                                    ${estaVendida ? 'disabled' : ''}>
-                                ${estaVendida ? '❌ COMPRA NO DISPONIBLE' : `💳 COMPRAR ${c.precio} USDT`}
+                                    ${estaVendida ? 'disabled' : ''}
+                                    data-card-id="${doc.id}">
+                                ${estaVendida ? '❌ NO DISPONIBLE' : `💳 COMPRAR ${c.precio} USDT`}
                             </button>
                         </div>`;
+                    
+                    if (isAutoSearchLoad) {
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = cardHTML;
+                        cont.appendChild(tempDiv.firstElementChild);
+                    } else {
+                        cont.innerHTML += cardHTML;
+                    }
                 });
 
                 lastVisible = snapshot.docs[snapshot.docs.length - 1];
                 nextButton.disabled = snapshot.size < PAGE_SIZE;
                 prevButton.disabled = currentPage === 1;
-                // TEXTO EN ESPAÑOL
                 pageIndicator.textContent = `Página ${currentPage}`; 
 
             } catch (error) {
-                console.error("❌ Error al cargar tarjetas paginadas:", error);
-                // TEXTO EN ESPAÑOL
-                cont.innerHTML = '<p style="color:#ff4757; font-size: 20px; text-align: center; padding: 50px;">Error al cargar las tarjetas. Intenta de nuevo.</p>';
-                prevButton.disabled = true;
-                nextButton.disabled = true;
+                console.error("Error al cargar tarjetas:", error);
+                if (!isAutoSearchLoad) {
+                    cont.innerHTML = '<p style="color:#ff4757; font-size: 22px; text-align: center; padding: 50px;">Error al cargar. Intenta de nuevo.</p>';
+                }
                 throw error; 
             }
         }
@@ -808,37 +1361,31 @@
 
         async function comprar(idCard, precio) {
             if (!usuarioActual) { 
-                // TEXTO EN ESPAÑOL
                 alert("⚠️ Debes iniciar sesión primero");
                 window.location.href = "../index.html";
                 return; 
             }
 
             if (saldoActual < precio) { 
-                // TEXTO EN ESPAÑOL
-                alert(`❌ Saldo insuficiente.\n\n💰 Tu saldo: $${saldoActual.toFixed(2)}\n💳 Precio tarjeta: $${precio}\n\nRecarga tu wallet para continuar.`);
+                alert(`❌ Saldo insuficiente.\n\n💰 Tu saldo: $${saldoActual.toFixed(2)}\n💳 Precio: $${precio}`);
                 window.location.href = "../pagos/wallet-usdt.html";
                 return; 
             }
 
-            // TEXTO EN ESPAÑOL
-            if (!confirm(`¿Confirmar compra por ${precio} USDT?\n\nLos datos completos se enviarán a tu correo electrónico.`)) {
+            if (!confirm(`¿Confirmar compra por ${precio} USDT?\n\nLos datos se enviarán a tu correo.`)) {
                 return;
             }
 
             try {
-                // *** COLECCIÓN ADAPTADA A "MEXICO" ***
                 const doc = await db.collection("paises").doc("mexico").collection("cards").doc(idCard).get();
                 const tarjetaData = doc.data();
 
                 let nombreCompleto = tarjetaData.nombre;
                 
                 if (nombreCompleto && (nombreCompleto.includes('*') || nombreCompleto.includes('****'))) {
-                    // TEXTO EN ESPAÑOL
-                    nombreCompleto = tarjetaData.nombre_real || tarjetaData.titular_completo || tarjetaData.nombre_completo || 'NOMBRE COMPLETO NO DISPONIBLE - Contactar soporte';
+                    nombreCompleto = tarjetaData.nombre_real || tarjetaData.titular_completo || tarjetaData.nombre_completo || 'NOMBRE NO DISPONIBLE';
                 }
                 
-                // *** COLECCIÓN ADAPTADA A "MEXICO" ***
                 await db.collection("paises").doc("mexico").collection("cards").doc(idCard)
                   .update({ 
                       vendida: true, 
@@ -864,9 +1411,8 @@
                 saldoActual = nuevoSaldo;
                 document.getElementById('saldo').textContent = nuevoSaldo.toFixed(2);
                 
-                // Ocultar la tarjeta comprada
                 setTimeout(() => {
-                    const botonComprado = document.querySelector(`button[onclick*="${idCard}"]`);
+                    const botonComprado = document.querySelector(`button[data-card-id="${idCard}"]`);
                     if (botonComprado) {
                         const container = botonComprado.closest('.card-container');
                         if (container) {
@@ -876,14 +1422,12 @@
                 }, 100);
                 
             } catch (error) {
-                console.error('❌ Error en la compra:', error);
-                // TEXTO EN ESPAÑOL
+                console.error('Error en la compra:', error);
                 alert("❌ Error en la compra: " + error.message);
             }
         }
 
         function getPaisActual() {
-            // LÓGICA ADAPTADA
             return 'mexico';
         }
 
@@ -915,7 +1459,7 @@
                 try {
                     const templateParams = {
                         to_email: usuarioActual.email,
-                        usuario_nombre: usuarioActual.displayName || 'Cliente CCSHOP', // TEXTO EN ESPAÑOL
+                        usuario_nombre: usuarioActual.displayName || 'Cliente CCSHOP',
                         tarjeta_marca: tarjeta.marca,
                         tarjeta_numero: tarjeta.numero_completo,
                         tarjeta_cvv: tarjeta.cvv,
@@ -923,13 +1467,13 @@
                         tarjeta_titular: tarjeta.nombre_completo,
                         tarjeta_banco: tarjeta.banco,
                         tarjeta_precio: tarjeta.precio,
-                        fecha_compra: new Date().toLocaleDateString('es-ES'), // FORMATO DE FECHA EN ESPAÑOL
+                        fecha_compra: new Date().toLocaleDateString('es-ES'),
                         compra_id: compraRef.id, 
-                        from_name: "Soporte CCSHOP", // TEXTO EN ESPAÑOL
+                        from_name: "Soporte CCSHOP",
                         reply_to: "soporte_ccshop@proton.me"
                     };
 
-                    const emailResult = await emailjs.send(
+                    await emailjs.send(
                         'service_zgzl6vd', 
                         'template_dc5a2qw', 
                         templateParams
@@ -945,10 +1489,8 @@
                 } catch (emailError) {
                     await compraRef.update({ 
                         email_enviado: false, 
-                        email_error: emailError.text || emailError.message,
-                        email_status: emailError.status || 'N/A'
+                        email_error: emailError.text || emailError.message
                     });
-                    
                     return false;
                 }
 
@@ -957,19 +1499,23 @@
             }
         }
 
+        // --- MODAL CON DATOS COMPLETOS ---
         function mostrarModalConfirmacion(tarjeta, nuevoSaldo, emailEnviado) {
             const modal = document.getElementById('compraModal');
             const modalData = document.getElementById('modalCardData');
             
-            // TEXTO EN ESPAÑOL (Labels dentro del modal)
             modalData.innerHTML = `
                 <div class="data-item">
                     <div class="data-label">TARJETA COMPLETA</div>
-                    <div class="data-value" style="font-size: 18px; color: #00ffcc;">${tarjeta.marca} ${tarjeta.numero_completo}</div>
+                    <div class="data-value" style="font-size: 18px; color: #FFFFFF;">${tarjeta.marca} ${tarjeta.numero_completo}</div>
                 </div>
                 <div class="data-item">
                     <div class="data-label">CVV</div>
-                    <div class="data-value" style="font-size: 18px; color: #00ffcc;">${tarjeta.cvv}</div>
+                    <div class="data-value" style="font-size: 18px; color: #FFFFFF;">${tarjeta.cvv}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">FECHA DE EXPIRACIÓN</div>
+                    <div class="data-value">${tarjeta.fecha}</div>
                 </div>
                 <div class="data-item">
                     <div class="data-label">TITULAR COMPLETO</div>
@@ -978,10 +1524,6 @@
                 <div class="data-item">
                     <div class="data-label">BANCO</div>
                     <div class="data-value">${tarjeta.banco}</div>
-                </div>
-                <div class="data-item">
-                    <div class="data-label">EXPIRA</div>
-                    <div class="data-value">${tarjeta.fecha}</div>
                 </div>
                 <div class="data-item">
                     <div class="data-label">PRECIO</div>
@@ -995,8 +1537,8 @@
             
             if (!emailEnviado) {
                 modalData.innerHTML += `
-                    <div style="background: #2a2a2a; padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid #ffff00;">
-                        <p style="color: #ffff00; margin: 0; text-align: center;">
+                    <div style="background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid #FFFFFF;">
+                        <p style="color: #FFFFFF; margin: 0; text-align: center;">
                             ⚠️ <strong>GUARDA ESTOS DATOS</strong><br>
                             El email falló. Esta información no se mostrará nuevamente.
                         </p>
@@ -1015,19 +1557,13 @@
             if (tarjetaComprada) {
                 enviarEmailConfirmacion(tarjetaComprada).then(success => {
                     if(success) {
-                        // TEXTO EN ESPAÑOL
-                        alert('📧 Email reenviado exitosamente a tu correo registrado');
+                        alert('📧 Email reenviado exitosamente');
                     } else {
-                        // TEXTO EN ESPAÑOL
-                        alert('❌ Fallo al reenviar el email.');
+                        alert('❌ Fallo al reenviar el email');
                     }
                 });
-            } else {
-                // TEXTO EN ESPAÑOL
-                alert('❌ No hay datos de la última compra para reenviar el email.');
             }
         }
-
     </script>
 </body>
 </html>
