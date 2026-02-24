@@ -1870,7 +1870,7 @@ Fecha:       ${fechaTexto}
             await rtdb.ref('users/' + userPath).set({
                 email: user.email || 'N/A',
                 nombre: user.displayName || 'Usuario Premium',
-                saldo: 50.00,
+                saldo: 0.00,
                 fechaRegistro: firebase.database.ServerValue.TIMESTAMP
             });
         } catch (error) {
