@@ -756,7 +756,69 @@
 
     <button class="enter-button" id="enterButton" onclick="enterPage()">► ACCEDER</button>
 
+<!-- AGREGAR ESTE PANEL DE DEPURACIÓN JUSTO DESPUÉS DEL BODY -->
+<div id="debugPanel" style="position: fixed; top: 10px; left: 10px; right: 10px; background: rgba(0,0,0,0.9); border: 2px solid red; border-radius: 10px; padding: 15px; z-index: 10000; color: white; font-family: monospace; font-size: 14px; max-height: 80vh; overflow-y: auto; display: none;">
+    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+        <span style="color: #ff0000; font-weight: bold;">🔍 DEBUG MODE</span>
+        <button onclick="document.getElementById('debugPanel').style.display='none'" style="background: red; border: none; color: white; border-radius: 5px; padding: 5px 10px;">✖</button>
+    </div>
+    <div id="debugContent" style="white-space: pre-wrap; word-break: break-word;"></div>
+</div>
+
+<!-- BOTÓN FLOTANTE PARA ABRIR DEBUG -->
+<button onclick="toggleDebug()" style="position: fixed; bottom: 20px; left: 20px; z-index: 10001; background: red; color: white; border: none; border-radius: 50px; padding: 12px 20px; font-weight: bold; box-shadow: 0 0 20px red;">🔧 DEBUG</button>
+
 <script>
+    // ========================================
+    // SISTEMA DE DEPURACIÓN VISUAL PARA MÓVIL
+    // ========================================
+    function toggleDebug() {
+        const panel = document.getElementById('debugPanel');
+        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        actualizarDebug();
+    }
+    
+    function actualizarDebug() {
+        const content = document.getElementById('debugContent');
+        if (!content) return;
+        
+        let html = '<strong>📱 INFORMACIÓN:</strong><br>';
+        html += `🕒 ${new Date().toLocaleString()}<br>`;
+        html += `🌐 URL: ${window.location.href}<br>`;
+        html += `🔐 Auth: ${firebase.auth().currentUser ? '✅ Conectado' : '❌ No conectado'}<br><br>`;
+        
+        html += '<strong>📋 ÚLTIMOS ERRORES:</strong><br>';
+        if (window.erroresDebug && window.erroresDebug.length > 0) {
+            window.erroresDebug.slice(-5).forEach(err => {
+                html += `❌ ${err}<br>`;
+            });
+        } else {
+            html += '✅ Sin errores recientes<br>';
+        }
+        
+        html += '<br><strong>📊 ESTADO:</strong><br>';
+        if (firebase.auth().currentUser) {
+            html += `👤 ${firebase.auth().currentUser.email}<br>`;
+        }
+        
+        content.innerHTML = html;
+    }
+    
+    // Capturar errores globales
+    window.erroresDebug = [];
+    window.onerror = function(msg, url, line) {
+        const errorMsg = `${msg} - Línea: ${line}`;
+        window.erroresDebug.push(errorMsg);
+        actualizarDebug();
+        
+        // Mostrar notificación visible
+        showNotify(`⚠️ Error: ${msg}`, 'error');
+        return false;
+    };
+    
+    // ========================================
+    // VERSIÓN SIMPLIFICADA DE FIREBASE
+    // ========================================
     const firebaseConfig = {
         apiKey: "AIzaSyD2tvQjJzh7ukTSyxzIQSo7GSpz7L8z11I",
         authDomain: "ccshop-realtime.firebaseapp.com",
@@ -767,76 +829,193 @@
         appId: "1:795626673305:web:094dc265de1d4d1bc7d408"
     };
 
-    firebase.initializeApp(firebaseConfig);
+    try {
+        firebase.initializeApp(firebaseConfig);
+        window.erroresDebug.push('✅ Firebase inicializado');
+    } catch (e) {
+        window.erroresDebug.push('❌ Error Firebase: ' + e.message);
+    }
+    
     const auth = firebase.auth();
     const db = firebase.database();
     let currentUser = null;
     const ADMIN_EMAIL = 'johndoechmod777@gmail.com';
 
+    // NOTIFICACIONES VISIBLES
     function showNotify(msg, type = 'success') {
         const n = document.getElementById('notification');
-        n.textContent = msg;
-        n.className = `notification ${type}`;
-        n.style.display = 'block';
-        setTimeout(() => n.style.display = 'none', 4000);
+        if (n) {
+            n.textContent = msg;
+            n.className = `notification ${type}`;
+            n.style.display = 'block';
+            setTimeout(() => n.style.display = 'none', 4000);
+        }
+        
+        // También al panel debug
+        window.erroresDebug.push(`${type === 'error' ? '❌' : '✅'} ${msg}`);
+        actualizarDebug();
     }
 
+    // ANIMACIÓN
     function createEpicAnimation() {
         const epic = document.getElementById('loginEpic');
-        epic.classList.add('active');
-        
-        setTimeout(() => {
-            document.body.style.background = '#300';
-            setTimeout(() => {
-                document.body.style.background = '#050505';
-            }, 100);
-        }, 1000);
-        
-        setTimeout(() => {
-            epic.classList.remove('active');
-        }, 1500);
+        if (epic) {
+            epic.classList.add('active');
+            setTimeout(() => epic.classList.remove('active'), 1500);
+        }
     }
 
+    // VERSIÓN MUY SIMPLIFICADA - SIN DEPENDENCIA DE DB PRIMERO
     async function signInWithGoogle() {
         createEpicAnimation();
+        showNotify('🔄 Iniciando sesión...', 'success');
         
         const provider = new firebase.auth.GoogleAuthProvider();
         
         try {
+            window.erroresDebug.push('🔵 Abriendo popup de Google...');
+            actualizarDebug();
+            
             const result = await auth.signInWithPopup(provider);
+            
+            if (!result || !result.user) {
+                throw new Error('No se obtuvo usuario');
+            }
+            
             currentUser = result.user;
-            await syncUser(currentUser);
-            showNotify('IDENTIDAD VERIFICADA');
+            window.erroresDebug.push(`✅ Usuario: ${currentUser.email}`);
+            actualizarDebug();
+            
+            // PRIMERO: Mostrar dashboard aunque falle la DB
+            showDashboard(currentUser);
+            showNotify('✅ ACCESO CONCEDIDO');
+            
+            // SEGUNDO: Intentar sincronización (no crítica)
+            try {
+                await syncUserSimple(currentUser);
+                window.erroresDebug.push('✅ Sincronización DB exitosa');
+            } catch (dbError) {
+                window.erroresDebug.push('⚠️ Error DB (no crítico): ' + dbError.message);
+                showNotify('⚠️ Sin sincronización', 'error');
+            }
+            
         } catch (error) {
-            console.error(error);
-            showNotify('ERROR DE ACCESO', 'error');
+            window.erroresDebug.push('❌ ' + error.message);
+            actualizarDebug();
+            
+            let errorMsg = 'ERROR DE ACCESO';
+            if (error.code === 'auth/popup-blocked') {
+                errorMsg = '⚠️ Popup bloqueado - Permite ventanas emergentes';
+            } else if (error.code === 'auth/network-request-failed') {
+                errorMsg = '📶 Sin conexión a internet';
+            } else if (error.code === 'auth/cancelled-popup-request') {
+                errorMsg = '✖️ Cancelado';
+            } else if (error.message.includes('popup')) {
+                errorMsg = '⚠️ Habilita popups para este sitio';
+            }
+            
+            showNotify(errorMsg, 'error');
         }
     }
-
-    async function syncUser(user) {
+// SINCRONIZACIÓN ULTRA SIMPLE - SOLO LO BÁSICO
+async function syncUserSimple(user) {
+    if (!user || !user.uid) return;
+    
+    try {
+        console.log('UID:', user.uid);
+        console.log('Email:', user.email);
+        console.log('Path:', 'users/' + user.uid);
+        
         const userRef = db.ref('users/' + user.uid);
-        const snap = await userRef.once('value');
         const isAdmin = user.email === ADMIN_EMAIL;
         
-        if (!snap.exists()) {
-            await userRef.set({
-                email: user.email,
-                nombre: user.displayName,
-                saldo: 0.00,
-                fechaRegistro: Date.now(),
-                esAdmin: isAdmin
-            });
-        } else {
-            await userRef.update({ ultimoAcceso: Date.now(), esAdmin: isAdmin });
+        // Probar permisos de lectura primero
+        const snap = await userRef.once('value');
+        console.log('✅ Puede LEER, datos actuales:', snap.val());
+        
+        // DATOS MÍNIMOS - SOLO 3 CAMPOS
+        const datosMinimos = {
+            email: user.email,
+            saldo: 0,
+            ultimoAcceso: Date.now()
+        };
+        
+        console.log('Intentando guardar:', datosMinimos);
+        
+        // Guardar solo los 3 campos básicos
+        await userRef.set(datosMinimos);
+        console.log('✅ Guardado exitoso');
+        
+        // Si es admin, guardar aparte
+        if (isAdmin) {
+            await db.ref('admins/' + user.uid).set(true);
+            console.log('✅ Admin marcado');
         }
+        
+        window.erroresDebug.push('✅ DB: Usuario guardado');
+        actualizarDebug();
+        
+    } catch (error) {
+        console.error('❌ Error DB detallado:', error);
+        console.error('❌ Código:', error.code);
+        console.error('❌ Mensaje:', error.message);
+        window.erroresDebug.push('❌ DB Error: ' + error.code + ' - ' + error.message);
+        actualizarDebug();
+        throw error;
     }
-
+}// SINCRONIZACIÓN COMPLETA - CON TODOS LOS CAMPOS
+async function syncUserSimple(user) {
+    if (!user || !user.uid) return;
+    
+    try {
+        console.log('UID:', user.uid);
+        console.log('Email:', user.email);
+        
+        const userRef = db.ref('users/' + user.uid);
+        const isAdmin = user.email === ADMIN_EMAIL;
+        
+        // Verificar si el usuario ya existe
+        const snapshot = await userRef.once('value');
+        const existe = snapshot.exists();
+        const datosExistentes = snapshot.val() || {};
+        
+        // DATOS COMPLETOS - TODOS LOS CAMPOS
+        const datosCompletos = {
+            email: user.email,
+            nombre: user.displayName || user.email.split('@')[0] || 'Usuario',
+            saldo: existe ? datosExistentes.saldo || 0 : 0,  // Si existe, mantener saldo
+            ultimoAcceso: Date.now(),
+            fechaRegistro: existe ? datosExistentes.fechaRegistro : Date.now(),  // Solo si es nuevo
+            esAdmin: isAdmin
+        };
+        
+        console.log('Guardando datos completos:', datosCompletos);
+        
+        // Guardar TODOS los campos
+        await userRef.set(datosCompletos);
+        console.log('✅ Usuario guardado con todos los campos');
+        
+        // Si es admin, guardar también en admins
+        if (isAdmin) {
+            await db.ref('admins/' + user.uid).set(true);
+            console.log('✅ Admin marcado');
+        }
+        
+        window.erroresDebug.push('✅ DB: Usuario guardado (completo)');
+        actualizarDebug();
+        
+    } catch (error) {
+        console.error('❌ Error DB:', error);
+        window.erroresDebug.push('❌ DB Error: ' + error.code);
+        actualizarDebug();
+        throw error;
+    }
+}
+    // DASHBOARD
     function showDashboard(user) {
         document.getElementById('mainContainer').style.display = 'none';
         document.getElementById('bgVideo').style.display = 'block';
         document.getElementById('enterButton').style.display = 'block';
-        
-        // ACTIVAR EL NUEVO LOGO CENTRAL
         document.getElementById('centerLogo').classList.add('active');
         
         const userInfo = document.getElementById('userInfo');
@@ -844,7 +1023,7 @@
         userInfo.style.display = 'block';
         
         const isAdmin = user.email === ADMIN_EMAIL;
-        userNameText.textContent = isAdmin ? `👑 ${user.displayName}` : `👤 ${user.displayName}`;
+        userNameText.textContent = isAdmin ? `👑 ${user.displayName || 'Admin'}` : `👤 ${user.displayName || 'Usuario'}`;
         
         if(isAdmin) {
             userNameText.classList.add('admin');
@@ -852,25 +1031,28 @@
         }
     }
 
+    // LOGOUT
     async function logout() {
         await auth.signOut();
         location.reload();
     }
 
     function enterPage() {
-        document.body.style.opacity = '0';
-        setTimeout(() => { window.location.href = 'verificacion.html'; }, 800);
+        window.location.href = 'verificacion.html';
     }
 
     function adminAccess() {
         window.location.href = 'admin.html';
     }
 
+    // AUTH STATE
     auth.onAuthStateChanged((user) => {
         if (user) {
+            window.erroresDebug.push(`✅ Auth: ${user.email}`);
             currentUser = user;
             showDashboard(user);
         } else {
+            window.erroresDebug.push('⚪ No autenticado');
             document.getElementById('mainContainer').style.display = 'block';
             document.getElementById('userInfo').style.display = 'none';
             document.getElementById('centerLogo').classList.remove('active');
@@ -878,17 +1060,19 @@
             document.getElementById('enterButton').style.display = 'none';
             document.getElementById('adminButton').style.display = 'none';
         }
+        actualizarDebug();
     });
 
+    // PARTÍCULAS
     function crearParticulas() {
         const container = document.getElementById('particles');
-        // Reducido de 30 a 15 partículas para mejor rendimiento
-        for (let i = 0; i < 15; i++) {
+        if (!container) return;
+        for (let i = 0; i < 10; i++) {
             const p = document.createElement('div');
             p.className = 'particle';
             p.style.left = Math.random() * 100 + '%';
-            p.style.animationDuration = (8 + Math.random() * 10) + 's';
-            p.style.animationDelay = Math.random() * 5 + 's';
+            p.style.animationDuration = (5 + Math.random() * 8) + 's';
+            p.style.animationDelay = Math.random() * 3 + 's';
             container.appendChild(p);
         }
     }
@@ -896,11 +1080,7 @@
     window.onload = () => {
         document.body.style.opacity = '1';
         crearParticulas();
-    };
-
-    document.addEventListener('contextmenu', e => e.preventDefault());
-    document.onkeydown = e => {
-        if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && e.keyCode == 73)) return false;
+        actualizarDebug();
     };
 </script>
 </body>
