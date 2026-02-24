@@ -917,98 +917,35 @@
             showNotify(errorMsg, 'error');
         }
     }
-// SINCRONIZACIÓN ULTRA SIMPLE - SOLO LO BÁSICO
+// SINCRONIZACIÓN COMPLETA - SIN DEBUG
 async function syncUserSimple(user) {
     if (!user || !user.uid) return;
     
     try {
-        console.log('UID:', user.uid);
-        console.log('Email:', user.email);
-        console.log('Path:', 'users/' + user.uid);
-        
         const userRef = db.ref('users/' + user.uid);
         const isAdmin = user.email === ADMIN_EMAIL;
         
-        // Probar permisos de lectura primero
-        const snap = await userRef.once('value');
-        console.log('✅ Puede LEER, datos actuales:', snap.val());
-        
-        // DATOS MÍNIMOS - SOLO 3 CAMPOS
-        const datosMinimos = {
-            email: user.email,
-            saldo: 0,
-            ultimoAcceso: Date.now()
-        };
-        
-        console.log('Intentando guardar:', datosMinimos);
-        
-        // Guardar solo los 3 campos básicos
-        await userRef.set(datosMinimos);
-        console.log('✅ Guardado exitoso');
-        
-        // Si es admin, guardar aparte
-        if (isAdmin) {
-            await db.ref('admins/' + user.uid).set(true);
-            console.log('✅ Admin marcado');
-        }
-        
-        window.erroresDebug.push('✅ DB: Usuario guardado');
-        actualizarDebug();
-        
-    } catch (error) {
-        console.error('❌ Error DB detallado:', error);
-        console.error('❌ Código:', error.code);
-        console.error('❌ Mensaje:', error.message);
-        window.erroresDebug.push('❌ DB Error: ' + error.code + ' - ' + error.message);
-        actualizarDebug();
-        throw error;
-    }
-}// SINCRONIZACIÓN COMPLETA - CON TODOS LOS CAMPOS
-async function syncUserSimple(user) {
-    if (!user || !user.uid) return;
-    
-    try {
-        console.log('UID:', user.uid);
-        console.log('Email:', user.email);
-        
-        const userRef = db.ref('users/' + user.uid);
-        const isAdmin = user.email === ADMIN_EMAIL;
-        
-        // Verificar si el usuario ya existe
         const snapshot = await userRef.once('value');
         const existe = snapshot.exists();
         const datosExistentes = snapshot.val() || {};
         
-        // DATOS COMPLETOS - TODOS LOS CAMPOS
         const datosCompletos = {
             email: user.email,
             nombre: user.displayName || user.email.split('@')[0] || 'Usuario',
-            saldo: existe ? datosExistentes.saldo || 0 : 0,  // Si existe, mantener saldo
+            saldo: existe ? datosExistentes.saldo || 0 : 0,
             ultimoAcceso: Date.now(),
-            fechaRegistro: existe ? datosExistentes.fechaRegistro : Date.now(),  // Solo si es nuevo
+            fechaRegistro: existe ? datosExistentes.fechaRegistro : Date.now(),
             esAdmin: isAdmin
         };
         
-        console.log('Guardando datos completos:', datosCompletos);
-        
-        // Guardar TODOS los campos
         await userRef.set(datosCompletos);
-        console.log('✅ Usuario guardado con todos los campos');
         
-        // Si es admin, guardar también en admins
         if (isAdmin) {
             await db.ref('admins/' + user.uid).set(true);
-            console.log('✅ Admin marcado');
         }
         
-        window.erroresDebug.push('✅ DB: Usuario guardado (completo)');
-        actualizarDebug();
-        
     } catch (error) {
-        console.error('❌ Error DB:', error);
-        window.erroresDebug.push('❌ DB Error: ' + error.code);
-        actualizarDebug();
-        throw error;
+        console.error('Error DB:', error);
     }
 }
     // DASHBOARD
