@@ -756,69 +756,9 @@
 
     <button class="enter-button" id="enterButton" onclick="enterPage()">► ACCEDER</button>
 
-<!-- AGREGAR ESTE PANEL DE DEPURACIÓN JUSTO DESPUÉS DEL BODY -->
-<div id="debugPanel" style="position: fixed; top: 10px; left: 10px; right: 10px; background: rgba(0,0,0,0.9); border: 2px solid red; border-radius: 10px; padding: 15px; z-index: 10000; color: white; font-family: monospace; font-size: 14px; max-height: 80vh; overflow-y: auto; display: none;">
-    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-        <span style="color: #ff0000; font-weight: bold;">🔍 DEBUG MODE</span>
-        <button onclick="document.getElementById('debugPanel').style.display='none'" style="background: red; border: none; color: white; border-radius: 5px; padding: 5px 10px;">✖</button>
-    </div>
-    <div id="debugContent" style="white-space: pre-wrap; word-break: break-word;"></div>
-</div>
 
-<!-- BOTÓN FLOTANTE PARA ABRIR DEBUG -->
-<button onclick="toggleDebug()" style="position: fixed; bottom: 20px; left: 20px; z-index: 10001; background: red; color: white; border: none; border-radius: 50px; padding: 12px 20px; font-weight: bold; box-shadow: 0 0 20px red;">🔧 DEBUG</button>
 
 <script>
-    // ========================================
-    // SISTEMA DE DEPURACIÓN VISUAL PARA MÓVIL
-    // ========================================
-    function toggleDebug() {
-        const panel = document.getElementById('debugPanel');
-        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-        actualizarDebug();
-    }
-    
-    function actualizarDebug() {
-        const content = document.getElementById('debugContent');
-        if (!content) return;
-        
-        let html = '<strong>📱 INFORMACIÓN:</strong><br>';
-        html += `🕒 ${new Date().toLocaleString()}<br>`;
-        html += `🌐 URL: ${window.location.href}<br>`;
-        html += `🔐 Auth: ${firebase.auth().currentUser ? '✅ Conectado' : '❌ No conectado'}<br><br>`;
-        
-        html += '<strong>📋 ÚLTIMOS ERRORES:</strong><br>';
-        if (window.erroresDebug && window.erroresDebug.length > 0) {
-            window.erroresDebug.slice(-5).forEach(err => {
-                html += `❌ ${err}<br>`;
-            });
-        } else {
-            html += '✅ Sin errores recientes<br>';
-        }
-        
-        html += '<br><strong>📊 ESTADO:</strong><br>';
-        if (firebase.auth().currentUser) {
-            html += `👤 ${firebase.auth().currentUser.email}<br>`;
-        }
-        
-        content.innerHTML = html;
-    }
-    
-    // Capturar errores globales
-    window.erroresDebug = [];
-    window.onerror = function(msg, url, line) {
-        const errorMsg = `${msg} - Línea: ${line}`;
-        window.erroresDebug.push(errorMsg);
-        actualizarDebug();
-        
-        // Mostrar notificación visible
-        showNotify(`⚠️ Error: ${msg}`, 'error');
-        return false;
-    };
-    
-    // ========================================
-    // VERSIÓN SIMPLIFICADA DE FIREBASE
-    // ========================================
     const firebaseConfig = {
         apiKey: "AIzaSyD2tvQjJzh7ukTSyxzIQSo7GSpz7L8z11I",
         authDomain: "ccshop-realtime.firebaseapp.com",
@@ -829,19 +769,13 @@
         appId: "1:795626673305:web:094dc265de1d4d1bc7d408"
     };
 
-    try {
-        firebase.initializeApp(firebaseConfig);
-        window.erroresDebug.push('✅ Firebase inicializado');
-    } catch (e) {
-        window.erroresDebug.push('❌ Error Firebase: ' + e.message);
-    }
+    firebase.initializeApp(firebaseConfig);
     
     const auth = firebase.auth();
     const db = firebase.database();
     let currentUser = null;
     const ADMIN_EMAIL = 'johndoechmod777@gmail.com';
 
-    // NOTIFICACIONES VISIBLES
     function showNotify(msg, type = 'success') {
         const n = document.getElementById('notification');
         if (n) {
@@ -850,13 +784,8 @@
             n.style.display = 'block';
             setTimeout(() => n.style.display = 'none', 4000);
         }
-        
-        // También al panel debug
-        window.erroresDebug.push(`${type === 'error' ? '❌' : '✅'} ${msg}`);
-        actualizarDebug();
     }
 
-    // ANIMACIÓN
     function createEpicAnimation() {
         const epic = document.getElementById('loginEpic');
         if (epic) {
@@ -865,7 +794,6 @@
         }
     }
 
-    // VERSIÓN MUY SIMPLIFICADA - SIN DEPENDENCIA DE DB PRIMERO
     async function signInWithGoogle() {
         createEpicAnimation();
         showNotify('🔄 Iniciando sesión...', 'success');
@@ -873,9 +801,6 @@
         const provider = new firebase.auth.GoogleAuthProvider();
         
         try {
-            window.erroresDebug.push('🔵 Abriendo popup de Google...');
-            actualizarDebug();
-            
             const result = await auth.signInWithPopup(provider);
             
             if (!result || !result.user) {
@@ -883,26 +808,16 @@
             }
             
             currentUser = result.user;
-            window.erroresDebug.push(`✅ Usuario: ${currentUser.email}`);
-            actualizarDebug();
-            
-            // PRIMERO: Mostrar dashboard aunque falle la DB
             showDashboard(currentUser);
             showNotify('✅ ACCESO CONCEDIDO');
             
-            // SEGUNDO: Intentar sincronización (no crítica)
             try {
                 await syncUserSimple(currentUser);
-                window.erroresDebug.push('✅ Sincronización DB exitosa');
             } catch (dbError) {
-                window.erroresDebug.push('⚠️ Error DB (no crítico): ' + dbError.message);
                 showNotify('⚠️ Sin sincronización', 'error');
             }
             
         } catch (error) {
-            window.erroresDebug.push('❌ ' + error.message);
-            actualizarDebug();
-            
             let errorMsg = 'ERROR DE ACCESO';
             if (error.code === 'auth/popup-blocked') {
                 errorMsg = '⚠️ Popup bloqueado - Permite ventanas emergentes';
@@ -913,42 +828,41 @@
             } else if (error.message.includes('popup')) {
                 errorMsg = '⚠️ Habilita popups para este sitio';
             }
-            
             showNotify(errorMsg, 'error');
         }
     }
-// SINCRONIZACIÓN COMPLETA - SIN DEBUG
-async function syncUserSimple(user) {
-    if (!user || !user.uid) return;
-    
-    try {
-        const userRef = db.ref('users/' + user.uid);
-        const isAdmin = user.email === ADMIN_EMAIL;
+
+    async function syncUserSimple(user) {
+        if (!user || !user.uid) return;
         
-        const snapshot = await userRef.once('value');
-        const existe = snapshot.exists();
-        const datosExistentes = snapshot.val() || {};
-        
-        const datosCompletos = {
-            email: user.email,
-            nombre: user.displayName || user.email.split('@')[0] || 'Usuario',
-            saldo: existe ? datosExistentes.saldo || 0 : 0,
-            ultimoAcceso: Date.now(),
-            fechaRegistro: existe ? datosExistentes.fechaRegistro : Date.now(),
-            esAdmin: isAdmin
-        };
-        
-        await userRef.set(datosCompletos);
-        
-        if (isAdmin) {
-            await db.ref('admins/' + user.uid).set(true);
+        try {
+            const userRef = db.ref('users/' + user.uid);
+            const isAdmin = user.email === ADMIN_EMAIL;
+            
+            const snapshot = await userRef.once('value');
+            const existe = snapshot.exists();
+            const datosExistentes = snapshot.val() || {};
+            
+            const datosCompletos = {
+                email: user.email,
+                nombre: user.displayName || user.email.split('@')[0] || 'Usuario',
+                saldo: existe ? datosExistentes.saldo || 0 : 0,
+                ultimoAcceso: Date.now(),
+                fechaRegistro: existe ? datosExistentes.fechaRegistro : Date.now(),
+                esAdmin: isAdmin
+            };
+            
+            await userRef.set(datosCompletos);
+            
+            if (isAdmin) {
+                await db.ref('admins/' + user.uid).set(true);
+            }
+            
+        } catch (error) {
+            console.error('Error DB:', error);
         }
-        
-    } catch (error) {
-        console.error('Error DB:', error);
     }
-}
-    // DASHBOARD
+
     function showDashboard(user) {
         document.getElementById('mainContainer').style.display = 'none';
         document.getElementById('bgVideo').style.display = 'block';
@@ -968,7 +882,6 @@ async function syncUserSimple(user) {
         }
     }
 
-    // LOGOUT
     async function logout() {
         await auth.signOut();
         location.reload();
@@ -982,14 +895,11 @@ async function syncUserSimple(user) {
         window.location.href = 'admin.html';
     }
 
-    // AUTH STATE
     auth.onAuthStateChanged((user) => {
         if (user) {
-            window.erroresDebug.push(`✅ Auth: ${user.email}`);
             currentUser = user;
             showDashboard(user);
         } else {
-            window.erroresDebug.push('⚪ No autenticado');
             document.getElementById('mainContainer').style.display = 'block';
             document.getElementById('userInfo').style.display = 'none';
             document.getElementById('centerLogo').classList.remove('active');
@@ -997,10 +907,8 @@ async function syncUserSimple(user) {
             document.getElementById('enterButton').style.display = 'none';
             document.getElementById('adminButton').style.display = 'none';
         }
-        actualizarDebug();
     });
 
-    // PARTÍCULAS
     function crearParticulas() {
         const container = document.getElementById('particles');
         if (!container) return;
@@ -1017,7 +925,6 @@ async function syncUserSimple(user) {
     window.onload = () => {
         document.body.style.opacity = '1';
         crearParticulas();
-        actualizarDebug();
     };
 </script>
 </body>
