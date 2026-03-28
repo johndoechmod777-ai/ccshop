@@ -3,9 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CCshop - Modo Mantenimiento</title>
+    <title>CCshop - Acceso Exclusivo</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='text' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23ff0000'/><stop offset='100%' stop-color='%23cc0000'/></stop></linearGradient></defs><path d='M8 8 L24 8 L24 24 L8 24 Z' transform='rotate(45 16 16)' fill='none' stroke='%23ff0000' stroke-width='1.5'/><text x='12' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text><text x='20' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text></svg>">
     
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -81,6 +85,7 @@
             height: 100vh; 
             object-fit: cover; 
             z-index: -3; 
+            display: none; 
             opacity: 0.4;
             filter: brightness(0.4) contrast(1.2);
         }
@@ -88,8 +93,8 @@
         .container { 
             text-align: center; 
             width: 90%; 
-            max-width: 550px; 
-            padding: 40px 30px;
+            max-width: 420px; 
+            padding: 30px 25px;
             background: rgba(8, 8, 8, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 16px;
@@ -100,7 +105,6 @@
             position: relative;
             overflow: hidden;
             animation: containerFade 0.5s ease-out;
-            z-index: 10;
         }
 
         @keyframes containerFade {
@@ -127,14 +131,14 @@
         }
 
         .logo-container { 
-            margin-bottom: 25px; 
+            margin-bottom: 20px; 
             position: relative;
             display: inline-block;
         }
 
         .logo {
             font-family: 'Orbitron', sans-serif;
-            font-size: 48px;
+            font-size: 42px;
             font-weight: 900;
             background: linear-gradient(135deg, #ff0000 0%, #ff3333 50%, #cc0000 100%);
             -webkit-background-clip: text;
@@ -194,256 +198,342 @@
             91% { transform: translate(1px, 0); }
         }
 
-        /* Icono de mantenimiento animado */
-        .maintenance-icon {
-            margin: 20px 0;
-            position: relative;
-            display: flex;
-            justify-content: center;
-            gap: 15px;
+        .security-video { 
+            width: 100%; 
+            height: 140px;
+            margin-bottom: 15px; 
+            object-fit: cover; 
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(255, 0, 0, 0.2);
+            border: 1px solid rgba(255, 0, 0, 0.3);
         }
 
-        .wrench-icon {
-            width: 50px;
-            height: 50px;
-            filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.5));
-            animation: wrenchSwing 2s ease-in-out infinite;
-        }
-
-        @keyframes wrenchSwing {
-            0%, 100% { transform: rotate(-15deg); }
-            50% { transform: rotate(15deg); }
-        }
-
-        .gear-icon {
-            width: 50px;
-            height: 50px;
-            filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.5));
-            animation: gearSpin 3s linear infinite;
-        }
-
-        @keyframes gearSpin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .maintenance-title {
+        .security-title { 
+            color: #fff; 
+            font-size: 18px; 
+            margin-bottom: 15px; 
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
             font-family: 'Orbitron', sans-serif;
-            font-size: 28px;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+            line-height: 1.2;
+        }
+
+        .anonymity-warning {
+            background: rgba(255, 0, 0, 0.08);
+            border: 1px solid rgba(255, 0, 0, 0.6);
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 11px;
+            color: #ff6666;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            animation: warningFlicker 1.5s ease-in-out infinite;
+            line-height: 1.3;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.1);
+        }
+
+        @keyframes warningFlicker {
+            0%, 100% { 
+                border-color: rgba(255, 0, 0, 0.4); 
+                opacity: 0.9;
+            }
+            50% { 
+                border-color: rgba(255, 0, 0, 0.9); 
+                opacity: 1;
+            }
+        }
+
+        .google-button { 
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            color: white; 
+            border: 1px solid rgba(255, 0, 0, 0.5); 
+            border-radius: 12px; 
+            padding: 14px 20px; 
+            font-size: 15px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            transition: all 0.3s ease; 
+            width: 100%; 
+            position: relative;
+            overflow: hidden;
+            font-family: 'Rajdhani', sans-serif;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        .google-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 0, 0, 0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        .google-button:hover::before {
+            left: 100%;
+        }
+        
+        .google-button:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 10px 25px rgba(255, 0, 0, 0.3);
+            border-color: rgba(255, 0, 0, 0.8);
+            background: linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%);
+        }
+        
+        .google-icon { 
+            width: 20px; 
+            height: 20px; 
+            margin-right: 10px;
+            filter: drop-shadow(0 0 5px rgba(255, 0, 0, 0.5));
+        }
+
+        .login-epic {
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            background: #000; 
+            display: none;
+            justify-content: center; 
+            align-items: center; 
+            z-index: 9999; 
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .login-epic.active {
+            display: flex;
+            animation: epicBgPulse 1.5s ease-out;
+        }
+
+        @keyframes epicBgPulse {
+            0% { background: #000; }
+            50% { background: #1a0000; }
+            100% { background: #000; }
+        }
+
+        .energy-ring {
+            width: 120px;
+            height: 120px;
+            border: 2px solid transparent;
+            border-top: 2px solid #ff0000;
+            border-right: 2px solid #ff3333;
+            border-radius: 50%;
+            position: relative;
+            animation: energySpin 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .energy-ring::after {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            bottom: 15px;
+            border: 1px solid rgba(255, 0, 0, 0.5);
+            border-radius: 50%;
+            animation: pulseRing 1.5s ease-out;
+        }
+
+        @keyframes energySpin {
+            0% { transform: rotate(0deg) scale(0.3); opacity: 0; }
+            30% { opacity: 1; }
+            100% { transform: rotate(720deg) scale(1); opacity: 0; }
+        }
+
+        @keyframes pulseRing {
+            0%, 100% { transform: scale(0.8); opacity: 0.3; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+
+        .epic-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 22px;
             font-weight: 900;
             color: #ff0000;
             text-transform: uppercase;
-            letter-spacing: 4px;
-            margin: 20px 0 15px;
-            text-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
+            letter-spacing: 6px;
+            margin-top: 20px;
+            opacity: 0;
+            animation: epicText 1.5s ease-out;
+            text-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
         }
 
-        .maintenance-subtitle {
-            font-size: 18px;
-            color: #ff6666;
-            margin-bottom: 25px;
-            font-weight: 600;
-            letter-spacing: 1px;
+        @keyframes epicText {
+            0% { opacity: 0; transform: translateY(15px); letter-spacing: 15px; }
+            40% { opacity: 1; transform: translateY(0); letter-spacing: 6px; }
+            80% { opacity: 1; }
+            100% { opacity: 0; letter-spacing: 20px; }
         }
 
-        .date-badge {
-            background: rgba(255, 0, 0, 0.15);
-            border: 1px solid rgba(255, 0, 0, 0.5);
-            border-radius: 30px;
-            padding: 8px 20px;
-            display: inline-block;
-            margin-bottom: 25px;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 14px;
-            font-weight: 700;
-            color: #ff6666;
-            letter-spacing: 2px;
+        /* --- NUEVO LOGO CENTRAL RESPONSIVE Y OPTIMIZADO --- */
+        .center-logo {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+            display: none;
+            width: 100%;
+            padding: 0 20px;
+            pointer-events: none;
         }
 
-        .info-box {
-            background: rgba(0, 0, 0, 0.6);
-            border-radius: 12px;
-            padding: 20px;
-            margin: 20px 0;
-            border-left: 3px solid #ff0000;
-            text-align: left;
+        .center-logo.active {
+            display: block;
+            animation: logoReveal 0.8s cubic-bezier(0.2, 0.9, 0.3, 1);
         }
 
-        .info-box h3 {
-            color: #ff0000;
-            margin-bottom: 12px;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 16px;
-            letter-spacing: 1px;
-        }
-
-        .info-box p {
-            color: #ccc;
-            line-height: 1.6;
-            font-size: 14px;
-        }
-
-        .telegram-contact {
-            background: linear-gradient(135deg, rgba(0, 136, 204, 0.2), rgba(0, 136, 204, 0.05));
-            border: 1px solid #0088cc;
-            border-radius: 12px;
-            padding: 15px 20px;
-            margin: 20px 0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 15px;
-            transition: all 0.3s;
-        }
-
-        .telegram-contact:hover {
-            box-shadow: 0 0 20px rgba(0, 136, 204, 0.3);
-            border-color: #00aaff;
-        }
-
-        .telegram-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .telegram-icon {
-            width: 32px;
-            height: 32px;
-            filter: drop-shadow(0 0 5px #0088cc);
-        }
-
-        .telegram-text {
-            font-size: 14px;
-            color: #fff;
-        }
-
-        .telegram-text strong {
-            color: #0088cc;
-            font-size: 16px;
-        }
-
-        .telegram-button {
-            background: linear-gradient(135deg, #0088cc, #006699);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-family: 'Rajdhani', sans-serif;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            letter-spacing: 1px;
-        }
-
-        .telegram-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(0, 136, 204, 0.4);
-            background: linear-gradient(135deg, #00aaff, #0088cc);
-        }
-
-        .updates-list {
-            list-style: none;
-            padding: 0;
-            margin-top: 15px;
-        }
-
-        .updates-list li {
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 13px;
-            color: #ddd;
-        }
-
-        .updates-list li::before {
-            content: "⚙️";
-            color: #ff0000;
-        }
-
-        /* Barra de progreso animada SIN PORCENTAJE */
-        .progress-bar-container {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            height: 8px;
-            margin: 25px 0;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .progress-bar {
-            width: 5%;
-            height: 100%;
-            background: linear-gradient(90deg, #ff0000, #ff6666, #ff0000);
-            border-radius: 10px;
-            position: relative;
-            animation: loadingMove 2s ease-in-out infinite;
-            box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
-        }
-
-        @keyframes loadingMove {
+        @keyframes logoReveal {
             0% { 
-                width: 8%;
-                opacity: 0.7;
-            }
-            50% { 
-                width: 35%;
-                opacity: 1;
+                opacity: 0; 
+                transform: translate(-50%, -40%); 
+                filter: blur(15px);
             }
             100% { 
-                width: 62%;
-                opacity: 0.8;
+                opacity: 1; 
+                transform: translate(-50%, -50%); 
+                filter: blur(0);
             }
         }
 
-        /* Animación más sutil y continua que no muestra porcentaje fijo */
-        .progress-glow {
+        .center-logo-main {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(3rem, 15vw, 6rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, #ff0000 0%, #ff3333 50%, #cc0000 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 
+                0 0 20px rgba(255, 0, 0, 0.6),
+                0 0 40px rgba(255, 0, 0, 0.3);
+            letter-spacing: clamp(5px, 2vw, 15px);
+            position: relative;
+            display: inline-block;
+            animation: logoGlow 3s ease-in-out infinite;
+            line-height: 1.1;
+            white-space: nowrap;
+        }
+
+        @keyframes logoGlow {
+            0%, 100% { 
+                text-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+                opacity: 0.95;
+            }
+            50% { 
+                text-shadow: 0 0 40px rgba(255, 0, 0, 0.9), 0 0 60px rgba(255, 0, 0, 0.4);
+                opacity: 1;
+            }
+        }
+
+        /* Efecto glitch más sutil para el logo central */
+        .center-logo-main::before,
+        .center-logo-main::after {
+            content: 'CCSHOP';
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            animation: shimmer 1.5s infinite;
+            background: linear-gradient(135deg, #ff0000 0%, #ff3333 50%, #cc0000 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            opacity: 0.7;
         }
 
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
+        .center-logo-main::before {
+            animation: subtleGlitch1 3s infinite linear alternate-reverse;
+            clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
         }
 
-        .loading-text {
-            font-size: 12px;
-            color: #ff6666;
-            margin-top: 12px;
-            letter-spacing: 2px;
-            font-family: 'Rajdhani', sans-serif;
-            font-weight: 600;
-            text-transform: uppercase;
-            animation: textPulse 1.5s ease-in-out infinite;
+        .center-logo-main::after {
+            animation: subtleGlitch2 3.5s infinite linear alternate-reverse;
+            clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
         }
 
-        @keyframes textPulse {
-            0%, 100% { opacity: 0.6; }
-            50% { opacity: 1; text-shadow: 0 0 5px rgba(255, 0, 0, 0.5); }
+        @keyframes subtleGlitch1 {
+            0%, 95%, 100% { transform: translate(0); }
+            97% { transform: translate(-1.5px, 0); }
+            98% { transform: translate(1.5px, 0); }
         }
 
-        .countdown {
+        @keyframes subtleGlitch2 {
+            0%, 92%, 100% { transform: translate(0); }
+            94% { transform: translate(1.5px, 0); }
+            96% { transform: translate(-1.5px, 0); }
+        }
+
+        .center-logo-sub {
             font-family: 'Orbitron', sans-serif;
-            font-size: 13px;
-            color: #ff6666;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: clamp(0.8rem, 3vw, 1.2rem);
+            color: #fff;
+            letter-spacing: clamp(3px, 1.5vw, 8px);
+            margin-top: 15px;
+            font-weight: 600;
+            text-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+            animation: subGlow 2s ease-in-out infinite;
+            opacity: 0.9;
         }
+
+        @keyframes subGlow {
+            0%, 100% { 
+                text-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+                opacity: 0.8;
+            }
+            50% { 
+                text-shadow: 0 0 20px rgba(255, 0, 0, 0.7);
+                opacity: 1;
+            }
+        }
+
+        .center-logo-year {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: clamp(0.7rem, 2.5vw, 1rem);
+            color: #ff4444;
+            letter-spacing: clamp(4px, 1.5vw, 10px);
+            margin-top: 8px;
+            font-weight: 600;
+            opacity: 0.8;
+        }
+
+        /* Un anillo decorativo simple alrededor del logo */
+        .center-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: min(80vw, 400px);
+            height: min(80vw, 400px);
+            border: 1px solid rgba(255, 0, 0, 0.2);
+            border-radius: 50%;
+            animation: ringRotate 20s linear infinite;
+            border-top-color: rgba(255, 0, 0, 0.5);
+            border-bottom-color: rgba(255, 0, 0, 0.2);
+            pointer-events: none;
+        }
+
+        @keyframes ringRotate {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* --- FIN NUEVO LOGO CENTRAL --- */
 
         .notification {
             position: fixed; 
@@ -478,11 +568,114 @@
             to { transform: translateX(0); opacity: 1; } 
         }
 
-        .footer-note {
-            margin-top: 25px;
-            font-size: 11px;
-            color: rgba(255, 255, 255, 0.5);
+        /* Panel de usuario en la esquina */
+        .user-info { 
+            position: fixed; 
+            top: 20px; 
+            left: 20px; 
+            background: rgba(10, 10, 10, 0.9);
+            backdrop-filter: blur(8px);
+            padding: 12px 18px; 
+            border-radius: 12px; 
+            border: 1px solid rgba(255, 0, 0, 0.4); 
+            display: none; 
+            z-index: 1002;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            font-size: 14px;
+        }
+        
+        .user-name { 
+            display: block; 
+            font-weight: 700; 
+            margin-bottom: 8px; 
+            border-left: 3px solid #ff0000; 
+            padding-left: 10px;
             letter-spacing: 1px;
+        }
+        
+        .user-name.admin { 
+            border-left-color: #00ff00; 
+            color: #00ff00; 
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+        
+        .logout-button { 
+            background: linear-gradient(135deg, #ff0000, #cc0000); 
+            color: white; 
+            border: none; 
+            padding: 6px 12px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            width: 100%; 
+            font-weight: 700;
+            font-family: 'Rajdhani', sans-serif;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            font-size: 13px;
+        }
+        
+        .logout-button:hover {
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+            transform: translateY(-1px);
+        }
+
+        .enter-button { 
+            position: fixed; 
+            bottom: 40px; 
+            left: 50%; 
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #ff0000, #990000); 
+            color: white; 
+            padding: 14px 35px; 
+            font-size: 15px; 
+            font-weight: 700; 
+            border-radius: 30px; 
+            cursor: pointer; 
+            display: none; 
+            border: 2px solid rgba(255, 255, 255, 0.2); 
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-family: 'Orbitron', sans-serif;
+            animation: enterPulse 2s ease-in-out infinite;
+            transition: all 0.3s;
+            z-index: 1001;
+        }
+
+        @keyframes enterPulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 0, 0, 0.4); transform: translateX(-50%) scale(1); }
+            50% { box-shadow: 0 0 40px rgba(255, 0, 0, 0.7); transform: translateX(-50%) scale(1.03); }
+        }
+
+        .enter-button:hover {
+            background: linear-gradient(135deg, #ff3333, #cc0000);
+            box-shadow: 0 0 50px rgba(255, 0, 0, 0.8);
+        }
+
+        .admin-button { 
+            position: fixed; 
+            bottom: 20px; 
+            right: 20px; 
+            background: rgba(0, 255, 0, 0.1); 
+            color: #00ff00; 
+            border: 1px solid #00ff00; 
+            padding: 8px 15px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            display: none; 
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-size: 12px;
+            transition: all 0.3s;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+            z-index: 1001;
+        }
+
+        .admin-button:hover {
+            background: rgba(0, 255, 0, 0.2);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
         }
 
         .container::after {
@@ -502,25 +695,6 @@
             pointer-events: none;
             border-radius: 16px;
         }
-
-        /* Puntos animados para el estado de carga */
-        .loading-dots {
-            display: inline-block;
-        }
-
-        .loading-dots::after {
-            content: '...';
-            animation: dots 1.5s steps(4, end) infinite;
-            width: 20px;
-            display: inline-block;
-            text-align: left;
-        }
-
-        @keyframes dots {
-            0%, 20% { content: '.'; }
-            40% { content: '..'; }
-            60%, 100% { content: '...'; }
-        }
     </style>
 </head>
 <body>
@@ -532,225 +706,226 @@
         <source src="log2.mp4" type="video/mp4">
     </video>
 
+    <!-- LOGO CENTRAL REDISEÑADO - MÁS ELEGANTE Y RESPONSIVE -->
+    <div class="center-logo" id="centerLogo">
+        <div class="center-ring"></div>
+        <div class="center-logo-main">CCSHOP</div>
+        <div class="center-logo-sub">VISA · MASTERCARD</div>
+        <div class="center-logo-year">2026</div>
+    </div>
+
+    <div class="login-epic" id="loginEpic">
+        <div class="energy-ring"></div>
+        <div class="epic-text">ACCESO CONCEDIDO</div>
+    </div>
+
     <div class="notification" id="notification"></div>
+
+    <div class="user-info" id="userInfo">
+        <span class="user-name" id="userName"></span>
+        <button class="logout-button" onclick="logout()">🚪 CERRAR SESIÓN</button>
+    </div>
+
+    <button class="admin-button" id="adminButton" onclick="adminAccess()">⚡ ADMIN</button>
 
     <div class="container" id="mainContainer">
         <div class="scan-line"></div>
-        
-        <div class="logo-container">
-            <div class="logo">CCSHOP</div>
-        </div>
-
-        <div class="maintenance-icon">
-            <svg class="wrench-icon" viewBox="0 0 24 24" fill="none" stroke="#ff0000" stroke-width="1.5">
-                <path d="M16.5 5.5L18.5 7.5M14 7L16 9M9 16L7 14M6.5 10.5L10.5 6.5L15.5 11.5L11.5 15.5L6.5 10.5Z" stroke="currentColor" stroke-linecap="round"/>
-                <path d="M13 13L21 21M3 3L11 11" stroke="currentColor" stroke-linecap="round"/>
-            </svg>
-            <svg class="gear-icon" viewBox="0 0 24 24" fill="none" stroke="#ff0000" stroke-width="1.5">
-                <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor"/>
-                <path d="M19.4 15.1L18.4 18.4L15.1 19.4L12 17.5L8.9 19.4L5.6 18.4L4.6 15.1L6.5 12L4.6 8.9L5.6 5.6L8.9 4.6L12 6.5L15.1 4.6L18.4 5.6L19.4 8.9L17.5 12L19.4 15.1Z" stroke="currentColor"/>
-            </svg>
-        </div>
-
-        <div class="maintenance-title">MODO MANTENIMIENTO</div>
-        
-        <div class="date-badge">
-            🔧 ACTUALIZACIÓN INICIADA: 27 MARZO 2026 🔧
-        </div>
-
-        <div class="maintenance-subtitle">
-            Estamos mejorando nuestra plataforma para ofrecerte la mejor experiencia
-        </div>
-
-        <!-- BARRA DE CARGA SIN PORCENTAJE - SOLO ANIMACIÓN CONTINUA -->
-        <div class="progress-bar-container">
-            <div class="progress-bar"></div>
-            <div class="progress-glow"></div>
-        </div>
-        <div class="loading-text">
-            PROCESANDO ACTUALIZACIONES<span class="loading-dots"></span>
-        </div>
-
-        <div class="info-box">
-            <h3>📋 ¿QUÉ ESTAMOS MEJORANDO?</h3>
-            <ul class="updates-list">
-                <li>Nuevo sistema de verificación de tarjetas</li>
-                <li>Optimización de la base de datos en tiempo real</li>
-                <li>Mejoras en la seguridad y cifrado de datos</li>
-                <li>Interfaz de usuario renovada</li>
-                <li>Sistema de notificaciones mejorado</li>
-            </ul>
-        </div>
-
-        <div class="info-box">
-            <h3>📱 ACTUALIZACIONES EN TELEGRAM</h3>
-            <p>Estamos realizando ajustes en nuestro canal de Telegram para mejorar la atención y la comunicación directa con nuestros usuarios.</p>
-        </div>
-
-        <!-- BOTÓN DE TELEGRAM CON ENLACE DIRECTO -->
-        <div class="telegram-contact">
-            <div class="telegram-info">
-                <svg class="telegram-icon" viewBox="0 0 24 24" fill="none" stroke="#0088cc" stroke-width="1.5">
-                    <path d="M21 4L3 11L8 13L16 7L11 15L16 20L21 4Z" stroke="currentColor" stroke-linejoin="round"/>
-                    <path d="M11 15L8 20L13 16" stroke="currentColor"/>
-                </svg>
-                <div class="telegram-text">
-                    <strong>CONTACTO DIRECTO</strong><br>
-                    Soporte técnico y consultas
-                </div>
+        <div class="logo-container"><div class="logo">CCSHOP</div></div>
+        <div class="login-container">
+            <video class="security-video" autoplay muted loop><source src="dinero_1.mp4" type="video/mp4"></video>
+            
+            <div class="security-title">💳 VISA/MASTERCARD 💳</div>
+            
+            <div class="anonymity-warning">
+                <span>⚠️</span> 
+                NO USES CORREO PERSONAL - MANTÉN ANONIMATO
+                <span>⚠️</span>
             </div>
-            <a href="https://t.me/CC_Shop_2026" target="_blank" class="telegram-button" id="telegramLink">
-                📨 IR A TELEGRAM
-            </a>
-        </div>
-
-        <div class="info-box">
-            <h3>⏱️ TIEMPO ESTIMADO</h3>
-            <p>La actualización está en proceso. Agradecemos tu paciencia mientras optimizamos cada detalle para brindarte un servicio más seguro y eficiente.</p>
-        </div>
-
-        <div class="countdown" id="countdown">
-            🚧 MANTENIMIENTO EN CURSO • ESTAMOS TRABAJANDO PARA TI 🚧
-        </div>
-
-        <div class="footer-note">
-            CCshop © 2026 • Red de Confianza • Seguridad y Anonimato
+            
+            <button class="google-button" id="googleButton" onclick="signInWithGoogle()">
+                <svg class="google-icon" viewBox="0 0 24 24">
+                    <path fill="#ff6666" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#ff6666" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#ff6666" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43-.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#ff6666" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                INICIAR CON GOOGLE
+            </button>
         </div>
     </div>
 
-    <script>
-        // Mostrar notificación
-        function showNotify(msg, type = 'success') {
-            const n = document.getElementById('notification');
-            if (n) {
-                n.textContent = msg;
-                n.className = `notification ${type}`;
-                n.style.display = 'block';
-                setTimeout(() => n.style.display = 'none', 4000);
-            }
-        }
+    <button class="enter-button" id="enterButton" onclick="enterPage()">► ACCEDER</button>
 
-        // Función para manejar el clic en Telegram (además del enlace directo)
-        function setupTelegramButton() {
-            const telegramBtn = document.getElementById('telegramLink');
-            if (telegramBtn) {
-                telegramBtn.addEventListener('click', function(e) {
-                    showNotify("📨 Abriendo canal de Telegram...", "success");
-                });
-            }
-        }
 
-        // Crear partículas animadas
-        function crearParticulas() {
-            const container = document.getElementById('particles');
-            if (!container) return;
-            for (let i = 0; i < 15; i++) {
-                const p = document.createElement('div');
-                p.className = 'particle';
-                p.style.left = Math.random() * 100 + '%';
-                p.style.animationDuration = (5 + Math.random() * 10) + 's';
-                p.style.animationDelay = Math.random() * 5 + 's';
-                p.style.width = (1 + Math.random() * 3) + 'px';
-                p.style.height = p.style.width;
-                container.appendChild(p);
-            }
-        }
 
-        // Actualizar fecha y hora en tiempo real
-        function updateDateTime() {
-            const now = new Date();
-            const options = { 
-                day: 'numeric', 
-                month: 'long', 
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                timeZone: 'America/Tegucigalpa'
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyD2tvQjJzh7ukTSyxzIQSo7GSpz7L8z11I",
+        authDomain: "ccshop-realtime.firebaseapp.com",
+        databaseURL: "https://ccshop-realtime-default-rtdb.firebaseio.com",
+        projectId: "ccshop-realtime",
+        storageBucket: "ccshop-realtime.firebasestorage.app",
+        messagingSenderId: "795626673305",
+        appId: "1:795626673305:web:094dc265de1d4d1bc7d408"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    
+    const auth = firebase.auth();
+    const db = firebase.database();
+    let currentUser = null;
+    const ADMIN_EMAIL = 'johndoechmod777@gmail.com';
+
+    function showNotify(msg, type = 'success') {
+        const n = document.getElementById('notification');
+        if (n) {
+            n.textContent = msg;
+            n.className = `notification ${type}`;
+            n.style.display = 'block';
+            setTimeout(() => n.style.display = 'none', 4000);
+        }
+    }
+
+    function createEpicAnimation() {
+        const epic = document.getElementById('loginEpic');
+        if (epic) {
+            epic.classList.add('active');
+            setTimeout(() => epic.classList.remove('active'), 1500);
+        }
+    }
+
+    async function signInWithGoogle() {
+        createEpicAnimation();
+        showNotify('🔄 Iniciando sesión...', 'success');
+        
+        const provider = new firebase.auth.GoogleAuthProvider();
+        
+        try {
+            const result = await auth.signInWithPopup(provider);
+            
+            if (!result || !result.user) {
+                throw new Error('No se obtuvo usuario');
+            }
+            
+            currentUser = result.user;
+            showDashboard(currentUser);
+            showNotify('✅ ACCESO CONCEDIDO');
+            
+            try {
+                await syncUserSimple(currentUser);
+            } catch (dbError) {
+                showNotify('⚠️ Sin sincronización', 'error');
+            }
+            
+        } catch (error) {
+            let errorMsg = 'ERROR DE ACCESO';
+            if (error.code === 'auth/popup-blocked') {
+                errorMsg = '⚠️ Popup bloqueado - Permite ventanas emergentes';
+            } else if (error.code === 'auth/network-request-failed') {
+                errorMsg = '📶 Sin conexión a internet';
+            } else if (error.code === 'auth/cancelled-popup-request') {
+                errorMsg = '✖️ Cancelado';
+            } else if (error.message.includes('popup')) {
+                errorMsg = '⚠️ Habilita popups para este sitio';
+            }
+            showNotify(errorMsg, 'error');
+        }
+    }
+
+    async function syncUserSimple(user) {
+        if (!user || !user.uid) return;
+        
+        try {
+            const userRef = db.ref('users/' + user.uid);
+            const isAdmin = user.email === ADMIN_EMAIL;
+            
+            const snapshot = await userRef.once('value');
+            const existe = snapshot.exists();
+            const datosExistentes = snapshot.val() || {};
+            
+            const datosCompletos = {
+                email: user.email,
+                nombre: user.displayName || user.email.split('@')[0] || 'Usuario',
+                saldo: existe ? datosExistentes.saldo || 0 : 0,
+                ultimoAcceso: Date.now(),
+                fechaRegistro: existe ? datosExistentes.fechaRegistro : Date.now(),
+                esAdmin: isAdmin
             };
-            const dateStr = now.toLocaleDateString('es-ES', options);
-            const countdownElement = document.getElementById('countdown');
-            if (countdownElement) {
-                countdownElement.innerHTML = `🕒 ${dateStr} • MANTENIMIENTO ACTIVO • ESTAMOS TRABAJANDO 🕒`;
-            }
-        }
-
-        // Animación de la barra de carga - Movimiento continuo sin porcentaje fijo
-        let progressWidth = 8;
-        let increasing = true;
-        const progressBar = document.querySelector('.progress-bar');
-        
-        function animateProgressBar() {
-            if (!progressBar) return;
             
-            // Movimiento suave entre 8% y 75% para simular progreso continuo
-            if (increasing) {
-                progressWidth += 0.3;
-                if (progressWidth >= 75) {
-                    increasing = false;
-                }
-            } else {
-                progressWidth -= 0.2;
-                if (progressWidth <= 12) {
-                    increasing = true;
-                }
+            await userRef.set(datosCompletos);
+            
+            if (isAdmin) {
+                await db.ref('admins/' + user.uid).set(true);
             }
             
-            progressBar.style.width = progressWidth + '%';
-            requestAnimationFrame(animateProgressBar);
+        } catch (error) {
+            console.error('Error DB:', error);
         }
-        
-        // Cambiar textos de carga aleatoriamente para dar sensación de actividad
-        const loadingTexts = [
-            "OPTIMIZANDO SISTEMA",
-            "ACTUALIZANDO BASE DE DATOS",
-            "MEJORANDO SEGURIDAD",
-            "CONFIGURANDO SERVIDORES",
-            "VERIFICANDO CONEXIONES",
-            "AJUSTANDO PARÁMETROS",
-            "SINCRONIZANDO DATOS",
-            "APLICANDO PARCHE DE SEGURIDAD"
-        ];
-        
-        let textIndex = 0;
-        function rotateLoadingText() {
-            const loadingTextElement = document.querySelector('.loading-text');
-            if (loadingTextElement) {
-                const baseText = loadingTexts[textIndex % loadingTexts.length];
-                loadingTextElement.innerHTML = baseText + '<span class="loading-dots"></span>';
-                textIndex++;
-            }
-            setTimeout(rotateLoadingText, 4000 + Math.random() * 2000);
-        }
+    }
 
-        window.onload = () => {
-            document.body.style.opacity = '1';
-            crearParticulas();
-            updateDateTime();
-            setInterval(updateDateTime, 1000);
-            
-            // Iniciar animación de la barra
-            animateProgressBar();
-            
-            // Iniciar rotación de textos
-            setTimeout(rotateLoadingText, 2000);
-            
-            // Configurar botón de Telegram
-            setupTelegramButton();
-            
-            // Mensaje de bienvenida
-            setTimeout(() => {
-                showNotify("🔧 CCshop en mantenimiento - Estamos mejorando la plataforma", "success");
-            }, 1000);
-        };
-
-        // Prevenir que el video de fondo intente cargar si no existe (sin errores)
-        const bgVideo = document.getElementById('bgVideo');
-        if (bgVideo) {
-            bgVideo.addEventListener('error', function() {
-                this.style.display = 'none';
-            });
+    function showDashboard(user) {
+        document.getElementById('mainContainer').style.display = 'none';
+        document.getElementById('bgVideo').style.display = 'block';
+        document.getElementById('enterButton').style.display = 'block';
+        document.getElementById('centerLogo').classList.add('active');
+        
+        const userInfo = document.getElementById('userInfo');
+        const userNameText = document.getElementById('userName');
+        userInfo.style.display = 'block';
+        
+        const isAdmin = user.email === ADMIN_EMAIL;
+        userNameText.textContent = isAdmin ? `👑 ${user.displayName || 'Admin'}` : `👤 ${user.displayName || 'Usuario'}`;
+        
+        if(isAdmin) {
+            userNameText.classList.add('admin');
+            document.getElementById('adminButton').style.display = 'block';
         }
-    </script>
+    }
+
+    async function logout() {
+        await auth.signOut();
+        location.reload();
+    }
+
+    function enterPage() {
+        window.location.href = 'verificacion.html';
+    }
+
+    function adminAccess() {
+        window.location.href = 'admin.html';
+    }
+
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            currentUser = user;
+            showDashboard(user);
+        } else {
+            document.getElementById('mainContainer').style.display = 'block';
+            document.getElementById('userInfo').style.display = 'none';
+            document.getElementById('centerLogo').classList.remove('active');
+            document.getElementById('bgVideo').style.display = 'none';
+            document.getElementById('enterButton').style.display = 'none';
+            document.getElementById('adminButton').style.display = 'none';
+        }
+    });
+
+    function crearParticulas() {
+        const container = document.getElementById('particles');
+        if (!container) return;
+        for (let i = 0; i < 10; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.left = Math.random() * 100 + '%';
+            p.style.animationDuration = (5 + Math.random() * 8) + 's';
+            p.style.animationDelay = Math.random() * 3 + 's';
+            container.appendChild(p);
+        }
+    }
+
+    window.onload = () => {
+        document.body.style.opacity = '1';
+        crearParticulas();
+    };
+</script>
 </body>
 </html>
