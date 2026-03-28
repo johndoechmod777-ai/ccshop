@@ -12,7 +12,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -67,11 +67,11 @@
         }
 
         #modal-container {
-            display: none; /* Oculto hasta verificación */
+            display: none;
             grid-template-columns: 1fr 1fr;
-            grid-template-rows: 1fr 1fr;
+            grid-template-rows: auto auto;
             position: relative;
-            max-width: 450px;
+            max-width: 560px;
             width: 90%;
             border: 2px solid #330000;
             border-radius: 15px;
@@ -79,8 +79,6 @@
                 0 0 50px rgba(139, 0, 0, 0.4),
                 inset 0 0 20px rgba(0, 0, 0, 0.8);
             overflow: hidden;
-            position: relative;
-            transform: translate(0, 0);
         }
 
         #modal-container::before {
@@ -224,12 +222,21 @@
             animation: assemble-bl 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
+            justify-content: space-between;
         }
-        #piece-bl ul { list-style: none; }
+        
+        /* Lista de beneficios */
+        .benefits-list {
+            flex: 1;
+        }
+        
+        #piece-bl ul { 
+            list-style: none; 
+            margin-bottom: 20px;
+        }
         #piece-bl li {
             color: #999;
-            margin: 10px 0;
+            margin: 12px 0;
             padding-left: 25px;
             position: relative;
             font-size: 13px;
@@ -249,24 +256,54 @@
             left: 0;
             color: #00ff00;
             font-size: 12px;
-            text-shadow: 0 0 10px rgba(0, 255, 0, 0.8), 0 0 20px rgba(139, 0, 0, 0.4);
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.8), 0 0 20px rgba(139, 0, 0, 0.6);
             animation: arrowSpark 2s ease-in-out infinite alternate;
         }
 
+        /* BOTÓN COLOCADO EN EL CUADRO INFERIOR IZQUIERDO */
+        .btn-store {
+            width: 100%;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, #8B0000, #4B0000);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 15px;
+            transition: all 0.3s;
+            box-shadow: 0 0 15px rgba(139, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn-store:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 25px rgba(139, 0, 0, 0.8);
+            background: linear-gradient(135deg, #a00000, #5a0000);
+        }
+
+        .btn-store i {
+            color: #00ff00;
+            font-size: 14px;
+        }
+
         #piece-br {
-            text-align: center;
             animation: assemble-br 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            gap: 12px;
         }
+
+        /* Sección de Telegram */
         .contact-section {
             font-size: 12px;
             color: #999;
-            margin-bottom: 15px;
             background: rgba(139, 0, 0, 0.2);
-            padding: 8px 15px;
+            padding: 10px 15px;
             border-radius: 20px;
             border: 1px solid rgba(139, 0, 0, 0.4);
             display: flex;
@@ -279,7 +316,7 @@
         }
         .contact-section:hover {
             background: rgba(139, 0, 0, 0.4);
-            box-shadow: 0 0 15px rgba(139, 0, 0, 0.6), 0 0 25px rgba(139, 0, 0, 0.3);
+            box-shadow: 0 0 15px rgba(139, 0, 0, 0.6);
         }
         .contact-section span {
             margin-bottom: 5px;
@@ -296,62 +333,59 @@
         }
         .telegram-link:hover {
             color: #ff6347;
-            text-shadow: 0 0 10px rgba(255, 69, 0, 0.7);
         }
         .telegram-icon {
             color: #00bfff;
             font-size: 20px;
             margin-top: 3px;
-            text-shadow: 0 0 10px rgba(139, 0, 0, 0.7);
         }
-        .action-btn {
-            padding: 12px 25px;
-            background: linear-gradient(135deg, #8B0000, #4B0000);
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 700;
+
+        /* CUADRO NUEVO APARTADO - MÉTODO PARA CASHOUT CC */
+        .nuevo-apartado-box {
+            background: linear-gradient(135deg, #0f0f0f, #030000);
+            border: 1px solid #8B0000;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(139, 0, 0, 0.3);
+        }
+
+        .nuevo-apartado-box:hover {
+            border-color: #ff4500;
+            box-shadow: 0 0 25px rgba(139, 0, 0, 0.5);
+        }
+
+        .nuevo-titulo {
+            color: #ff4500;
             font-size: 16px;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 
-                0 0 20px rgba(139, 0, 0, 0.6),
-                inset 0 0 10px rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            position: relative;
-            overflow: hidden;
-            text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
         }
-        .action-btn::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), rgba(139, 0, 0, 0.3), transparent);
-            transition: left 0.5s;
+
+        .nuevo-texto {
+            color: #aaa;
+            font-size: 13px;
+            margin-bottom: 12px;
+            line-height: 1.4;
         }
-        .action-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 
-                0 0 30px rgba(139, 0, 0, 0.8),
-                0 0 40px rgba(139, 0, 0, 0.4);
+
+        .metodo-destacado {
+            background: linear-gradient(135deg, #8B0000, #4a0000);
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 30px;
+            margin: 8px 0;
         }
-        .action-btn:hover::before {
-            left: 100%;
-        }
-        .action-btn i {
-            color: #00ff00;
-            font-size: 14px;
-            transition: transform 0.3s;
-            text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
-        }
-        .action-btn:hover i {
-            transform: translateX(5px);
+
+        .metodo-destacado span {
+            color: #fff;
+            font-size: 18px;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
         }
 
         @keyframes assemble-tl { from { transform: translate(-50vw, -50vh) rotate(-45deg); } to { transform: translate(0, 0) rotate(0deg); } }
@@ -360,31 +394,11 @@
         @keyframes assemble-br { from { transform: translate(50vw, 50vh) rotate(-45deg); } to { transform: translate(0, 0) rotate(0deg); } }
 
         @keyframes electricGlow {
-            0% { 
-                background-position: 0% 50%, 0% 0%; 
-                opacity: 0.4;
-                filter: blur(1px);
-            }
-            25% { 
-                background-position: 100% 50%, 50% 100%; 
-                opacity: 0.9;
-                filter: blur(2px);
-            }
-            50% { 
-                background-position: 0% 50%, 100% 0%; 
-                opacity: 0.6;
-                filter: blur(1px);
-            }
-            75% { 
-                background-position: 100% 50%, 0% 100%; 
-                opacity: 0.8;
-                filter: blur(1.5px);
-            }
-            100% { 
-                background-position: 0% 50%, 50% 0%; 
-                opacity: 0.5;
-                filter: blur(1px);
-            }
+            0% { background-position: 0% 50%, 0% 0%; opacity: 0.4; filter: blur(1px); }
+            25% { background-position: 100% 50%, 50% 100%; opacity: 0.9; filter: blur(2px); }
+            50% { background-position: 0% 50%, 100% 0%; opacity: 0.6; filter: blur(1px); }
+            75% { background-position: 100% 50%, 0% 100%; opacity: 0.8; filter: blur(1.5px); }
+            100% { background-position: 0% 50%, 50% 0%; opacity: 0.5; filter: blur(1px); }
         }
 
         @keyframes sparks {
@@ -412,18 +426,12 @@
             .modal-header { font-size: 28px; }
             .warning-text { font-size: 11px; }
             #piece-tr h3 { font-size: 18px; }
-            #piece-bl li { font-size: 12px; }
-            .action-btn { padding: 10px 20px; font-size: 14px; }
-            .contact-section { 
-                padding: 10px;
-                font-size: 11px;
-            }
-            .telegram-link {
-                font-size: 13px;
-            }
-            .telegram-icon {
-                font-size: 18px;
-            }
+            #piece-bl li { font-size: 12px; margin: 8px 0; }
+            .contact-section { padding: 8px 12px; }
+            .nuevo-titulo { font-size: 14px; }
+            .metodo-destacado span { font-size: 15px; }
+            .metodo-destacado { padding: 8px 15px; }
+            .btn-store { padding: 10px; font-size: 13px; }
         }
     </style>
 </head>
@@ -431,14 +439,14 @@
     <!-- VERIFICACIÓN DE SEGURIDAD -->
     <div id="securityCheck">
         <div class="security-spinner"></div>
-        <div class="security-text">🔐 Verificando identidad...</div>
+        <div class="security-text">VERIFICANDO IDENTIDAD...</div>
     </div>
 
-    <!-- CONTENIDO PRINCIPAL (oculto hasta verificación) -->
+    <!-- CONTENIDO PRINCIPAL -->
     <div id="modal-container">
         <div class="puzzle-piece" id="piece-tl">
             <div class="modal-header">CCSHOP</div>
-            <p class="warning-text">⚠️ Antes de realizar una compra leer las reglas de CCSHOP ⚠️</p>
+            <p class="warning-text">ANTES DE REALIZAR UNA COMPRA LEER LAS REGLAS DE CCSHOP</p>
         </div>
 
         <div class="puzzle-piece" id="piece-tr">
@@ -447,15 +455,24 @@
             <div class="stock-indicator"><span>Stock</span> <i class="fas fa-check"></i> disponible</div>
         </div>
 
+        <!-- CUADRO INFERIOR IZQUIERDO - Aquí va la lista de beneficios Y EL BOTÓN -->
         <div class="puzzle-piece" id="piece-bl">
-            <ul>
-                <li>Stock verificado y en línea 24/7</li>
-                <li>Transacción automatizada y segura</li>
-                <li>Garantía de reembolso</li>
-                <li>Precios competitivos desde 5 USD hasta 100+ USD por unidad</li>
-            </ul>
+            <div class="benefits-list">
+                <ul>
+                    <li>Stock verificado y en línea 24/7</li>
+                    <li>Transacción automatizada y segura</li>
+                    <li>Garantía de reembolso</li>
+                    <li>Precios competitivos desde 5 USD hasta 100+ USD por unidad</li>
+                </ul>
+            </div>
+            <!-- BOTÓN COLOCADO AQUÍ - al final del cuadro, bien visible -->
+            <button class="btn-store" onclick="redirectToStore()">
+                ACCEDER A LA TIENDA
+                <i class="fas fa-arrow-right"></i>
+            </button>
         </div>
 
+        <!-- CUADRO INFERIOR DERECHO -->
         <div class="puzzle-piece" id="piece-br">
             <div class="contact-section" onclick="openTelegram()">
                 <span>Dudas contacta vía</span>
@@ -464,17 +481,21 @@
                 </a>
                 <i class="fab fa-telegram-plane telegram-icon"></i>
             </div>
-            <button class="action-btn" onclick="redirectToStore()">
-                Acceder a la Tienda
-                <i class="fas fa-arrow-right"></i>
-            </button>
+            
+            <div class="nuevo-apartado-box">
+                <div class="nuevo-titulo">NUEVO APARTADO</div>
+                <div class="nuevo-texto">
+                    Entra en el catálogo de la tienda y encontrarás un apartado de
+                </div>
+                <div class="metodo-destacado">
+                    <span>MÉTODO PARA CC</span>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // =======================================================
-        // CONFIGURACIÓN FIREBASE Y SEGURIDAD
-        // =======================================================
+        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyD2tvQjJzh7ukTSyxzIQSo7GSpz7L8z11I",
             authDomain: "ccshop-realtime.firebaseapp.com",
@@ -484,123 +505,83 @@
             appId: "1:795626673305:web:094dc265de1d4d1bc7d408"
         };
 
-        // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
 
-        // =======================================================
-        // SISTEMA DE VERIFICACIÓN DE SEGURIDAD
-        // =======================================================
         let securityCheckPassed = false;
         let verificationAttempts = 0;
         const MAX_VERIFICATION_ATTEMPTS = 3;
 
         function performSecurityVerification() {
-            console.log('🔐 Iniciando verificación de seguridad...');
-            
-            // Verificación 1: Usuario autenticado en Firebase
             auth.onAuthStateChanged((user) => {
                 if (user) {
-                    console.log('✅ Usuario autenticado:', user.email);
-                    
-                    // Verificación 2: Viene de la página correcta
                     const referrer = document.referrer;
                     const isValidReferrer = referrer.includes('verificacion.html') || 
                                            referrer.includes('verificacion') ||
                                            localStorage.getItem('passedCaptcha') === 'true';
                     
                     if (isValidReferrer) {
-                        console.log('✅ Referente válido');
                         securityCheckPassed = true;
                         showContent();
                     } else {
-                        console.log('❌ Referente inválido, verificando intentos...');
                         handleInvalidAccess();
                     }
-                    
                 } else {
-                    console.log('❌ Usuario no autenticado');
                     redirectToLogin();
                 }
             });
 
-            // Timeout de seguridad
             setTimeout(() => {
-                if (!securityCheckPassed) {
-                    console.log('⏰ Timeout de verificación');
-                    redirectToLogin();
-                }
-            }, 10000); // 10 segundos máximo
+                if (!securityCheckPassed) redirectToLogin();
+            }, 10000);
         }
 
         function handleInvalidAccess() {
             verificationAttempts++;
-            
             if (verificationAttempts >= MAX_VERIFICATION_ATTEMPTS) {
-                console.log('🚫 Máximos intentos alcanzados, cerrando sesión');
                 auth.signOut();
                 localStorage.clear();
                 redirectToLogin();
                 return;
             }
-            
-            // Intentar verificación alternativa
             const hasPreviousAuth = localStorage.getItem('userAuthenticated') === 'true';
             if (hasPreviousAuth) {
-                console.log('⚠️ Acceso con autenticación previa, permitiendo con advertencia');
                 securityCheckPassed = true;
                 showContent();
             } else {
-                console.log('❌ Acceso no autorizado');
                 redirectToLogin();
             }
         }
 
         function showContent() {
-            console.log('🎉 Mostrando contenido seguro');
             document.getElementById('securityCheck').style.display = 'none';
             document.getElementById('modal-container').style.display = 'grid';
-            
-            // Marcar sesión como válida
             localStorage.setItem('userAuthenticated', 'true');
             localStorage.setItem('passedCaptcha', 'true');
-            
-            // Inicializar contenido
             initializeContent();
         }
 
         function redirectToLogin() {
-            console.log('🔄 Redirigiendo al login...');
-            auth.signOut(); // Cerrar cualquier sesión residual
+            auth.signOut();
             localStorage.removeItem('userAuthenticated');
             localStorage.removeItem('passedCaptcha');
             window.location.href = 'index.html';
         }
 
         function redirectToStore() {
-            // Verificación final antes de redirigir
             if (!securityCheckPassed) {
-                alert('❌ Error de verificación. Redirigiendo al inicio.');
+                alert('Error de verificación. Redirigiendo al inicio.');
                 redirectToLogin();
                 return;
             }
-            
-            console.log('🛒 Redirigiendo a la tienda...');
             window.location.href = 'cupones.html';
         }
 
-        // =======================================================
-        // FUNCIONES MEJORADAS
-        // =======================================================
         function openTelegram() {
             window.open('https://t.me/CC_Shop_2026', '_blank', 'noopener,noreferrer');
         }
 
-        // =======================================================
-        // INICIALIZACIÓN DEL CONTENIDO
-        // =======================================================
         function initializeContent() {
-            // Fecha actual
             const fechaElemento = document.getElementById('fecha-actual');
             const hoy = new Date();
             const dia = String(hoy.getDate()).padStart(2, '0');
@@ -608,49 +589,23 @@
             const anio = hoy.getFullYear();
             fechaElemento.innerHTML = `<i class="fas fa-calendar"></i> Actualizado: ${dia}/${mes}/${anio}`;
 
-            // Tracking para enlace de Telegram
-            const telegramLinks = document.querySelectorAll('.telegram-link');
-            telegramLinks.forEach(link => {
+            document.querySelectorAll('.telegram-link').forEach(link => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
                     window.open('https://t.me/CC_Shop_2026', '_blank', 'noopener,noreferrer');
-                    console.log('📞 Telegram link clicked - Customer support');
                 });
             });
-
-            console.log('✅ Contenido inicializado correctamente');
         }
 
-        // =======================================================
-        // PROTECCIÓN ADICIONAL
-        // =======================================================
         document.addEventListener('contextmenu', (e) => e.preventDefault());
-        
         document.addEventListener('keydown', (e) => {
             if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
                 e.preventDefault();
             }
         });
 
-        // Detectar cierre de pestaña/navegador
-        window.addEventListener('beforeunload', (e) => {
-            if (securityCheckPassed) {
-                // Opcional: Limpiar localStorage al salir
-                // localStorage.removeItem('userAuthenticated');
-            }
-        });
-
-        // =======================================================
-        // INICIALIZACIÓN DE LA APLICACIÓN
-        // =======================================================
         window.addEventListener('DOMContentLoaded', () => {
-            console.log('🚀 Iniciando CCSHOP - Anuncio Seguro');
             performSecurityVerification();
-        });
-
-        // Manejo de errores global
-        window.addEventListener('error', (e) => {
-            console.error('Error global:', e.error);
         });
     </script>
 </body>
