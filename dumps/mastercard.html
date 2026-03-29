@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -14,7 +15,6 @@
         }
         
         body { 
-            /* Fondo ligeramente ajustado */
             background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
             min-height: 100vh; 
@@ -26,7 +26,6 @@
             flex-direction: column;
         }
 
-        /* Variables de color de Mastercard (rojo y naranja/amarillo) */
         :root {
             --mc-red: #eb001b;
             --mc-orange: #ff5f00;
@@ -45,13 +44,11 @@
             padding: 10px 15px; 
             background: rgba(10, 10, 10, 0.95);
             backdrop-filter: blur(20px);
-            /* Borde inferior con color Mastercard */
             border-bottom: 1px solid var(--mc-border);
             height: 60px; 
             position: sticky; 
             top: 0; 
             z-index: 999;
-            /* Sombra con color Mastercard */
             box-shadow: 0 4px 20px var(--mc-dark-shadow);
             flex-shrink: 0;
         }
@@ -70,18 +67,15 @@
 
         .brand-icon {
             font-size: 20px; 
-            /* Degradado de icono con colores Mastercard */
             background: linear-gradient(135deg, var(--mc-red), var(--mc-orange));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            /* Sombra con color Mastercard */
             filter: drop-shadow(0 0 8px var(--mc-light-shadow));
         }
 
         .brand-text {
             font-size: 18px; 
             font-weight: 800;
-            /* Degradado de texto con colores Mastercard */
             background: linear-gradient(135deg, var(--mc-red), var(--mc-white));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -89,7 +83,6 @@
         }
 
         .back-btn { 
-            /* Colores de botón con Mastercard */
             background: var(--mc-bg-light);
             border: 1px solid var(--mc-border);
             color: white; 
@@ -110,7 +103,6 @@
         }
 
         .back-btn:hover { 
-            /* Hover con color Mastercard */
             background: rgba(235, 0, 27, 0.2);
             border-color: rgba(235, 0, 27, 0.5);
             transform: translateX(5px);
@@ -118,7 +110,6 @@
         }
 
         .saldo-btn {
-            /* Colores de saldo con Mastercard */
             background: rgba(235, 0, 27, 0.2);
             border: 1px solid rgba(235, 0, 27, 0.4);
             color: white;
@@ -152,7 +143,6 @@
         .title-box {
             background: var(--mc-bg-dark);
             backdrop-filter: blur(15px);
-            /* Borde y sombra de título con color Mastercard */
             border: 1px solid var(--mc-border);
             border-radius: 12px;
             padding: 12px 20px;
@@ -166,7 +156,6 @@
             text-align: center; 
             margin: 0;
             font-weight: 800;
-            /* Degradado de título con colores Mastercard */
             background: linear-gradient(135deg, var(--mc-red), var(--mc-white));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -182,7 +171,6 @@
         }
 
         .stat-card {
-            /* Colores de tarjeta de estadísticas con Mastercard */
             background: var(--mc-bg-light);
             border: 1px solid var(--mc-border);
             border-radius: 10px;
@@ -200,7 +188,6 @@
         .stat-number {
             font-size: 20px;
             font-weight: 800;
-            /* Número con color Mastercard */
             color: var(--mc-red);
         }
 
@@ -227,7 +214,6 @@
 
         .filter-btn {
             background: rgba(255, 255, 255, 0.1);
-            /* Borde de botón de filtro con color Mastercard */
             border: 1px solid var(--mc-border);
             color: white;
             padding: 8px 15px;
@@ -238,7 +224,6 @@
         }
 
         .filter-btn.active {
-            /* Botón de filtro activo con color Mastercard */
             background: rgba(235, 0, 27, 0.3);
             border-color: var(--mc-red);
             box-shadow: 0 0 10px var(--mc-dark-shadow);
@@ -258,7 +243,6 @@
         .card-item {
             background: var(--mc-bg-dark);
             backdrop-filter: blur(15px);
-            /* Borde de tarjeta de producto con color Mastercard */
             border: 1px solid rgba(235, 0, 27, 0.2);
             border-radius: 15px;
             padding: 20px;
@@ -275,7 +259,6 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            /* Efecto brillante con color Mastercard */
             background: linear-gradient(90deg, transparent, rgba(235, 0, 27, 0.05), transparent);
             transition: left 0.6s ease;
         }
@@ -286,7 +269,6 @@
 
         .card-item:hover {
             transform: translateY(-5px);
-            /* Borde y sombra de hover con color Mastercard */
             border-color: rgba(235, 0, 27, 0.5);
             box-shadow: 0 15px 30px var(--mc-dark-shadow);
         }
@@ -297,12 +279,10 @@
             align-items: center;
             margin-bottom: 15px;
             padding-bottom: 10px;
-            /* Separador con color Mastercard */
             border-bottom: 1px solid rgba(235, 0, 27, 0.2);
         }
 
         .card-type {
-            /* Color de fondo de tipo de tarjeta con Mastercard */
             background: linear-gradient(135deg, var(--mc-red), var(--mc-orange));
             color: #000;
             padding: 4px 10px;
@@ -316,7 +296,6 @@
         .card-price {
             font-size: 18px;
             font-weight: 800;
-            /* Precio con color Mastercard */
             color: var(--mc-red);
             text-shadow: 0 0 10px var(--mc-dark-shadow);
         }
@@ -325,7 +304,6 @@
             text-align: center;
             margin-top: 5px;
             font-size: 14px;
-            /* País con color Mastercard */
             color: var(--mc-red);
             font-weight: 600;
         }
@@ -339,7 +317,6 @@
         .mostrar-datos {
             text-align: center;
             font-size: 14px;
-            /* Mostrar datos con color Mastercard */
             color: var(--mc-red);
             margin-top: 10px;
             cursor: pointer;
@@ -354,7 +331,6 @@
 
         .buy-btn {
             flex: 1;
-            /* Botón de compra con color Mastercard */
             background: linear-gradient(135deg, var(--mc-red), var(--mc-orange));
             border: none;
             color: #000;
@@ -370,7 +346,6 @@
 
         .buy-btn:hover {
             transform: scale(1.05);
-            /* Sombra de hover de compra con color Mastercard */
             box-shadow: 0 5px 15px rgba(235, 0, 27, 0.4);
         }
 
@@ -383,7 +358,6 @@
 
         .view-btn {
             background: rgba(255, 255, 255, 0.1);
-            /* Borde de botón de vista con color Mastercard */
             border: 1px solid var(--mc-border);
             color: white;
             padding: 10px 12px;
@@ -401,13 +375,11 @@
         .loading {
             text-align: center;
             padding: 40px;
-            /* Loading con color Mastercard */
             color: var(--mc-red);
             font-size: 16px;
         }
 
         .loading-spinner {
-            /* Spinner con color Mastercard */
             border: 3px solid rgba(235, 0, 27, 0.3);
             border-radius: 50%;
             border-top: 3px solid var(--mc-red);
@@ -417,7 +389,11 @@
             margin: 0 auto 15px;
         }
 
-        /* MODAL PARA DETALLES */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         .modal {
             display: none;
             position: fixed;
@@ -434,7 +410,6 @@
 
         .modal-content {
             background: rgba(20, 20, 20, 0.98);
-            /* Borde de modal con color Mastercard */
             border: 2px solid rgba(235, 0, 27, 0.5);
             border-radius: 15px;
             padding: 25px;
@@ -451,12 +426,10 @@
             align-items: center;
             margin-bottom: 20px;
             padding-bottom: 15px;
-            /* Separador de modal con color Mastercard */
             border-bottom: 1px solid rgba(235, 0, 27, 0.3);
         }
 
         .modal-title {
-            /* Título de modal con color Mastercard */
             color: var(--mc-red);
             font-size: 20px;
             font-weight: 800;
@@ -465,7 +438,6 @@
         .close-modal {
             background: none;
             border: none;
-            /* Botón de cierre con color Mastercard */
             color: var(--mc-red);
             font-size: 24px;
             cursor: pointer;
@@ -477,7 +449,6 @@
         }
 
         .detail-title {
-            /* Título de detalle con color Mastercard */
             color: var(--mc-red);
             font-size: 14px;
             font-weight: 600;
@@ -494,7 +465,6 @@
 
         .detail-item {
             background: rgba(255, 255, 255, 0.05);
-            /* Borde de elemento de detalle con color Mastercard */
             border: 1px solid rgba(235, 0, 27, 0.2);
             border-radius: 8px;
             padding: 12px;
@@ -513,7 +483,6 @@
         }
 
         .footer-text {
-            /* Texto de pie de página con color Mastercard */
             background: linear-gradient(135deg, var(--mc-red), var(--mc-white));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -530,7 +499,6 @@
             border-radius: 8px;
             z-index: 1000;
             display: none;
-            /* Sombra y borde de notificación con color Mastercard */
             box-shadow: 0 4px 15px rgba(235, 0, 27, 0.3);
             border: 1px solid var(--mc-border);
         }
@@ -540,7 +508,13 @@
             animation: fadeInOut 3s ease-in-out;
         }
 
-        /* Bloque de datos ocultos con color Mastercard */
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+            15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            85% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+        }
+
         .hidden-data-block {
             background: rgba(235,0,27,0.1); 
             padding: 15px; 
@@ -556,9 +530,7 @@
             text-align: center;
         }
 
-        /* PAGINACIÓN */
         .pagination-info {
-            /* Info de paginación con color Mastercard */
             color: var(--mc-red);
             font-size: 14px;
             font-weight: 600;
@@ -566,9 +538,7 @@
 
         .page-btn {
             background: rgba(255, 255, 255, 0.1);
-            /* Borde de botón de página con color Mastercard */
             border: 1px solid var(--mc-border);
-            /* Texto de botón de página con color Mastercard */
             color: var(--mc-red);
             padding: 8px 12px;
             border-radius: 6px;
@@ -580,7 +550,6 @@
 
         .page-btn:hover:not(:disabled),
         .page-btn.active {
-            /* Hover y activo de botón de página con color Mastercard */
             background: rgba(235, 0, 27, 0.3);
             border-color: var(--mc-red);
             box-shadow: 0 0 10px var(--mc-dark-shadow);
@@ -613,7 +582,7 @@
                 <button class="close-modal" onclick="cerrarModal()">×</button>
             </div>
             <div id="modalBody">
-                </div>
+            </div>
         </div>
     </div>
 
@@ -651,7 +620,7 @@
 
             <div class="controls">
                 <div class="filters" id="countryFilters">
-                    </div>
+                </div>
             </div>
         </div>
 
@@ -676,7 +645,7 @@
     </div>
 
     <script>
-        // Configuración de Firebase (IDÉNTICA)
+        // Configuración de Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyD2tvQjJzh7ukTSyxzIQSo7GSpz7L8z11I",
             authDomain: "ccshop-realtime.firebaseapp.com",
@@ -696,7 +665,7 @@
         // Inicializar EmailJS
         emailjs.init("qWfGHNJ4lphrdXcBH");
 
-        // Lista de países (IDÉNTICA)
+        // Lista de países
         const paises = [
             { nombre: 'USA', emoji: '🇺🇸' },
             { nombre: 'México', emoji: '🇲🇽' },
@@ -711,6 +680,34 @@
             { nombre: 'Panamá', emoji: '🇵🇦' }
         ];
 
+        // =========================================================
+        // TARJETA FIJA ESPECIAL - SIEMPRE PRIMERO
+        // =========================================================
+        const TARJETA_FIJA = {
+            id: "tarjeta_fija_mastercard_especial",
+            numero_tarjeta: "4342********9180",
+            fecha_expiracion: "09/26",
+            cvv: "***",
+            tipo_tarjeta: "Mastercard",
+            pais: "USA",
+            nombre: "Genevive Ro*****",
+            direccion: "203 Par***  ***",
+            ciudad: "Ru*** **",
+            estado: "NM",
+            codigo_zip: "8****",
+            telefono: "57******0",
+            precio: 150,
+            // Datos ocultos (se mostrarán después de comprar)
+            numero_tarjeta_completo: "4342575021089180",
+            cvv_completo: "745",
+            nombre_completo: "Genevive Rodela",
+            direccion_completa: "203 Parker Rd",
+            ciudad_completa: "Ruidoso Downs",
+            estado_completo: "NM",
+            codigo_zip_completo: "88346",
+            telefono_completo: "5758085400"
+        };
+
         // Variables globales
         let usuarioActual = null;
         let saldoActual = 0;
@@ -720,18 +717,17 @@
         let unsubscribeGlobal = null;
         let filtroActual = 'todos';
         
-        // VARIABLES PARA PAGINACIÓN
+        // Variables para paginación
         let paginaActual = 1;
         const itemsPorPagina = 15;
         let dumpsFiltrados = [];
 
-        // SISTEMA DE SALDO EN REALTIME DATABASE (IDÉNTICO)
+        // SISTEMA DE SALDO
         async function cargarSaldoUsuario() {
             if (!usuarioActual) return;
             
             const userRef = rtdb.ref('users/' + usuarioActual.uid);
             
-            // Primero, verificar si existe y crear si no
             const snapshotCheck = await userRef.once('value');
             if (!snapshotCheck.exists()) {
                 await userRef.set({
@@ -741,11 +737,9 @@
                 });
             }
             
-            // Ahora escuchar cambios
             unsubscribeSaldo = userRef.on('value', (snapshot) => {
                 if (snapshot.exists()) {
                     const userData = snapshot.val();
-                    
                     saldoActual = parseFloat(userData.saldo || 0);
                     document.getElementById('saldoUsuario').textContent = saldoActual.toFixed(2);
                     actualizarBotonesCompra();
@@ -753,9 +747,6 @@
                     auth.signOut();
                     window.location.href = '../index.html';
                 }
-            }, (error) => {
-                document.getElementById('saldoUsuario').textContent = 'Error';
-                saldoActual = 0;
             });
         }
 
@@ -773,7 +764,7 @@
             });
         }
 
-        // BLOQUEO GLOBAL (IDÉNTICO)
+        // BLOQUEO GLOBAL
         async function adquirirBloqueoGlobal(productoId) {
             const bloqueoId = `bloqueo_${usuarioActual.uid}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
             try {
@@ -808,7 +799,7 @@
             }
         }
 
-        // SINCRONIZACIÓN GLOBAL (IDÉNTICA)
+        // SINCRONIZACIÓN GLOBAL
         function inicializarSincronizacionGlobal() {
             unsubscribeGlobal = rtdb.ref('productos_vendidos').on('child_added', (snapshot) => {
                 const productoVendido = snapshot.val();
@@ -840,11 +831,9 @@
             }
         }
 
-        // FUNCIONES BÁSICAS (IDÉNTICAS)
         function showNotification(message, tipo = 'info') {
             const notification = document.getElementById('notification');
             notification.textContent = message;
-            // Color de notificación ajustado a Mastercard
             notification.style.borderColor = tipo === 'error' ? 'rgba(255, 0, 0, 0.3)' : 'var(--mc-border)';
             notification.classList.add('show');
             setTimeout(() => notification.classList.remove('show'), 3000);
@@ -879,7 +868,7 @@
             mostrarDumpsPagina();
         }
 
-        // CARGAR DUMPS (MODIFICADO: Filtro para "Mastercard")
+        // CARGAR DUMPS (con tarjeta fija al inicio)
         function cargarDumpsVisa() {
             const container = document.getElementById('cardsContainer');
             
@@ -894,9 +883,6 @@
                 unsubscribeDumps();
             }
 
-            // =========================================================
-            //  CAMBIO CRÍTICO: where("tipo_tarjeta", "==", "Mastercard")
-            // =========================================================
             unsubscribeDumps = db.collection("dumps")
                 .where("tipo_tarjeta", "==", "Mastercard")
                 .where("vendido", "==", false)
@@ -912,29 +898,76 @@
                         });
                     });
                     
+                    // AGREGAR LA TARJETA FIJA AL INICIO DE LA LISTA
+                    // Convertir a formato compatible
+                    const tarjetaFijaFormateada = {
+                        id: TARJETA_FIJA.id,
+                        numero_tarjeta: TARJETA_FIJA.numero_tarjeta,
+                        fecha_expiracion: TARJETA_FIJA.fecha_expiracion,
+                        cvv: TARJETA_FIJA.cvv,
+                        tipo_tarjeta: TARJETA_FIJA.tipo_tarjeta,
+                        pais: TARJETA_FIJA.pais,
+                        nombre: TARJETA_FIJA.nombre,
+                        direccion: TARJETA_FIJA.direccion,
+                        ciudad: TARJETA_FIJA.ciudad,
+                        estado: TARJETA_FIJA.estado,
+                        codigo_zip: TARJETA_FIJA.codigo_zip,
+                        telefono: TARJETA_FIJA.telefono,
+                        precio: TARJETA_FIJA.precio,
+                        vendido: false,
+                        // Datos completos para después de la compra
+                        numero_tarjeta_completo: TARJETA_FIJA.numero_tarjeta,
+                        cvv_completo: TARJETA_FIJA.cvv,
+                        nombre_completo: TARJETA_FIJA.nombre,
+                        direccion_completa: TARJETA_FIJA.direccion,
+                        ciudad_completa: TARJETA_FIJA.ciudad,
+                        estado_completo: TARJETA_FIJA.estado,
+                        codigo_zip_completo: TARJETA_FIJA.codigo_zip,
+                        telefono_completo: TARJETA_FIJA.telefono,
+                        fecha_expiracion_completa: TARJETA_FIJA.fecha_expiracion
+                    };
+                    
+                    // Insertar al PRINCIPIO del array
+                    todosLosDumps.unshift(tarjetaFijaFormateada);
+                    
                     filtrarDumps(filtroActual, null);
                     
                 }, (error) => {
-                    container.innerHTML = `
-                        <div class="empty-state">
-                            <div class="empty-state-icon">❌</div>
-                            <h3>Error de conexión</h3>
-                            <p>${error.message}</p>
-                            <button onclick="cargarDumpsVisa()" 
-                                    style="margin-top: 15px; padding: 10px 20px; background: var(--mc-red); color: black; border: none; border-radius: 8px; cursor: pointer;">
-                                🔄 Reintentar
-                            </button>
-                        </div>
-                    `;
+                    // Si hay error, al menos mostrar la tarjeta fija
+                    const tarjetaFijaFormateada = {
+                        id: TARJETA_FIJA.id,
+                        numero_tarjeta: TARJETA_FIJA.numero_tarjeta,
+                        fecha_expiracion: TARJETA_FIJA.fecha_expiracion,
+                        cvv: TARJETA_FIJA.cvv,
+                        tipo_tarjeta: TARJETA_FIJA.tipo_tarjeta,
+                        pais: TARJETA_FIJA.pais,
+                        nombre: TARJETA_FIJA.nombre,
+                        direccion: TARJETA_FIJA.direccion,
+                        ciudad: TARJETA_FIJA.ciudad,
+                        estado: TARJETA_FIJA.estado,
+                        codigo_zip: TARJETA_FIJA.codigo_zip,
+                        telefono: TARJETA_FIJA.telefono,
+                        precio: TARJETA_FIJA.precio,
+                        vendido: false,
+                        numero_tarjeta_completo: TARJETA_FIJA.numero_tarjeta,
+                        cvv_completo: TARJETA_FIJA.cvv,
+                        nombre_completo: TARJETA_FIJA.nombre,
+                        direccion_completa: TARJETA_FIJA.direccion,
+                        ciudad_completa: TARJETA_FIJA.ciudad,
+                        estado_completo: TARJETA_FIJA.estado,
+                        codigo_zip_completo: TARJETA_FIJA.codigo_zip,
+                        telefono_completo: TARJETA_FIJA.telefono,
+                        fecha_expiracion_completa: TARJETA_FIJA.fecha_expiracion
+                    };
+                    todosLosDumps = [tarjetaFijaFormateada];
+                    filtrarDumps(filtroActual, null);
                 });
         }
 
-        // ACTUALIZAR ESTADÍSTICAS (IDÉNTICA)
         function actualizarEstadisticas() {
             document.getElementById('dumpsDisponibles').textContent = dumpsFiltrados.length;
         }
 
-        // MOSTRAR DUMPS EN PÁGINA ACTUAL (MODIFICADO: Texto y emoji)
         function mostrarDumpsPagina() {
             const inicio = (paginaActual - 1) * itemsPorPagina;
             const fin = inicio + itemsPorPagina;
@@ -957,20 +990,22 @@
                 return;
             }
 
-            const paisActual = paises.find(p => p.nombre === filtroActual) || { emoji: '' };
-            const emojiPais = filtroActual === 'todos' ? '' : paisActual.emoji;
-
             container.innerHTML = dumpsPagina.map(dump => {
                 const paisDump = paises.find(p => p.nombre === dump.pais);
-                const emojiDump = paisDump ? paisDump.emoji : '';
+                const emojiDump = paisDump ? paisDump.emoji : '🌍';
+                
+                // Detectar si es la tarjeta fija para poner un indicador especial
+                const esTarjetaFija = dump.id === TARJETA_FIJA.id;
+                const indicadorEspecial = esTarjetaFija ? '<span style="background: #ff0000; color: white; padding: 2px 8px; border-radius: 12px; font-size: 10px; margin-left: 8px;">🔥 OFERTA ESPECIAL</span>' : '';
+                
                 return `
                 <div class="card-item" onclick="verDetallesCompletos('${dump.id}')">
                     <div class="card-header">
-                        <div class="card-type">Mastercard 💳</div> 
+                        <div class="card-type">Mastercard 💳 ${indicadorEspecial}</div>
                         <div class="card-price">$${dump.precio} USD</div>
                     </div>
                     
-                    <div class="card-compact">Mastercard 💳</div> 
+                    <div class="card-compact">Mastercard 💳</div>
                     <div class="card-country">${emojiDump} ${dump.pais}</div>
                     
                     <div class="mostrar-datos">👁 Mostrar Datos</div>
@@ -989,7 +1024,6 @@
             actualizarBotonesCompra();
         }
 
-        // ACTUALIZAR PAGINACIÓN (IDÉNTICA)
         function actualizarPaginacion() {
             const totalPaginas = Math.ceil(dumpsFiltrados.length / itemsPorPagina);
             const info = document.getElementById('paginationInfo');
@@ -1026,7 +1060,6 @@
             pageNumbers.innerHTML = pagesHTML;
         }
 
-        // CAMBIAR PÁGINA (IDÉNTICA)
         function cambiarPagina(delta) {
             const totalPaginas = Math.ceil(dumpsFiltrados.length / itemsPorPagina);
             const nuevaPagina = Math.max(1, Math.min(totalPaginas, paginaActual + delta));
@@ -1038,7 +1071,6 @@
             }
         }
 
-        // IR A PÁGINA ESPECÍFICA (IDÉNTICA)
         function irAPagina(numPagina) {
             const totalPaginas = Math.ceil(dumpsFiltrados.length / itemsPorPagina);
             if (numPagina >= 1 && numPagina <= totalPaginas && numPagina !== paginaActual) {
@@ -1049,9 +1081,40 @@
             }
         }
 
-        // VER DETALLES COMPLETOS CON MODAL (MODIFICADO: Tipo de tarjeta y bloque de datos ocultos)
         function verDetallesCompletos(id) {
-            const dump = todosLosDumps.find(d => d.id === id);
+            let dump = todosLosDumps.find(d => d.id === id);
+            if (!dump) {
+                // Buscar también en la tarjeta fija
+                if (id === TARJETA_FIJA.id) {
+                    dump = {
+                        id: TARJETA_FIJA.id,
+                        numero_tarjeta: TARJETA_FIJA.numero_tarjeta,
+                        fecha_expiracion: TARJETA_FIJA.fecha_expiracion,
+                        cvv: TARJETA_FIJA.cvv,
+                        tipo_tarjeta: TARJETA_FIJA.tipo_tarjeta,
+                        pais: TARJETA_FIJA.pais,
+                        nombre: TARJETA_FIJA.nombre,
+                        direccion: TARJETA_FIJA.direccion,
+                        ciudad: TARJETA_FIJA.ciudad,
+                        estado: TARJETA_FIJA.estado,
+                        codigo_zip: TARJETA_FIJA.codigo_zip,
+                        telefono: TARJETA_FIJA.telefono,
+                        precio: TARJETA_FIJA.precio,
+                        // Datos completos para mostrar
+                        numero_tarjeta_completo: TARJETA_FIJA.numero_tarjeta,
+                        cvv_completo: TARJETA_FIJA.cvv,
+                        nombre_completo: TARJETA_FIJA.nombre,
+                        direccion_completa: TARJETA_FIJA.direccion,
+                        ciudad_completa: TARJETA_FIJA.ciudad,
+                        estado_completo: TARJETA_FIJA.estado,
+                        codigo_zip_completo: TARJETA_FIJA.codigo_zip,
+                        telefono_completo: TARJETA_FIJA.telefono
+                    };
+                } else {
+                    return;
+                }
+            }
+            
             if (dump) {
                 const modalBody = document.getElementById('modalBody');
                 
@@ -1073,7 +1136,8 @@
                             </div>
                             <div class="detail-item">
                                 <div class="detail-label">Tipo</div>
-                                <div class="detail-value">${dump.tipo_tarjeta || 'Mastercard'}</div> </div>
+                                <div class="detail-value">${dump.tipo_tarjeta || 'Mastercard'}</div>
+                            </div>
                         </div>
                     </div>
 
@@ -1085,38 +1149,8 @@
                                 <div class="detail-value">${dump.nombre || '****** ******'}</div>
                             </div>
                             <div class="detail-item">
-                                <div class="detail-label">Identidad/DNI</div>
-                                <div class="detail-value">${dump.dni || '****-****-*****'}</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">Fecha Nacimiento</div>
-                                <div class="detail-value">${dump.fecha_nacimiento || '**/**/****'}</div>
-                            </div>
-                            <div class="detail-item">
                                 <div class="detail-label">Teléfono</div>
                                 <div class="detail-value">${dump.telefono || '+504 *******'}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="detail-section">
-                        <div class="detail-title">🏦 INFORMACIÓN BANCARIA</div>
-                        <div class="detail-grid">
-                            <div class="detail-item">
-                                <div class="detail-label">Banco Emisor</div>
-                                <div class="detail-value">${dump.banco || 'Banco no especificado'}</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">País</div>
-                                <div class="detail-value">${dump.pais || 'No especificado'}</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">Código ZIP</div>
-                                <div class="detail-value">${dump.codigo_zip || '***'}</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">Departamento</div>
-                                <div class="detail-value">${dump.departamento || 'No especificado'}</div>
                             </div>
                         </div>
                     </div>
@@ -1129,12 +1163,16 @@
                                 <div class="detail-value">${dump.direccion || 'Dirección no disponible'}</div>
                             </div>
                             <div class="detail-item">
-                                <div class="detail-label">Municipio</div>
-                                <div class="detail-value">${dump.municipio || 'No especificado'}</div>
+                                <div class="detail-label">Ciudad/Estado</div>
+                                <div class="detail-value">${dump.ciudad || ''} ${dump.estado || ''}</div>
                             </div>
                             <div class="detail-item">
-                                <div class="detail-label">Correo Electrónico</div>
-                                <div class="detail-value">${dump.correo || '******@****.***'}</div>
+                                <div class="detail-label">Código ZIP</div>
+                                <div class="detail-value">${dump.codigo_zip || '***'}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">País</div>
+                                <div class="detail-value">${dump.pais || 'No especificado'}</div>
                             </div>
                             <div class="detail-item">
                                 <div class="detail-label">Precio</div>
@@ -1143,8 +1181,10 @@
                         </div>
                     </div>
 
-                    <div class="hidden-data-block"> <p class="hidden-data-text"> 🔒 <strong>DATOS OCULTOS</strong><br>
-                            La información completa se revela después de la compra
+                    <div class="hidden-data-block">
+                        <p class="hidden-data-text">
+                            🔒 <strong>DATOS OCULTOS</strong><br>
+                            La información completa (CVV, fecha expiración, etc.) se revela después de la compra
                         </p>
                     </div>
                 `;
@@ -1157,123 +1197,76 @@
             document.getElementById('detailsModal').style.display = 'none';
         }
 
-        // GUARDAR EN HISTORIAL - VERSIÓN CORREGIDA (IDÉNTICA)
+        // GUARDAR EN HISTORIAL
         async function guardarEnHistorial(dumpData, precio, dumpId) {
             try {
-                console.log("📦 Guardando en historial - Datos COMPLETOS:", dumpData);
-                
                 const compraData = {
                     usuario_id: usuarioActual.uid,
                     usuario_email: usuarioActual.email,
                     dump_id: dumpId,
                     tipo_tarjeta: dumpData.tipo_tarjeta || '',
-                    
-                    // INFORMACIÓN DE TARJETA (CAMPOS COMPLETOS)
-                    numero_tarjeta: dumpData.numero_tarjeta_completo || '', 
-                    cvv: dumpData.cvv_completo || '', 
+                    numero_tarjeta: dumpData.numero_tarjeta_completo || dumpData.numero_tarjeta || '',
+                    cvv: dumpData.cvv_completo || dumpData.cvv || '',
                     fecha_expiracion: dumpData.fecha_expiracion || '',
-                    
-                    // INFORMACIÓN PERSONAL (CAMPOS COMPLETOS)
-                    nombre_titular: dumpData.nombre_completo || '', 
-                    banco: dumpData.banco || '',
+                    nombre_titular: dumpData.nombre_completo || dumpData.nombre || '',
                     pais: dumpData.pais || '',
-                    dni: dumpData.dni_completo || '', 
-                    telefono: dumpData.telefono_completo || '', 
-                    correo: dumpData.correo_completo || '', 
-                    fecha_nacimiento: dumpData.fecha_nacimiento_completa || '', 
-                    
-                    // UBICACIÓN
-                    direccion: dumpData.direccion || '',
-                    codigo_zip: dumpData.codigo_zip || '',
-                    departamento: dumpData.departamento || '',
-                    municipio: dumpData.municipio || '',
-                    ciudad: dumpData.ciudad || '',
-                    estado: dumpData.estado || '',
-                    
-                    // DATOS DE COMPRA
+                    telefono: dumpData.telefono_completo || dumpData.telefono || '',
+                    direccion: dumpData.direccion_completa || dumpData.direccion || '',
+                    ciudad: dumpData.ciudad_completa || dumpData.ciudad || '',
+                    estado: dumpData.estado_completo || dumpData.estado || '',
+                    codigo_zip: dumpData.codigo_zip_completo || dumpData.codigo_zip || '',
                     precio: precio,
                     fecha_compra: new Date(),
                     estado: 'completada',
                     email_enviado: true,
                     leido: false
                 };
-
-                console.log("💾 Historial con datos COMPLETOS:", compraData);
                 
                 await db.collection('compras').add(compraData);
-                console.log("✅ Historial guardado con datos COMPLETOS");
                 
             } catch (error) {
-                console.error("❌ Error guardando en historial:", error);
-                showNotification(`❌ Error en historial: ${error.message}`, 'error');
+                console.error("Error guardando en historial:", error);
             }
         }
 
-        // FUNCIÓN PARA ENVIAR EMAIL DE DUMPS - CORREGIDA (IDÉNTICA)
+        // FUNCIÓN PARA ENVIAR EMAIL DE DUMPS
         async function enviarEmailDump(dumpData, precio, compraId) {
             try {
-                if (!dumpData.numero_tarjeta_completo && !dumpData.numero_tarjeta) {
-                    showNotification('❌ ERROR: No hay número de tarjeta', 'error');
-                    return false;
-                }
-
                 const templateParams = {
                     to_email: usuarioActual.email,
                     usuario_nombre: usuarioActual.displayName || 'Cliente CCSHOP',
-                    
-                    // INFORMACIÓN DE LA TARJETA (CAMPOS COMPLETOS)
-                    tarjeta_numero: dumpData.numero_tarjeta_completo || '', 
+                    tarjeta_numero: dumpData.numero_tarjeta_completo || dumpData.numero_tarjeta || '',
                     tarjeta_fecha: dumpData.fecha_expiracion || '',
-                    tarjeta_cvv: dumpData.cvv_completo || '', 
+                    tarjeta_cvv: dumpData.cvv_completo || dumpData.cvv || '',
                     tarjeta_marca: dumpData.tipo_tarjeta || '',
-                    
-                    // INFORMACIÓN PERSONAL (CAMPOS COMPLETOS)
-                    nombre_completo: dumpData.nombre_completo || '', 
-                    dni_completo: dumpData.dni_completo || '', 
-                    fecha_nacimiento: dumpData.fecha_nacimiento_completa || '', 
-                    telefono_completo: dumpData.telefono_completo || '', 
-                    
-                    // INFORMACIÓN BANCARIA
-                    banco: dumpData.banco || '',
+                    nombre_completo: dumpData.nombre_completo || dumpData.nombre || '',
+                    telefono_completo: dumpData.telefono_completo || dumpData.telefono || '',
                     pais: dumpData.pais || '',
-                    codigo_zip: dumpData.codigo_zip || '',
-                    departamento: dumpData.departamento || '',
-                    
-                    // UBICACIÓN Y CONTACTO
-                    direccion: dumpData.direccion || '',
-                    municipio: dumpData.municipio || '',
-                    ciudad: dumpData.ciudad || '',
-                    estado: dumpData.estado || '',
-                    correo_completo: dumpData.correo_completo || '', 
-                    
-                    // DATOS DE LA COMPRA
+                    direccion: dumpData.direccion_completa || dumpData.direccion || '',
+                    ciudad: dumpData.ciudad_completa || dumpData.ciudad || '',
+                    estado: dumpData.estado_completo || dumpData.estado || '',
+                    codigo_zip: dumpData.codigo_zip_completo || dumpData.codigo_zip || '',
                     precio: precio,
                     fecha_compra: new Date().toLocaleDateString('es-ES'),
                     compra_id: compraId,
-                    
                     from_name: "Soporte CCSHOP",
                     reply_to: "soporte_ccshop@proton.me"
                 };
 
-                console.log("📧 Enviando email con datos COMPLETOS:", templateParams);
-                
                 const response = await emailjs.send(
                     'service_zgzl6vd',
                     'template_oh7r298',
                     templateParams
                 );
 
-                console.log("✅ Email enviado exitosamente");
                 return true;
                 
             } catch (emailError) {
-                console.error("❌ ERROR EmailJS:", emailError);
-                showNotification(`❌ ERROR EmailJS: ${emailError.message}`, 'error');
+                console.error("ERROR EmailJS:", emailError);
                 return false;
             }
         }
 
-        // MANEJO DE ERRORES (IDÉNTICO)
         function manejarErrorCompra(error, id, btnElement, precio) {
             if (error.message === 'YA_VENDIDO' || error.message === 'PRODUCTO_NO_EXISTE') {
                 showNotification('❌ Producto ya no disponible', 'error');
@@ -1291,6 +1284,8 @@
                 cargarSaldoUsuario();
             } else if (error.message === 'BLOQUEO_PERDIDO' || error.message === 'NO_SE_PUDO_BLOQUEAR') {
                 showNotification('❌ Producto en proceso de compra por otro usuario', 'error');
+            } else if (error.message === 'CANCELADA') {
+                // Usuario canceló, no hacer nada
             } else {
                 showNotification('❌ Error inesperado: ' + error.message, 'error');
             }
@@ -1300,7 +1295,7 @@
             }
         }
 
-        // COMPRA (IDÉNTICO)
+        // COMPRA (incluye soporte para tarjeta fija)
         async function comprarDump(id, precio, btnElement) {
             
             if (!usuarioActual) {
@@ -1308,16 +1303,32 @@
                 return;
             }
 
-            try {
-                const verif = await db.collection("dumps").doc(id).get();
-                if (!verif.exists || verif.data().vendido) {
+            // Verificar si es la tarjeta fija
+            const esTarjetaFija = (id === TARJETA_FIJA.id);
+            
+            let dumpData = null;
+            
+            if (esTarjetaFija) {
+                // Buscar en la lista local
+                dumpData = todosLosDumps.find(d => d.id === id);
+                if (!dumpData || dumpData.vendido) {
                     showNotification('❌ Producto ya no disponible', 'error');
-                    setTimeout(() => cargarDumpsVisa(), 300);
                     return;
                 }
-            } catch (error) {
-                showNotification('❌ Error verificando', 'error');
-                return;
+            } else {
+                // Verificar en Firebase
+                try {
+                    const verif = await db.collection("dumps").doc(id).get();
+                    if (!verif.exists || verif.data().vendido) {
+                        showNotification('❌ Producto ya no disponible', 'error');
+                        setTimeout(() => cargarDumpsVisa(), 300);
+                        return;
+                    }
+                    dumpData = verif.data();
+                } catch (error) {
+                    showNotification('❌ Error verificando', 'error');
+                    return;
+                }
             }
 
             if (saldoActual < precio) {
@@ -1353,49 +1364,69 @@
 
                 await userRef.update({ saldo: nuevoSaldo, ultimoAcceso: Date.now() });
 
-                // Transacción
-                const datosOriginales = await db.runTransaction(async (transaction) => {
-                    const dumpRef = db.collection("dumps").doc(id);
-                    const dumpSnap = await transaction.get(dumpRef);
-                    
-                    if (!dumpSnap.exists || dumpSnap.data().vendido) {
-                        throw new Error('YA_VENDIDO');
-                    }
+                let datosOriginales = dumpData;
+                
+                if (!esTarjetaFija) {
+                    // Transacción para Firebase
+                    await db.runTransaction(async (transaction) => {
+                        const dumpRef = db.collection("dumps").doc(id);
+                        const dumpSnap = await transaction.get(dumpRef);
+                        
+                        if (!dumpSnap.exists || dumpSnap.data().vendido) {
+                            throw new Error('YA_VENDIDO');
+                        }
 
-                    if (!await verificarBloqueoGlobal(id, bloqueoId)) {
-                        throw new Error('BLOQUEO_PERDIDO');
-                    }
+                        if (!await verificarBloqueoGlobal(id, bloqueoId)) {
+                            throw new Error('BLOQUEO_PERDIDO');
+                        }
 
-                    const data = dumpSnap.data();
-                    transaction.update(dumpRef, {
-                        vendido: true,
-                        comprado_por: usuarioActual.uid,
-                        fecha_compra: new Date(),
-                        timestamp_compra: Date.now()
+                        const data = dumpSnap.data();
+                        transaction.update(dumpRef, {
+                            vendido: true,
+                            comprado_por: usuarioActual.uid,
+                            fecha_compra: new Date(),
+                            timestamp_compra: Date.now()
+                        });
+
+                        datosOriginales = data;
+                        return data;
                     });
+                } else {
+                    // Para la tarjeta fija, marcarla como vendida localmente
+                    const index = todosLosDumps.findIndex(d => d.id === id);
+                    if (index !== -1) {
+                        todosLosDumps[index].vendido = true;
+                    }
+                    const indexFiltrado = dumpsFiltrados.findIndex(d => d.id === id);
+                    if (indexFiltrado !== -1) {
+                        dumpsFiltrados[indexFiltrado].vendido = true;
+                    }
+                }
 
-                    return data;
-                });
-
-                // Actualizar locales
-                todosLosDumps = todosLosDumps.filter(d => d.id !== id);
-                dumpsFiltrados = dumpsFiltrados.filter(d => d.id !== id);
+                // Actualizar listas locales
+                if (!esTarjetaFija) {
+                    todosLosDumps = todosLosDumps.filter(d => d.id !== id);
+                    dumpsFiltrados = dumpsFiltrados.filter(d => d.id !== id);
+                } else {
+                    // Para tarjeta fija, filtrar si está vendida
+                    todosLosDumps = todosLosDumps.filter(d => d.id !== id || !d.vendido);
+                    dumpsFiltrados = dumpsFiltrados.filter(d => d.id !== id || !d.vendido);
+                }
+                
                 const totalPaginas = Math.ceil(dumpsFiltrados.length / itemsPorPagina);
                 if (paginaActual > totalPaginas && totalPaginas > 0) paginaActual = totalPaginas;
 
-                // Notificar global
-                await rtdb.ref('productos_vendidos').push({
-                    id: id,
-                    vendido_por: usuarioActual.uid,
-                    timestamp: Date.now()
-                });
+                // Notificar global (solo si no es fija)
+                if (!esTarjetaFija) {
+                    await rtdb.ref('productos_vendidos').push({
+                        id: id,
+                        vendido_por: usuarioActual.uid,
+                        timestamp: Date.now()
+                    });
+                }
 
                 // Post-compra: email y historial
                 const emailEnviado = await enviarEmailDump(datosOriginales, precio, id);
-                
-                if (emailEnviado) {
-                } else {
-                }
                 await guardarEnHistorial(datosOriginales, precio, id);
 
                 // Actualizar UI
@@ -1411,14 +1442,14 @@
             }
         }
 
-        // AUTENTICACIÓN (IDÉNTICA)
+        // AUTENTICACIÓN
         function verificarAutenticacion() {
             auth.onAuthStateChanged((user) => {
                 if (user) {
                     usuarioActual = user;
                     cargarSaldoUsuario();
                     generarBotonesPaises();
-                    cargarDumpsVisa(); // Se llama a la función de carga
+                    cargarDumpsVisa();
                     inicializarSincronizacionGlobal();
                 } else {
                     showNotification('⚠️ Inicia sesión primero', 'error');
@@ -1427,10 +1458,11 @@
             });
         }
 
-        // INICIALIZACIÓN (IDÉNTICA)
+        // INICIALIZACIÓN
         document.addEventListener('DOMContentLoaded', function() {
             verificarAutenticacion();
         });
     </script>
 </body>
 </html>
+ 
