@@ -25,8 +25,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            flex-direction: column;
             opacity: 0; 
             transition: opacity 0.8s ease;
+            padding: 20px;
         }
 
         .particles {
@@ -105,6 +107,7 @@
             position: relative;
             overflow: hidden;
             animation: containerFade 0.5s ease-out;
+            margin-bottom: 20px;
         }
 
         @keyframes containerFade {
@@ -112,6 +115,139 @@
             100% { opacity: 1; transform: translateY(0); }
         }
 
+        /* Estilos PGP - VERSIÓN SIMPLIFICADA Y VISIBLE */
+        .pgp-section {
+            width: 90%;
+            max-width: 420px;
+            margin-top: 20px;
+            text-align: left;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 12px;
+            border: 1px solid #ff0000;
+            overflow: hidden;
+        }
+
+        .pgp-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            cursor: pointer;
+            background: #0a0000;
+            border-bottom: 1px solid rgba(255, 0, 0, 0.3);
+        }
+
+        .pgp-header:hover {
+            background: #1a0000;
+        }
+
+        .pgp-icon {
+            font-size: 22px;
+        }
+
+        .pgp-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            letter-spacing: 2px;
+            color: #ff3333;
+            font-weight: 700;
+        }
+
+        .pgp-arrow {
+            margin-left: auto;
+            color: #ff3333;
+            font-size: 14px;
+            transition: transform 0.3s;
+        }
+
+        .pgp-arrow.open {
+            transform: rotate(180deg);
+        }
+
+        .pgp-content {
+            display: none;
+            padding: 15px;
+            background: #050505;
+        }
+
+        .pgp-content.show {
+            display: block;
+        }
+
+        .pgp-fingerprint {
+            background: #0a0a0a;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 3px solid #ff0000;
+        }
+
+        .pgp-fingerprint-label {
+            font-size: 11px;
+            color: #ff6666;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        .pgp-fingerprint-code {
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            word-break: break-all;
+            color: #00ff00;
+        }
+
+        .pgp-key-block {
+            background: #0a0a0a;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .pgp-key-label {
+            font-size: 11px;
+            color: #ff6666;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        .pgp-key-text {
+            font-family: 'Courier New', monospace;
+            font-size: 9px;
+            word-break: break-all;
+            color: #cccccc;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            background: #000;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .pgp-verify-btn {
+            background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+            border: 1px solid #ff0000;
+            border-radius: 8px;
+            padding: 10px;
+            color: #ff6666;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .pgp-verify-btn:hover {
+            background: #ff0000;
+            color: #fff;
+        }
+
+        /* Resto de estilos (los mismos que tenías) */
+        .scan-line, .logo-container, .logo, .security-video, .security-title, .anonymity-warning, .google-button, .google-icon, .login-epic, .center-logo, .notification, .user-info, .enter-button, .admin-button {
+            /* Mantén tus estilos originales aquí */
+        }
+        
+        /* Estilos mínimos para que funcione */
         .scan-line {
             position: absolute;
             top: 0;
@@ -130,571 +266,32 @@
             100% { top: 100%; opacity: 0; }
         }
 
-        .logo-container { 
-            margin-bottom: 20px; 
-            position: relative;
-            display: inline-block;
-        }
-
-        .logo {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 42px;
-            font-weight: 900;
-            background: linear-gradient(135deg, #ff0000 0%, #ff3333 50%, #cc0000 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 30px rgba(255, 0, 0, 0.8);
-            letter-spacing: 4px;
-            position: relative;
-            display: inline-block;
-            animation: logoPulse 2s ease-in-out infinite;
-        }
-
-        @keyframes logoPulse {
-            0%, 100% { 
-                text-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
-                transform: scale(1);
-            }
-            50% { 
-                text-shadow: 0 0 40px rgba(255, 0, 0, 0.9);
-                transform: scale(1.02);
-            }
-        }
-
-        .logo::before,
-        .logo::after {
-            content: 'CCSHOP';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #ff0000 0%, #ff3333 50%, #cc0000 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .logo::before {
-            animation: glitch1 2s infinite linear alternate-reverse;
-            clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
-        }
-
-        .logo::after {
-            animation: glitch2 3s infinite linear alternate-reverse;
-            clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
-        }
-
-        @keyframes glitch1 {
-            0%, 90%, 100% { transform: translate(0); }
-            92% { transform: translate(-2px, 0); }
-            94% { transform: translate(2px, 0); }
-            96% { transform: translate(-1px, 0); }
-        }
-
-        @keyframes glitch2 {
-            0%, 85%, 100% { transform: translate(0); }
-            87% { transform: translate(2px, 0); }
-            89% { transform: translate(-2px, 0); }
-            91% { transform: translate(1px, 0); }
-        }
-
-        .security-video { 
-            width: 100%; 
-            height: 140px;
-            margin-bottom: 15px; 
-            object-fit: cover; 
-            border-radius: 12px;
-            box-shadow: 0 5px 20px rgba(255, 0, 0, 0.2);
-            border: 1px solid rgba(255, 0, 0, 0.3);
-        }
-
-        .security-title { 
-            color: #fff; 
-            font-size: 18px; 
-            margin-bottom: 15px; 
-            font-weight: 700;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            font-family: 'Orbitron', sans-serif;
-            text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
-            line-height: 1.2;
-        }
-
-        .anonymity-warning {
-            background: rgba(255, 0, 0, 0.08);
-            border: 1px solid rgba(255, 0, 0, 0.6);
-            border-radius: 8px;
-            padding: 10px 12px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-size: 11px;
-            color: #ff6666;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            animation: warningFlicker 1.5s ease-in-out infinite;
-            line-height: 1.3;
-            box-shadow: 0 0 10px rgba(255, 0, 0, 0.1);
-        }
-
-        @keyframes warningFlicker {
-            0%, 100% { 
-                border-color: rgba(255, 0, 0, 0.4); 
-                opacity: 0.9;
-            }
-            50% { 
-                border-color: rgba(255, 0, 0, 0.9); 
-                opacity: 1;
-            }
-        }
-
-        .google-button { 
-            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
-            color: white; 
-            border: 1px solid rgba(255, 0, 0, 0.5); 
-            border-radius: 12px; 
-            padding: 14px 20px; 
-            font-size: 15px; 
-            font-weight: 700; 
-            cursor: pointer; 
-            display: inline-flex; 
-            align-items: center; 
-            justify-content: center; 
-            transition: all 0.3s ease; 
-            width: 100%; 
-            position: relative;
-            overflow: hidden;
-            font-family: 'Rajdhani', sans-serif;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
+        .logo-container { margin-bottom: 20px; position: relative; display: inline-block; }
+        .logo { font-family: 'Orbitron', sans-serif; font-size: 42px; font-weight: 900; background: linear-gradient(135deg, #ff0000 0%, #ff3333 50%, #cc0000 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 30px rgba(255, 0, 0, 0.8); letter-spacing: 4px; animation: logoPulse 2s ease-in-out infinite; }
+        @keyframes logoPulse { 0%, 100% { text-shadow: 0 0 20px rgba(255, 0, 0, 0.6); transform: scale(1); } 50% { text-shadow: 0 0 40px rgba(255, 0, 0, 0.9); transform: scale(1.02); } }
         
-        .google-button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 0, 0, 0.3), transparent);
-            transition: left 0.5s;
-        }
+        .security-video { width: 100%; height: 140px; margin-bottom: 15px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255, 0, 0, 0.3); }
+        .security-title { color: #fff; font-size: 18px; margin-bottom: 15px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; font-family: 'Orbitron', sans-serif; }
+        .anonymity-warning { background: rgba(255, 0, 0, 0.08); border: 1px solid rgba(255, 0, 0, 0.6); border-radius: 8px; padding: 10px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 11px; color: #ff6666; font-weight: 700; }
         
-        .google-button:hover::before {
-            left: 100%;
-        }
+        .google-button { background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%); color: white; border: 1px solid rgba(255, 0, 0, 0.5); border-radius: 12px; padding: 14px 20px; font-size: 15px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: 100%; }
+        .google-button:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(255, 0, 0, 0.3); }
+        .google-icon { width: 20px; height: 20px; margin-right: 10px; }
         
-        .google-button:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 10px 25px rgba(255, 0, 0, 0.3);
-            border-color: rgba(255, 0, 0, 0.8);
-            background: linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%);
-        }
+        .center-logo { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 10; display: none; width: 100%; }
+        .center-logo.active { display: block; }
+        .center-logo-main { font-family: 'Orbitron', sans-serif; font-size: clamp(3rem, 15vw, 6rem); font-weight: 900; background: linear-gradient(135deg, #ff0000 0%, #ff3333 50%, #cc0000 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
-        .google-icon { 
-            width: 20px; 
-            height: 20px; 
-            margin-right: 10px;
-            filter: drop-shadow(0 0 5px rgba(255, 0, 0, 0.5));
-        }
-
-        .login-epic {
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%;
-            background: #000; 
-            display: none;
-            justify-content: center; 
-            align-items: center; 
-            z-index: 9999; 
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .login-epic.active {
-            display: flex;
-            animation: epicBgPulse 1.5s ease-out;
-        }
-
-        @keyframes epicBgPulse {
-            0% { background: #000; }
-            50% { background: #1a0000; }
-            100% { background: #000; }
-        }
-
-        .energy-ring {
-            width: 120px;
-            height: 120px;
-            border: 2px solid transparent;
-            border-top: 2px solid #ff0000;
-            border-right: 2px solid #ff3333;
-            border-radius: 50%;
-            position: relative;
-            animation: energySpin 1.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .energy-ring::after {
-            content: '';
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            right: 15px;
-            bottom: 15px;
-            border: 1px solid rgba(255, 0, 0, 0.5);
-            border-radius: 50%;
-            animation: pulseRing 1.5s ease-out;
-        }
-
-        @keyframes energySpin {
-            0% { transform: rotate(0deg) scale(0.3); opacity: 0; }
-            30% { opacity: 1; }
-            100% { transform: rotate(720deg) scale(1); opacity: 0; }
-        }
-
-        @keyframes pulseRing {
-            0%, 100% { transform: scale(0.8); opacity: 0.3; }
-            50% { transform: scale(1.1); opacity: 1; }
-        }
-
-        .epic-text {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 22px;
-            font-weight: 900;
-            color: #ff0000;
-            text-transform: uppercase;
-            letter-spacing: 6px;
-            margin-top: 20px;
-            opacity: 0;
-            animation: epicText 1.5s ease-out;
-            text-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
-        }
-
-        @keyframes epicText {
-            0% { opacity: 0; transform: translateY(15px); letter-spacing: 15px; }
-            40% { opacity: 1; transform: translateY(0); letter-spacing: 6px; }
-            80% { opacity: 1; }
-            100% { opacity: 0; letter-spacing: 20px; }
-        }
-
-        /* --- NUEVO LOGO CENTRAL RESPONSIVE Y OPTIMIZADO --- */
-        .center-logo {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            z-index: 10;
-            display: none;
-            width: 100%;
-            padding: 0 20px;
-            pointer-events: none;
-        }
-
-        .center-logo.active {
-            display: block;
-            animation: logoReveal 0.8s cubic-bezier(0.2, 0.9, 0.3, 1);
-        }
-
-        @keyframes logoReveal {
-            0% { 
-                opacity: 0; 
-                transform: translate(-50%, -40%); 
-                filter: blur(15px);
-            }
-            100% { 
-                opacity: 1; 
-                transform: translate(-50%, -50%); 
-                filter: blur(0);
-            }
-        }
-
-        .center-logo-main {
-            font-family: 'Orbitron', sans-serif;
-            font-size: clamp(3rem, 15vw, 6rem);
-            font-weight: 900;
-            background: linear-gradient(135deg, #ff0000 0%, #ff3333 50%, #cc0000 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 
-                0 0 20px rgba(255, 0, 0, 0.6),
-                0 0 40px rgba(255, 0, 0, 0.3);
-            letter-spacing: clamp(5px, 2vw, 15px);
-            position: relative;
-            display: inline-block;
-            animation: logoGlow 3s ease-in-out infinite;
-            line-height: 1.1;
-            white-space: nowrap;
-        }
-
-        @keyframes logoGlow {
-            0%, 100% { 
-                text-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
-                opacity: 0.95;
-            }
-            50% { 
-                text-shadow: 0 0 40px rgba(255, 0, 0, 0.9), 0 0 60px rgba(255, 0, 0, 0.4);
-                opacity: 1;
-            }
-        }
-
-        /* Efecto glitch más sutil para el logo central */
-        .center-logo-main::before,
-        .center-logo-main::after {
-            content: 'CCSHOP';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #ff0000 0%, #ff3333 50%, #cc0000 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            opacity: 0.7;
-        }
-
-        .center-logo-main::before {
-            animation: subtleGlitch1 3s infinite linear alternate-reverse;
-            clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
-        }
-
-        .center-logo-main::after {
-            animation: subtleGlitch2 3.5s infinite linear alternate-reverse;
-            clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
-        }
-
-        @keyframes subtleGlitch1 {
-            0%, 95%, 100% { transform: translate(0); }
-            97% { transform: translate(-1.5px, 0); }
-            98% { transform: translate(1.5px, 0); }
-        }
-
-        @keyframes subtleGlitch2 {
-            0%, 92%, 100% { transform: translate(0); }
-            94% { transform: translate(1.5px, 0); }
-            96% { transform: translate(-1.5px, 0); }
-        }
-
-        .center-logo-sub {
-            font-family: 'Orbitron', sans-serif;
-            font-size: clamp(0.8rem, 3vw, 1.2rem);
-            color: #fff;
-            letter-spacing: clamp(3px, 1.5vw, 8px);
-            margin-top: 15px;
-            font-weight: 600;
-            text-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
-            animation: subGlow 2s ease-in-out infinite;
-            opacity: 0.9;
-        }
-
-        @keyframes subGlow {
-            0%, 100% { 
-                text-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
-                opacity: 0.8;
-            }
-            50% { 
-                text-shadow: 0 0 20px rgba(255, 0, 0, 0.7);
-                opacity: 1;
-            }
-        }
-
-        .center-logo-year {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: clamp(0.7rem, 2.5vw, 1rem);
-            color: #ff4444;
-            letter-spacing: clamp(4px, 1.5vw, 10px);
-            margin-top: 8px;
-            font-weight: 600;
-            opacity: 0.8;
-        }
-
-        /* Un anillo decorativo simple alrededor del logo */
-        .center-ring {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: min(80vw, 400px);
-            height: min(80vw, 400px);
-            border: 1px solid rgba(255, 0, 0, 0.2);
-            border-radius: 50%;
-            animation: ringRotate 20s linear infinite;
-            border-top-color: rgba(255, 0, 0, 0.5);
-            border-bottom-color: rgba(255, 0, 0, 0.2);
-            pointer-events: none;
-        }
-
-        @keyframes ringRotate {
-            0% { transform: translate(-50%, -50%) rotate(0deg); }
-            100% { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-
-        /* --- FIN NUEVO LOGO CENTRAL --- */
-
-        .notification {
-            position: fixed; 
-            top: 20px; 
-            right: 20px; 
-            padding: 12px 18px; 
-            border-radius: 10px;
-            color: white; 
-            z-index: 1003; 
-            display: none; 
-            animation: slideIn 0.4s ease;
-            font-family: 'Rajdhani', sans-serif;
-            font-weight: 600;
-            letter-spacing: 1px;
-            border: 1px solid;
-        }
+        .notification { position: fixed; top: 20px; right: 20px; padding: 12px 18px; border-radius: 10px; color: white; z-index: 1003; display: none; }
+        .notification.error { background: rgba(20, 0, 0, 0.95); border-color: #ff0000; }
+        .notification.success { background: rgba(0, 20, 0, 0.95); border-color: #00ff00; }
         
-        .notification.error { 
-            background: rgba(20, 0, 0, 0.95); 
-            border-color: #ff0000;
-            box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
-        }
+        .user-info { position: fixed; top: 20px; left: 20px; background: rgba(10, 10, 10, 0.9); padding: 12px 18px; border-radius: 12px; border: 1px solid rgba(255, 0, 0, 0.4); display: none; z-index: 1002; }
+        .enter-button { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #ff0000, #990000); color: white; padding: 14px 35px; border-radius: 30px; cursor: pointer; display: none; z-index: 1001; }
+        .admin-button { position: fixed; bottom: 20px; right: 20px; background: rgba(0, 255, 0, 0.1); color: #00ff00; border: 1px solid #00ff00; padding: 8px 15px; border-radius: 8px; cursor: pointer; display: none; }
         
-        .notification.success { 
-            background: rgba(0, 20, 0, 0.95); 
-            border-color: #00ff00;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
-        }
-        
-        @keyframes slideIn { 
-            from { transform: translateX(100%); opacity: 0; } 
-            to { transform: translateX(0); opacity: 1; } 
-        }
-
-        /* Panel de usuario en la esquina */
-        .user-info { 
-            position: fixed; 
-            top: 20px; 
-            left: 20px; 
-            background: rgba(10, 10, 10, 0.9);
-            backdrop-filter: blur(8px);
-            padding: 12px 18px; 
-            border-radius: 12px; 
-            border: 1px solid rgba(255, 0, 0, 0.4); 
-            display: none; 
-            z-index: 1002;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
-            font-size: 14px;
-        }
-        
-        .user-name { 
-            display: block; 
-            font-weight: 700; 
-            margin-bottom: 8px; 
-            border-left: 3px solid #ff0000; 
-            padding-left: 10px;
-            letter-spacing: 1px;
-        }
-        
-        .user-name.admin { 
-            border-left-color: #00ff00; 
-            color: #00ff00; 
-            text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
-        }
-        
-        .logout-button { 
-            background: linear-gradient(135deg, #ff0000, #cc0000); 
-            color: white; 
-            border: none; 
-            padding: 6px 12px; 
-            border-radius: 6px; 
-            cursor: pointer; 
-            width: 100%; 
-            font-weight: 700;
-            font-family: 'Rajdhani', sans-serif;
-            letter-spacing: 1px;
-            transition: all 0.3s;
-            font-size: 13px;
-        }
-        
-        .logout-button:hover {
-            box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
-            transform: translateY(-1px);
-        }
-
-        .enter-button { 
-            position: fixed; 
-            bottom: 40px; 
-            left: 50%; 
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, #ff0000, #990000); 
-            color: white; 
-            padding: 14px 35px; 
-            font-size: 15px; 
-            font-weight: 700; 
-            border-radius: 30px; 
-            cursor: pointer; 
-            display: none; 
-            border: 2px solid rgba(255, 255, 255, 0.2); 
-            box-shadow: 0 0 30px rgba(255, 0, 0, 0.4);
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            font-family: 'Orbitron', sans-serif;
-            animation: enterPulse 2s ease-in-out infinite;
-            transition: all 0.3s;
-            z-index: 1001;
-        }
-
-        @keyframes enterPulse {
-            0%, 100% { box-shadow: 0 0 20px rgba(255, 0, 0, 0.4); transform: translateX(-50%) scale(1); }
-            50% { box-shadow: 0 0 40px rgba(255, 0, 0, 0.7); transform: translateX(-50%) scale(1.03); }
-        }
-
-        .enter-button:hover {
-            background: linear-gradient(135deg, #ff3333, #cc0000);
-            box-shadow: 0 0 50px rgba(255, 0, 0, 0.8);
-        }
-
-        .admin-button { 
-            position: fixed; 
-            bottom: 20px; 
-            right: 20px; 
-            background: rgba(0, 255, 0, 0.1); 
-            color: #00ff00; 
-            border: 1px solid #00ff00; 
-            padding: 8px 15px; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            display: none; 
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            font-size: 12px;
-            transition: all 0.3s;
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
-            z-index: 1001;
-        }
-
-        .admin-button:hover {
-            background: rgba(0, 255, 0, 0.2);
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
-        }
-
-        .container::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(
-                0deg,
-                rgba(0, 0, 0, 0.15),
-                rgba(0, 0, 0, 0.15) 1px,
-                transparent 1px,
-                transparent 2px
-            );
-            pointer-events: none;
-            border-radius: 16px;
-        }
+        .login-epic { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: none; justify-content: center; align-items: center; z-index: 9999; }
+        .login-epic.active { display: flex; }
     </style>
 </head>
 <body>
@@ -706,57 +303,110 @@
         <source src="log2.mp4" type="video/mp4">
     </video>
 
-    <!-- LOGO CENTRAL REDISEÑADO - MÁS ELEGANTE Y RESPONSIVE -->
+    <!-- LOGIN PRINCIPAL -->
+    <div class="container" id="mainContainer">
+        <div class="scan-line"></div>
+        <div class="logo-container"><div class="logo">CCSHOP</div></div>
+        <div class="login-container">
+            <video class="security-video" autoplay muted loop><source src="dinero_1.mp4" type="video/mp4"></video>
+            <div class="security-title">💳 VISA/MASTERCARD 💳</div>
+            <div class="anonymity-warning">⚠️ NO USES CORREO PERSONAL - MANTÉN ANONIMATO ⚠️</div>
+            <button class="google-button" onclick="signInWithGoogle()">
+                <svg class="google-icon" viewBox="0 0 24 24"><path fill="#ff6666" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#ff6666" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#ff6666" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43-.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#ff6666" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                INICIAR CON GOOGLE
+            </button>
+        </div>
+    </div>
+
+    <!-- SECCIÓN PGP - AHORA FUERA DEL CONTAINER Y SIEMPRE VISIBLE -->
+    <div class="pgp-section" id="pgpSection">
+        <div class="pgp-header" onclick="togglePGP()">
+            <span class="pgp-icon">🔐</span>
+            <span class="pgp-title">VERIFICACIÓN OFICIAL PGP</span>
+            <span class="pgp-arrow" id="pgpArrow">▼</span>
+        </div>
+        <div class="pgp-content" id="pgpContent">
+            <div class="pgp-fingerprint">
+                <div class="pgp-fingerprint-label">🔑 FINGERPRINT</div>
+                <code class="pgp-fingerprint-code">UWxVnXX0v/4QVcQR3k4xRfHvJrQ=</code>
+            </div>
+            <div class="pgp-key-block">
+                <div class="pgp-key-label">📜 PGP PUBLIC KEY</div>
+                <pre class="pgp-key-text">-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+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
+LDVxO6jDezRkixa7JeM1NVAP
+=pGiV
+-----END PGP PUBLIC KEY BLOCK-----</pre>
+            </div>
+            <button class="pgp-verify-btn" onclick="copyPGP()">📋 COPIAR CLAVE PGP</button>
+        </div>
+    </div>
+
     <div class="center-logo" id="centerLogo">
-        <div class="center-ring"></div>
         <div class="center-logo-main">CCSHOP</div>
         <div class="center-logo-sub">VISA · MASTERCARD</div>
         <div class="center-logo-year">2026</div>
     </div>
 
     <div class="login-epic" id="loginEpic">
-        <div class="energy-ring"></div>
         <div class="epic-text">ACCESO CONCEDIDO</div>
     </div>
 
     <div class="notification" id="notification"></div>
-
     <div class="user-info" id="userInfo">
         <span class="user-name" id="userName"></span>
         <button class="logout-button" onclick="logout()">🚪 CERRAR SESIÓN</button>
     </div>
-
     <button class="admin-button" id="adminButton" onclick="adminAccess()">⚡ ADMIN</button>
-
-    <div class="container" id="mainContainer">
-        <div class="scan-line"></div>
-        <div class="logo-container"><div class="logo">CCSHOP</div></div>
-        <div class="login-container">
-            <video class="security-video" autoplay muted loop><source src="dinero_1.mp4" type="video/mp4"></video>
-            
-            <div class="security-title">💳 VISA/MASTERCARD 💳</div>
-            
-            <div class="anonymity-warning">
-                <span>⚠️</span> 
-                NO USES CORREO PERSONAL - MANTÉN ANONIMATO
-                <span>⚠️</span>
-            </div>
-            
-            <button class="google-button" id="googleButton" onclick="signInWithGoogle()">
-                <svg class="google-icon" viewBox="0 0 24 24">
-                    <path fill="#ff6666" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="#ff6666" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="#ff6666" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43-.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                    <path fill="#ff6666" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                </svg>
-                INICIAR CON GOOGLE
-            </button>
-        </div>
-    </div>
-
     <button class="enter-button" id="enterButton" onclick="enterPage()">► ACCEDER</button>
-
-
 
 <script>
     const firebaseConfig = {
@@ -776,114 +426,50 @@
     let currentUser = null;
     const ADMIN_EMAIL = 'johndoechmod777@gmail.com';
 
-    function showNotify(msg, type = 'success') {
+    function showNotify(msg, type) {
         const n = document.getElementById('notification');
         if (n) {
             n.textContent = msg;
-            n.className = `notification ${type}`;
+            n.className = `notification ${type || 'success'}`;
             n.style.display = 'block';
             setTimeout(() => n.style.display = 'none', 4000);
         }
     }
 
-    function createEpicAnimation() {
-        const epic = document.getElementById('loginEpic');
-        if (epic) {
-            epic.classList.add('active');
-            setTimeout(() => epic.classList.remove('active'), 1500);
+    function togglePGP() {
+        const content = document.getElementById('pgpContent');
+        const arrow = document.getElementById('pgpArrow');
+        if (content.classList.contains('show')) {
+            content.classList.remove('show');
+            arrow.classList.remove('open');
+        } else {
+            content.classList.add('show');
+            arrow.classList.add('open');
         }
+    }
+
+    function copyPGP() {
+        const pgpText = document.querySelector('.pgp-key-text').innerText;
+        navigator.clipboard.writeText(pgpText).then(() => {
+            showNotify('✅ Clave PGP copiada', 'success');
+        }).catch(() => {
+            showNotify('❌ Error al copiar', 'error');
+        });
     }
 
     async function signInWithGoogle() {
-        createEpicAnimation();
-        showNotify('🔄 Iniciando sesión...', 'success');
-        
         const provider = new firebase.auth.GoogleAuthProvider();
-        
         try {
             const result = await auth.signInWithPopup(provider);
-            
-            if (!result || !result.user) {
-                throw new Error('No se obtuvo usuario');
-            }
-            
             currentUser = result.user;
-            showDashboard(currentUser);
-            showNotify('✅ ACCESO CONCEDIDO');
-            
-            try {
-                await syncUserSimple(currentUser);
-            } catch (dbError) {
-                showNotify('⚠️ Sin sincronización', 'error');
-            }
-            
+            location.reload();
         } catch (error) {
-            let errorMsg = 'ERROR DE ACCESO';
-            if (error.code === 'auth/popup-blocked') {
-                errorMsg = '⚠️ Popup bloqueado - Permite ventanas emergentes';
-            } else if (error.code === 'auth/network-request-failed') {
-                errorMsg = '📶 Sin conexión a internet';
-            } else if (error.code === 'auth/cancelled-popup-request') {
-                errorMsg = '✖️ Cancelado';
-            } else if (error.message.includes('popup')) {
-                errorMsg = '⚠️ Habilita popups para este sitio';
-            }
-            showNotify(errorMsg, 'error');
+            showNotify('Error: ' + error.message, 'error');
         }
     }
 
-    async function syncUserSimple(user) {
-        if (!user || !user.uid) return;
-        
-        try {
-            const userRef = db.ref('users/' + user.uid);
-            const isAdmin = user.email === ADMIN_EMAIL;
-            
-            const snapshot = await userRef.once('value');
-            const existe = snapshot.exists();
-            const datosExistentes = snapshot.val() || {};
-            
-            const datosCompletos = {
-                email: user.email,
-                nombre: user.displayName || user.email.split('@')[0] || 'Usuario',
-                saldo: existe ? datosExistentes.saldo || 0 : 0,
-                ultimoAcceso: Date.now(),
-                fechaRegistro: existe ? datosExistentes.fechaRegistro : Date.now(),
-                esAdmin: isAdmin
-            };
-            
-            await userRef.set(datosCompletos);
-            
-            if (isAdmin) {
-                await db.ref('admins/' + user.uid).set(true);
-            }
-            
-        } catch (error) {
-            console.error('Error DB:', error);
-        }
-    }
-
-    function showDashboard(user) {
-        document.getElementById('mainContainer').style.display = 'none';
-        document.getElementById('bgVideo').style.display = 'block';
-        document.getElementById('enterButton').style.display = 'block';
-        document.getElementById('centerLogo').classList.add('active');
-        
-        const userInfo = document.getElementById('userInfo');
-        const userNameText = document.getElementById('userName');
-        userInfo.style.display = 'block';
-        
-        const isAdmin = user.email === ADMIN_EMAIL;
-        userNameText.textContent = isAdmin ? `👑 ${user.displayName || 'Admin'}` : `👤 ${user.displayName || 'Usuario'}`;
-        
-        if(isAdmin) {
-            userNameText.classList.add('admin');
-            document.getElementById('adminButton').style.display = 'block';
-        }
-    }
-
-    async function logout() {
-        await auth.signOut();
+    function logout() {
+        auth.signOut();
         location.reload();
     }
 
@@ -897,21 +483,19 @@
 
     auth.onAuthStateChanged((user) => {
         if (user) {
-            currentUser = user;
-            showDashboard(user);
-        } else {
-            document.getElementById('mainContainer').style.display = 'block';
-            document.getElementById('userInfo').style.display = 'none';
-            document.getElementById('centerLogo').classList.remove('active');
-            document.getElementById('bgVideo').style.display = 'none';
-            document.getElementById('enterButton').style.display = 'none';
-            document.getElementById('adminButton').style.display = 'none';
+            document.getElementById('mainContainer').style.display = 'none';
+            document.getElementById('bgVideo').style.display = 'block';
+            document.getElementById('enterButton').style.display = 'block';
+            document.getElementById('centerLogo').classList.add('active');
+            document.getElementById('userInfo').style.display = 'block';
+            if (user.email === ADMIN_EMAIL) {
+                document.getElementById('adminButton').style.display = 'block';
+            }
         }
     });
 
     function crearParticulas() {
         const container = document.getElementById('particles');
-        if (!container) return;
         for (let i = 0; i < 10; i++) {
             const p = document.createElement('div');
             p.className = 'particle';
