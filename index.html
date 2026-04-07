@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>CCSHOP · Acceso Exclusivo</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='text' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23ff0000'/><stop offset='100%' stop-color='%23cc0000'/></stop></linearGradient></defs><path d='M8 8 L24 8 L24 24 L8 24 Z' transform='rotate(45 16 16)' fill='none' stroke='%23ff0000' stroke-width='1.5'/><text x='12' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text><text x='20' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text></svg>">
     
@@ -26,8 +26,6 @@
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            opacity: 0; 
-            transition: opacity 0.8s ease;
             padding: 20px;
         }
 
@@ -92,7 +90,6 @@
             filter: brightness(0.4) contrast(1.2);
         }
         
-        /* CONTENEDOR LOGIN (con PGP incluido dentro) */
         .login-wrapper { 
             text-align: center; 
             width: 90%; 
@@ -102,20 +99,14 @@
         .container { 
             text-align: center; 
             width: 100%; 
-            padding: 30px 25px;
+            padding: 25px 20px;
             background: rgba(8, 8, 8, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 16px;
             border: 1px solid rgba(255, 0, 0, 0.4);
-            box-shadow: 0 0 20px rgba(255, 0, 0, 0.2), inset 0 0 20px rgba(255, 0, 0, 0.05);
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.2);
             position: relative;
             overflow: hidden;
-            animation: containerFade 0.5s ease-out;
-        }
-
-        @keyframes containerFade {
-            0% { opacity: 0; transform: translateY(10px); }
-            100% { opacity: 1; transform: translateY(0); }
         }
 
         .scan-line {
@@ -136,10 +127,10 @@
             100% { top: 100%; opacity: 0; }
         }
 
-        .logo-container { margin-bottom: 20px; position: relative; display: inline-block; }
+        .logo-container { margin-bottom: 20px; }
         .logo { 
             font-family: 'Orbitron', sans-serif; 
-            font-size: 42px; 
+            font-size: 38px; 
             font-weight: 900; 
             background: linear-gradient(135deg, #ff0000 0%, #ff3333 50%, #cc0000 100%); 
             -webkit-background-clip: text; 
@@ -148,6 +139,7 @@
             letter-spacing: 4px; 
             animation: logoPulse 2s ease-in-out infinite; 
         }
+        
         @keyframes logoPulse { 
             0%, 100% { text-shadow: 0 0 20px rgba(255, 0, 0, 0.6); transform: scale(1); } 
             50% { text-shadow: 0 0 40px rgba(255, 0, 0, 0.9); transform: scale(1.02); } 
@@ -155,35 +147,21 @@
         
         .security-video { 
             width: 100%; 
-            height: 140px; 
+            height: 130px; 
             margin-bottom: 15px; 
             object-fit: cover; 
             border-radius: 12px; 
             border: 1px solid rgba(255, 0, 0, 0.3); 
             background: #000;
         }
+        
         .security-title { 
             color: #fff; 
-            font-size: 18px; 
+            font-size: 16px; 
             margin-bottom: 15px; 
             font-weight: 700; 
-            letter-spacing: 3px; 
-            text-transform: uppercase; 
+            letter-spacing: 2px; 
             font-family: 'Orbitron', sans-serif; 
-        }
-        .anonymity-warning { 
-            background: rgba(255, 0, 0, 0.08); 
-            border: 1px solid rgba(255, 0, 0, 0.6); 
-            border-radius: 8px; 
-            padding: 10px; 
-            margin-bottom: 15px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 8px; 
-            font-size: 11px; 
-            color: #ff6666; 
-            font-weight: 700; 
         }
         
         .google-button { 
@@ -191,28 +169,19 @@
             color: white; 
             border: 1px solid rgba(255, 0, 0, 0.5); 
             border-radius: 12px; 
-            padding: 14px 20px; 
-            font-size: 15px; 
+            padding: 12px 20px; 
+            font-size: 14px; 
             font-weight: 700; 
             cursor: pointer; 
-            display: inline-flex; 
+            display: flex; 
             align-items: center; 
             justify-content: center; 
             width: 100%; 
             transition: all 0.3s ease;
         }
-        .google-button:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 10px 25px rgba(255, 0, 0, 0.3); 
-            border-color: #ff0000;
-        }
-        .google-icon { 
-            width: 20px; 
-            height: 20px; 
-            margin-right: 10px; 
-        }
         
-        /* SECCIÓN PGP (dentro del login) */
+        .google-icon { width: 18px; height: 18px; margin-right: 10px; }
+        
         .pgp-section {
             margin-top: 20px;
             text-align: left;
@@ -225,25 +194,16 @@
         .pgp-header {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 12px 15px;
+            gap: 8px;
+            padding: 10px 12px;
             cursor: pointer;
             background: #0a0000;
-            border-bottom: 1px solid rgba(255, 0, 0, 0.3);
-        }
-
-        .pgp-header:hover {
-            background: #1a0000;
-        }
-
-        .pgp-icon {
-            font-size: 18px;
         }
 
         .pgp-title {
             font-family: 'Orbitron', sans-serif;
-            font-size: 12px;
-            letter-spacing: 2px;
+            font-size: 11px;
+            letter-spacing: 1px;
             color: #ff3333;
             font-weight: 700;
         }
@@ -251,93 +211,29 @@
         .pgp-arrow {
             margin-left: auto;
             color: #ff3333;
-            font-size: 12px;
+            font-size: 11px;
             transition: transform 0.3s;
         }
 
-        .pgp-arrow.open {
-            transform: rotate(180deg);
-        }
-
-        .pgp-content {
-            display: none;
-            padding: 15px;
-            background: #050505;
-        }
-
-        .pgp-content.show {
-            display: block;
-        }
+        .pgp-arrow.open { transform: rotate(180deg); }
+        .pgp-content { display: none; padding: 12px; background: #050505; }
+        .pgp-content.show { display: block; }
 
         .pgp-fingerprint {
             background: #0a0a0a;
-            padding: 10px;
+            padding: 8px;
             border-radius: 8px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             border-left: 3px solid #ff0000;
         }
 
-        .pgp-fingerprint-label {
-            font-size: 10px;
-            color: #ff6666;
-            margin-bottom: 6px;
-            letter-spacing: 1px;
-        }
+        .pgp-fingerprint-label { font-size: 9px; color: #ff6666; margin-bottom: 4px; }
+        .pgp-fingerprint-code { font-family: monospace; font-size: 8px; word-break: break-all; color: #0f0; }
+        .pgp-key-block { background: #0a0a0a; padding: 8px; border-radius: 8px; margin-bottom: 10px; }
+        .pgp-key-label { font-size: 9px; color: #ff6666; margin-bottom: 4px; }
+        .pgp-key-text { font-family: monospace; font-size: 7px; word-break: break-all; color: #ccc; max-height: 120px; overflow-y: auto; background: #000; padding: 6px; border-radius: 5px; white-space: pre-wrap; }
+        .pgp-verify-btn { background: #1a1a1a; border: 1px solid #ff0000; border-radius: 8px; padding: 8px; color: #ff6666; font-size: 10px; font-weight: 700; cursor: pointer; width: 100%; text-align: center; }
 
-        .pgp-fingerprint-code {
-            font-family: 'Courier New', monospace;
-            font-size: 9px;
-            word-break: break-all;
-            color: #00ff00;
-        }
-
-        .pgp-key-block {
-            background: #0a0a0a;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 12px;
-        }
-
-        .pgp-key-label {
-            font-size: 10px;
-            color: #ff6666;
-            margin-bottom: 6px;
-            letter-spacing: 1px;
-        }
-
-        .pgp-key-text {
-            font-family: 'Courier New', monospace;
-            font-size: 8px;
-            word-break: break-all;
-            color: #cccccc;
-            max-height: 150px;
-            overflow-y: auto;
-            white-space: pre-wrap;
-            background: #000;
-            padding: 8px;
-            border-radius: 5px;
-        }
-
-        .pgp-verify-btn {
-            background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
-            border: 1px solid #ff0000;
-            border-radius: 8px;
-            padding: 8px;
-            color: #ff6666;
-            font-size: 11px;
-            font-weight: 700;
-            cursor: pointer;
-            width: 100%;
-            text-align: center;
-            transition: all 0.3s;
-        }
-
-        .pgp-verify-btn:hover {
-            background: #ff0000;
-            color: #fff;
-        }
-
-        /* PANTALLA POST-LOGIN */
         .post-login-screen {
             position: fixed;
             top: 0;
@@ -352,130 +248,138 @@
             background: #050505;
         }
 
-        .post-login-screen.active {
+        .post-login-screen.active { display: flex; }
+
+        .center-logo { text-align: center; margin-bottom: 30px; }
+        .center-logo-main { font-family: 'Orbitron', sans-serif; font-size: clamp(2.5rem, 10vw, 4rem); font-weight: 900; background: linear-gradient(135deg, #ff0000, #ff3333, #cc0000); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 4px; }
+        .center-logo-sub { font-size: 10px; color: #ff6666; letter-spacing: 2px; margin-top: 5px; }
+        .center-logo-year { font-size: 9px; color: #ff3333; margin-top: 3px; }
+
+        .action-buttons { display: flex; flex-direction: column; gap: 12px; width: 240px; margin-top: 15px; }
+        .enter-button { background: linear-gradient(135deg, #ff0000, #990000); color: white; padding: 12px 25px; border-radius: 40px; cursor: pointer; font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 16px; border: none; text-align: center; }
+        .logout-button { background: linear-gradient(135deg, #8b0000, #4a0000); color: #ffaaaa; border: 1px solid #ff3333; padding: 10px 20px; border-radius: 40px; cursor: pointer; font-family: 'Orbitron', sans-serif; font-weight: 600; font-size: 12px; text-align: center; }
+        .admin-button { background: rgba(0, 255, 0, 0.1); color: #0f0; border: 1px solid #0f0; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 11px; margin-top: 20px; }
+        .user-email { font-size: 11px; color: #ff6666; margin-bottom: 12px; background: rgba(255,0,0,0.1); padding: 5px 10px; border-radius: 20px; }
+
+        .notification { position: fixed; top: 15px; right: 15px; padding: 10px 15px; border-radius: 8px; color: white; z-index: 1003; display: none; backdrop-filter: blur(10px); font-size: 11px; }
+        .notification.error { background: rgba(20, 0, 0, 0.95); border-left: 3px solid #ff0000; }
+        .notification.success { background: rgba(0, 20, 0, 0.95); border-left: 3px solid #0f0; }
+
+        /* MODAL RESPONSIVE OPTIMIZADO */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.96);
+            backdrop-filter: blur(6px);
+            z-index: 2000;
             display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px;
         }
-
-        .center-logo {
+        
+        .modal-content {
+            background: linear-gradient(135deg, #0a0a0a, #050505);
+            border: 2px solid #ff0000;
+            border-radius: 14px;
+            padding: 15px;
+            max-width: 360px;
+            width: 100%;
             text-align: center;
-            margin-bottom: 40px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.3);
         }
-
-        .center-logo-main {
+        
+        .modal-content::-webkit-scrollbar { width: 2px; }
+        .modal-content::-webkit-scrollbar-thumb { background: #ff0000; border-radius: 10px; }
+        
+        .modal-ccshop {
             font-family: 'Orbitron', sans-serif;
-            font-size: clamp(3rem, 12vw, 5rem);
+            font-size: 28px;
             font-weight: 900;
-            background: linear-gradient(135deg, #ff0000 0%, #ff3333 50%, #cc0000 100%);
+            background: linear-gradient(135deg, #ff0000, #ff6666, #ff0000);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 40px rgba(255, 0, 0, 0.5);
-            letter-spacing: 6px;
-        }
-
-        .center-logo-sub {
-            font-size: 12px;
-            color: #ff6666;
+            animation: modalPulse 1.5s ease-in-out infinite;
             letter-spacing: 3px;
-            margin-top: 8px;
+            margin-bottom: 6px;
         }
-
-        .center-logo-year {
-            font-size: 10px;
-            color: #ff3333;
-            margin-top: 5px;
+        
+        @keyframes modalPulse {
+            0%, 100% { opacity: 1; letter-spacing: 3px; }
+            50% { opacity: 0.9; letter-spacing: 5px; }
         }
-
-        /* BOTONES POST-LOGIN */
-        .action-buttons {
+        
+        .modal-badge {
+            display: inline-block;
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff0000;
+            border-radius: 20px;
+            padding: 2px 10px;
+            font-size: 8px;
+            font-family: 'Orbitron', sans-serif;
+            color: #ff6666;
+            margin-bottom: 10px;
+        }
+        
+        .modal-title { font-size: 13px; font-weight: 700; color: #ff3333; margin-bottom: 10px; font-family: 'Orbitron', sans-serif; }
+        .modal-text { font-size: 10px; line-height: 1.4; color: #ccc; text-align: left; margin-bottom: 8px; }
+        .modal-text strong { color: #ff5555; }
+        
+        .modal-highlight {
+            background: rgba(255, 0, 0, 0.08);
+            border-left: 3px solid #ff0000;
+            padding: 8px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-size: 9px;
+            text-align: left;
+        }
+        
+        .modal-security {
             display: flex;
-            flex-direction: column;
-            gap: 15px;
-            width: 260px;
-            margin-top: 20px;
+            gap: 6px;
+            justify-content: center;
+            margin: 10px 0;
+            flex-wrap: wrap;
         }
-
-        .enter-button {
+        
+        .security-tag {
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid #0f0;
+            border-radius: 20px;
+            padding: 3px 8px;
+            font-size: 8px;
+            color: #0f0;
+        }
+        
+        .modal-close-btn {
             background: linear-gradient(135deg, #ff0000, #990000);
             color: white;
-            padding: 14px 35px;
-            border-radius: 40px;
-            cursor: pointer;
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 700;
-            font-size: 18px;
-            letter-spacing: 2px;
             border: none;
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-
-        .enter-button:hover {
-            transform: scale(1.02);
-            box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
-        }
-
-        /* BOTÓN CERRAR SESIÓN - ROJO ELEGANTE */
-        .logout-button {
-            background: linear-gradient(135deg, #8b0000, #4a0000);
-            color: #ffaaaa;
-            border: 1px solid #ff3333;
-            padding: 12px 25px;
-            border-radius: 40px;
-            cursor: pointer;
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 600;
-            font-size: 14px;
-            letter-spacing: 1.5px;
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-
-        .logout-button:hover {
-            background: linear-gradient(135deg, #aa0000, #660000);
-            color: white;
-            box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
-            border-color: #ff6666;
-        }
-
-        .admin-button {
-            background: rgba(0, 255, 0, 0.1);
-            color: #00ff00;
-            border: 1px solid #00ff00;
-            padding: 8px 15px;
-            border-radius: 8px;
-            cursor: pointer;
+            border-radius: 30px;
+            padding: 10px;
             font-size: 12px;
             font-weight: bold;
-            transition: all 0.3s ease;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            margin-top: 10px;
+            width: 100%;
         }
-
-        .admin-button:hover {
-            background: rgba(0, 255, 0, 0.3);
-            box-shadow: 0 0 10px #00ff00;
+        
+        .float-cc {
+            position: absolute;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 30px;
+            font-weight: 900;
+            opacity: 0.03;
+            pointer-events: none;
+            white-space: nowrap;
         }
-
-        .user-email {
-            font-size: 12px;
-            color: #ff6666;
-            margin-bottom: 15px;
-            background: rgba(255,0,0,0.1);
-            padding: 6px 12px;
-            border-radius: 20px;
-        }
-
-        .notification { 
-            position: fixed; 
-            top: 20px; 
-            right: 20px; 
-            padding: 12px 18px; 
-            border-radius: 10px; 
-            color: white; 
-            z-index: 1003; 
-            display: none; 
-            backdrop-filter: blur(10px);
-        }
-        .notification.error { background: rgba(20, 0, 0, 0.95); border-left: 4px solid #ff0000; }
-        .notification.success { background: rgba(0, 20, 0, 0.95); border-left: 4px solid #00ff00; }
     </style>
 </head>
 <body>
@@ -486,25 +390,60 @@
         <source src="log2.mp4" type="video/mp4">
     </video>
 
-    <!-- LOGIN PRINCIPAL (con PGP dentro) -->
+    <!-- MODAL EMERGENTE -->
+    <div id="welcomeModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="float-cc" style="top: 5px; right: 5px;">CC</div>
+            <div class="float-cc" style="bottom: 5px; left: 5px;">SHOP</div>
+            
+            <div class="modal-ccshop">CCSHOP</div>
+            <div class="modal-badge">◈ COMUNICADO OFICIAL ◈</div>
+            
+            <div class="modal-title">🔐 ¿POR QUÉ USAMOS GOOGLE SI ES UNA PAGINA ILEGAL ?</div>
+            
+            <div class="modal-text">
+                <strong>Estimada comunidad,</strong><br>
+                Algunos usuarios han manifestado dudas sobre el uso de <strong>Google</strong>, especulando sobre <strong>phishing</strong>. Aclaramos:
+            </div>
+            
+            <div class="modal-highlight">
+                📦 <strong>ENTREGA DE PRODUCTOS</strong> — Tus compras (CCs, Dumps, Métodos) se envían DIRECTAMENTE a tu correo.<br><br>
+                ✅ <strong>VERIFICACIÓN</strong> — Identificamos cada comprador para mantener historial y un mejor control para cada usuario.<br><br>
+                🛠️ <strong>SOPORTE</strong> — Podemos localizar tu cuenta para resolver reclamos o preguntas en caso de que una cc no tenga saldo o falle.
+            </div>
+            
+            <div class="modal-highlight" style="border-left-color: #0f0; background: rgba(0, 255, 0, 0.05);">
+                💡 <strong>RECOMENDACIÓN:</strong> Crea una cuenta de Google <strong>EXCLUSIVA</strong> para CCSHOP, sin datos personales,[CCSHOP NO OBLIGA A NADIE A  INGRESAR] , SI SIENTES DESCONFIANZA NO CONTINUES.<strong>ESTO NO ES PHISHING.</strong>
+            </div>
+            
+            <div class="modal-security">
+                <span class="security-tag">🛡️ NO ES PHISHING</span>
+                <span class="security-tag">🔐 OFICIAL</span>
+                <span class="security-tag">📀 ENCRIPTADO</span>
+            </div>
+            
+            <button class="modal-close-btn" onclick="closeModal()">✔️ ENTIENDO · CONTINUAR</button>
+        </div>
+    </div>
+
+    <!-- LOGIN -->
     <div class="login-wrapper" id="loginWrapper">
-        <div class="container" id="mainContainer">
+        <div class="container">
             <div class="scan-line"></div>
             <div class="logo-container"><div class="logo">CCSHOP</div></div>
             <div class="login-container">
                 <video class="security-video" autoplay muted loop><source src="dinero_1.mp4" type="video/mp4"></video>
-                <div class="security-title">💳 VISA/MASTERCARD 💳</div>
-                <div class="anonymity-warning">⚠️ NO USES CORREO PERSONAL - MANTÉN ANONIMATO ⚠️</div>
+                <div class="security-title">💳 VISA / MASTERCARD 💳</div>
+                
                 <button class="google-button" onclick="signInWithGoogle()">
                     <svg class="google-icon" viewBox="0 0 24 24"><path fill="#ff6666" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#ff6666" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#ff6666" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43-.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#ff6666" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-                    INICIAR CON GOOGLE
+                    CONTINUAR CON GOOGLE
                 </button>
             </div>
 
-            <!-- SECCIÓN PGP - DENTRO DEL LOGIN, SOLO AQUÍ -->
             <div class="pgp-section">
                 <div class="pgp-header" onclick="togglePGP()">
-                    <span class="pgp-icon">🔐</span>
+                    <span>🔐</span>
                     <span class="pgp-title">VERIFICACIÓN OFICIAL PGP</span>
                     <span class="pgp-arrow" id="pgpArrow">▼</span>
                 </div>
@@ -575,7 +514,7 @@ LDVxO6jDezRkixa7JeM1NVAP
         </div>
     </div>
 
-    <!-- PANTALLA POST-LOGIN (logo enorme + botones) -->
+    <!-- POST LOGIN -->
     <div class="post-login-screen" id="postLoginScreen">
         <div class="center-logo">
             <div class="center-logo-main">CCSHOP</div>
@@ -587,7 +526,7 @@ LDVxO6jDezRkixa7JeM1NVAP
             <button class="enter-button" onclick="enterPage()">► ACCEDER</button>
             <button class="logout-button" onclick="logout()">🚪 CERRAR SESIÓN</button>
         </div>
-        <button class="admin-button" id="adminButton" onclick="adminAccess()" style="margin-top: 30px;">⚡ ADMIN</button>
+        <button class="admin-button" id="adminButton" onclick="adminAccess()">⚡ ADMIN</button>
     </div>
 
     <div class="notification" id="notification"></div>
@@ -606,7 +545,6 @@ LDVxO6jDezRkixa7JeM1NVAP
     firebase.initializeApp(firebaseConfig);
     
     const auth = firebase.auth();
-    const db = firebase.database();
     let currentUser = null;
     const ADMIN_EMAIL = 'johndoechmod777@gmail.com';
 
@@ -618,6 +556,11 @@ LDVxO6jDezRkixa7JeM1NVAP
             n.style.display = 'block';
             setTimeout(() => n.style.display = 'none', 4000);
         }
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('welcomeModal');
+        if (modal) modal.remove();
     }
 
     function togglePGP() {
@@ -646,22 +589,21 @@ LDVxO6jDezRkixa7JeM1NVAP
         try {
             const result = await auth.signInWithPopup(provider);
             currentUser = result.user;
-            // No recargamos, manejamos el estado directamente
             handleUserLoggedIn(currentUser);
+            showNotify(`✅ Bienvenido`, 'success');
         } catch (error) {
-            showNotify('Error: ' + error.message, 'error');
+            showNotify('❌ Error: ' + error.message, 'error');
         }
     }
 
     function logout() {
         auth.signOut().then(() => {
-            // Mostrar login, ocultar pantalla post-login
             document.getElementById('loginWrapper').style.display = 'block';
             document.getElementById('postLoginScreen').classList.remove('active');
             document.getElementById('bgVideo').style.display = 'none';
             currentUser = null;
         }).catch((error) => {
-            showNotify('Error al cerrar sesión: ' + error.message, 'error');
+            showNotify('Error: ' + error.message, 'error');
         });
     }
 
@@ -673,27 +615,19 @@ LDVxO6jDezRkixa7JeM1NVAP
         if (currentUser && currentUser.email === ADMIN_EMAIL) {
             window.location.href = 'admin.html';
         } else {
-            showNotify('Acceso denegado. Solo administrador.', 'error');
+            showNotify('⛔ Acceso denegado', 'error');
         }
     }
 
     function handleUserLoggedIn(user) {
         if (user) {
             currentUser = user;
-            // Ocultar login (incluyendo el PGP)
             document.getElementById('loginWrapper').style.display = 'none';
-            // Mostrar pantalla post-login con logo enorme
             document.getElementById('postLoginScreen').classList.add('active');
             document.getElementById('bgVideo').style.display = 'block';
-            // Mostrar email del usuario
             document.getElementById('userEmailDisplay').textContent = user.email;
-            // Admin button: solo visible si es el email correcto
             const adminBtn = document.getElementById('adminButton');
-            if (user.email === ADMIN_EMAIL) {
-                adminBtn.style.display = 'block';
-            } else {
-                adminBtn.style.display = 'none';
-            }
+            adminBtn.style.display = user.email === ADMIN_EMAIL ? 'block' : 'none';
         }
     }
 
@@ -701,7 +635,6 @@ LDVxO6jDezRkixa7JeM1NVAP
         if (user) {
             handleUserLoggedIn(user);
         } else {
-            // No hay usuario: mostrar login, ocultar post-login
             document.getElementById('loginWrapper').style.display = 'block';
             document.getElementById('postLoginScreen').classList.remove('active');
             document.getElementById('bgVideo').style.display = 'none';
@@ -721,7 +654,6 @@ LDVxO6jDezRkixa7JeM1NVAP
     }
 
     window.onload = () => {
-        document.body.style.opacity = '1';
         crearParticulas();
     };
 </script>
