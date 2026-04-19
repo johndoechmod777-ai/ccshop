@@ -1575,6 +1575,21 @@
                 });
             }
         }
+        // Guardar posición antes de volver al catálogo
+        const backButton = document.querySelector('.back-button');
+        if (backButton) {
+            backButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                sessionStorage.setItem('catalogo_scroll', window.scrollY);
+                window.location.href = '../catalogo.html';
+            });
+        }
+        
+        // También guardar posición al salir de la página (por si acaso)
+        window.addEventListener('beforeunload', function() {
+            sessionStorage.setItem('catalogo_scroll', window.scrollY);
+        });
     </script>
 </body>
 </html>
+    

@@ -10,11 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
     <style>
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body { 
             background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
@@ -153,7 +149,6 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* BOTÓN CC CASHOUT - ESTILO CUADRADO LLAMATIVO */
         .cashout-btn {
             background: linear-gradient(135deg, #ff0000, #8b0000);
             border: 2px solid #ff4444;
@@ -1166,7 +1161,6 @@
                 <div class="brand-icon">💳</div>
                 <div class="brand-text">CCSHOP</div>
             </div>
-            <!-- BOTÓN CC CASHOUT - DEBAJO DE CCSHOP, ESTILO CUADRADO -->
             <button class="cashout-btn" onclick="goToCashout()">
                 <span class="cashout-icon">💰</span>
                 <span>CC CASHOUT</span>
@@ -1209,7 +1203,7 @@
                 <div class="info-banner-text">
                     💡 <span class="info-banner-highlight">PRECIOS BAJOS EN CADA PAÍS</span> 💡<br>
                     Encuentra tarjetas desde <span class="info-banner-highlight">$5 USD</span> en adelante.<br>
-                    <small>La busqueda te dira si hay tarjetas con el precio que buscas, si encuentra solo dale click y desplazate entre las paginas para que puedas encontrarla.⬇️</small>
+                    <small>La búsqueda te dirá si hay tarjetas con el precio que buscas, si encuentra solo dale click y desplázate entre las páginas para que puedas encontrarla. ⬇️</small>
                 </div>
             </div>
         </div>
@@ -1377,32 +1371,62 @@
         // SISTEMA DE VERIFICACIÓN DE SEGURIDAD
         // ========================================
         function initializeSecurity() {
-            auth.onAuthStateChanged(function(user) {
-                if (user) {
-                    usuarioActual = user;
-                    
-                    const referrer = document.referrer;
-                    const isValidReferrer = referrer.includes('anuncio.html') || 
-                                           referrer.includes('tienda.html') ||
-                                           localStorage.getItem('userAuthenticated') === 'true';
-                    
-                    if (isValidReferrer) {
-                        securityVerified = true;
-                        showCatalogContent();
-                    } else {
+    auth.onAuthStateChanged(function(user) {
+        if (user) {
+            usuarioActual = user;
+            
+            // Guardar siempre que el usuario está autenticado
+            localStorage.setItem('userAuthenticated', 'true');
+            
+            // Verificar si viene de otro país o es acceso directo
+            const referrer = document.referrer;
+            const isFromCountryPage = referrer.includes('paises/') || 
+                                      referrer.includes('colombia.html') ||
+                                      referrer.includes('espana.html') ||
+                                      referrer.includes('ecuador.html') ||
+                                      referrer.includes('chile.html') ||
+                                      referrer.includes('brazil.html') ||
+                                      referrer.includes('mexico.html') ||
+                                      referrer.includes('usa.html') ||
+                                      referrer.includes('china.html') ||
+                                      referrer.includes('india.html') ||
+                                      referrer.includes('panama.html') ||
+                                      referrer.includes('costarica.html') ||
+                                      referrer.includes('honduras.html') ||
+                                      referrer.includes('puertorico.html');
+            
+            const isValidReferrer = isFromCountryPage ||
+                                   referrer.includes('anuncio.html') || 
+                                   referrer.includes('tienda.html') ||
+                                   localStorage.getItem('userAuthenticated') === 'true';
+            
+            if (isValidReferrer) {
+                securityVerified = true;
+                showCatalogContent();
+            } else {
+                redirectToLogin();
+            }
+        } else {
+            // Si no hay usuario, intentar mantener la sesión
+            if (localStorage.getItem('userAuthenticated') === 'true') {
+                // Podría estar logueado pero Firebase no lo detectó aún
+                setTimeout(() => {
+                    if (!securityVerified) {
                         redirectToLogin();
                     }
-                } else {
-                    redirectToLogin();
-                }
-            });
-
-            setTimeout(() => {
-                if (!securityVerified) {
-                    redirectToLogin();
-                }
-            }, 8000);
+                }, 2000);
+            } else {
+                redirectToLogin();
+            }
         }
+    });
+
+    setTimeout(() => {
+        if (!securityVerified) {
+            redirectToLogin();
+        }
+    }, 8000);
+}
 
         function showCatalogContent() {
             document.getElementById('securityOverlay').style.display = 'none';
@@ -1421,21 +1445,23 @@
         }
 
         // ========================================
-        // CONFIGURACIÓN DE PAÍSES
+        // CONFIGURACIÓN DE PAÍSES - SOLO COLOMBIA Y ESPAÑA
         // ========================================
         const countriesConfig = [
-            { name: 'Ecuador', id: 'ecuador', flag: '🇪🇨', url: 'paises/ecuador.html' },
-            { name: 'Chile', id: 'chile', flag: '🇨🇱', url: 'paises/chile.html' },
-            { name: 'Brazil', id: 'brazil', flag: '🇧🇷', url: 'paises/brazil.html' },
-            { name: 'México', id: 'mexico', flag: '🇲🇽', url: 'paises/mexico.html' },
-            { name: 'USA', id: 'usa', flag: '🇺🇸', url: 'paises/usa.html' },
-            { name: 'China', id: 'china', flag: '🇨🇳', url: 'paises/china.html' },
-            { name: 'India', id: 'india', flag: '🇮🇳', url: 'paises/india.html' },
-            { name: 'Panamá', id: 'panama', flag: '🇵🇦', url: 'paises/panama.html' },
-            { name: 'Costa Rica', id: 'costarica', flag: '🇨🇷', url: 'paises/costa-rica.html' },
-            { name: 'Honduras', id: 'honduras', flag: '🇭🇳', url: 'paises/honduras.html' },
-            { name: 'Puerto Rico', id: 'puertorico', flag: '🇵🇷', url: 'paises/puerto-rico.html' }
-        ];
+    { name: 'Colombia', id: 'colombia', flag: '🇨🇴', url: 'paises/colombia.html' },
+    { name: 'España', id: 'espana', flag: '🇪🇸', url: 'paises/espana.html' },
+    { name: 'Ecuador', id: 'ecuador', flag: '🇪🇨', url: 'paises/ecuador.html' },
+    { name: 'Chile', id: 'chile', flag: '🇨🇱', url: 'paises/chile.html' },
+    { name: 'Brazil', id: 'brazil', flag: '🇧🇷', url: 'paises/brazil.html' },
+    { name: 'México', id: 'mexico', flag: '🇲🇽', url: 'paises/mexico.html' },
+    { name: 'USA', id: 'usa', flag: '🇺🇸', url: 'paises/usa.html' },
+    { name: 'China', id: 'china', flag: '🇨🇳', url: 'paises/china.html' },
+    { name: 'India', id: 'india', flag: '🇮🇳', url: 'paises/india.html' },
+    { name: 'Panamá', id: 'panama', flag: '🇵🇦', url: 'paises/panama.html' },
+    { name: 'Costa Rica', id: 'costarica', flag: '🇨🇷', url: 'paises/costa-rica.html' },
+    { name: 'Honduras', id: 'honduras', flag: '🇭🇳', url: 'paises/honduras.html' },
+    { name: 'Puerto Rico', id: 'puertorico', flag: '🇵🇷', url: 'paises/puerto-rico.html' }
+];
 
         // ========================================
         // FUNCIONES DEL CATÁLOGO
@@ -1566,33 +1592,38 @@
 
                     document.querySelectorAll('.country-card').forEach(card => {
                         card.onclick = async (e) => {
-                            e.preventDefault();
-                            if (!securityVerified) {
-                                showNotification('❌ Error de verificación. Recarga la página.');
-                                return;
-                            }
-                            
-                            const countryId = card.dataset.id;
-                            const countryName = card.dataset.pais;
-                            const country = countriesConfig.find(c => c.id === countryId);
+    e.preventDefault();
+    if (!securityVerified) {
+        showNotification('❌ Error de verificación. Recarga la página.');
+        return;
+    }
+    
+    const countryId = card.dataset.id;
+    const countryName = card.dataset.pais;
+    const country = countriesConfig.find(c => c.id === countryId);
 
-                            card.classList.add('loading');
-                            showNotification(`🔄 Accediendo a ${countryName}...`);
+    card.classList.add('loading');
+    showNotification(`🔄 Abriendo ${countryName} en nueva pestaña...`);
 
-                            if (usuarioActual) {
-                                try {
-                                    await notificarAccesoAPais(usuarioActual, countryName, countryId);
-                                } catch (error) {
-                                    console.log('Notificación falló, pero continuando...');
-                                }
-                            }
+    if (usuarioActual) {
+        try {
+            await notificarAccesoAPais(usuarioActual, countryName, countryId);
+        } catch (error) {
+            console.log('Notificación falló, pero continuando...');
+        }
+    }
 
-                            setTimeout(() => {
-                                if (country) {
-                                    goToCountry(country.id);
-                                }
-                            }, 800);
-                        };
+    // Guardar la posición actual
+    sessionStorage.setItem('catalogo_scroll_pos', window.scrollY);
+
+    setTimeout(() => {
+        if (country) {
+            // Abrir en NUEVA PESTAÑA
+            window.open(country.url, '_blank');
+            card.classList.remove('loading');
+        }
+    }, 500);
+};
                     });
                 } else {
                     grid.innerHTML = `
@@ -1807,6 +1838,39 @@
                 localStorage.removeItem('userAuthenticated');
             }
         });
-    </script>
+        //         // // // 
+        // ========================================
+// CÓDIGO DEFINITIVO DE SCROLL
+// ========================================
+(function() {
+    const CLAVE = 'catalogo_scroll';
+    
+    // Si es la primera vez que entras (no hay scroll guardado)
+    if (!sessionStorage.getItem(CLAVE)) {
+        // Scroll arriba
+        window.scrollTo(0, 0);
+    } else {
+        // Restaurar scroll guardado
+        const pos = parseInt(sessionStorage.getItem(CLAVE));
+        setTimeout(function() {
+            window.scrollTo(0, pos);
+        }, 100);
+    }
+    
+    // Guardar scroll cuando el usuario hace scroll
+    let timer;
+    window.addEventListener('scroll', function() {
+        clearTimeout(timer);
+        timer = setTimeout(function() {
+            sessionStorage.setItem(CLAVE, window.scrollY);
+        }, 100);
+    });
+    
+    // Guardar scroll antes de salir de la página
+    window.addEventListener('beforeunload', function() {
+        sessionStorage.setItem(CLAVE, window.scrollY);
+    });
+})();
+</script>
 </body>
 </html>
