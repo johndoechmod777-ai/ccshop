@@ -1,13 +1,15 @@
-
-import random
-
-html_content = '''<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CCSHOP · Mantenimiento Premium</title>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ff0000'/%3E%3Cstop offset='100%25' stop-color='%23cc0000'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M8 8 L24 8 L24 24 L8 24 Z' transform='rotate(45 16 16)' fill='none' stroke='%23ff0000' stroke-width='1.5'/%3E%3Ctext x='12' y='20' text-anchor='middle' fill='url(%23g)' font-family='Arial' font-weight='bold' font-size='12'%3EC%3C/text%3E%3Ctext x='20' y='20' text-anchor='middle' fill='url(%23g)' font-family='Arial' font-weight='bold' font-size='12'%3EC%3C/text%3E%3C/svg%3E">
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -515,6 +517,38 @@ html_content = '''<!DOCTYPE html>
     </div>
     
     <script>
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyD2tvQjJzh7ukTSyxzIQSo7GSpz7L8z11I",
+            authDomain: "ccshop-realtime.firebaseapp.com",
+            databaseURL: "https://ccshop-realtime-default-rtdb.firebaseio.com",
+            projectId: "ccshop-realtime",
+            storageBucket: "ccshop-realtime.firebasestorage.app",
+            messagingSenderId: "795626673305",
+            appId: "1:795626673305:web:094dc265de1d4d1bc7d408"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        // Escuchar orden de cierre de sesión global
+        db.ref('global/forceLogout').on('value', (snapshot) => {
+            if (snapshot.val() && snapshot.val().active === true) {
+                auth.signOut().then(() => {
+                    localStorage.clear();
+                    window.location.reload();
+                });
+            }
+        });
+
+        // Si hay usuario logueado, cerrarle sesión automáticamente
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                auth.signOut();
+            }
+        });
+        
         // Crear partículas de fondo
         const particlesContainer = document.getElementById('particles');
         for (let i = 0; i < 50; i++) {
@@ -538,7 +572,6 @@ html_content = '''<!DOCTYPE html>
                 progressPercent.textContent = Math.floor(progress) + '%';
             } else {
                 clearInterval(interval);
-                // Pequeña celebración al completar
                 progressFill.style.background = 'linear-gradient(90deg, #00ff00 0%, #00ff00 100%)';
                 progressPercent.style.color = '#00ff00';
             }
@@ -559,25 +592,11 @@ html_content = '''<!DOCTYPE html>
                 descElement.style.opacity = '0';
                 setTimeout(() => {
                     descElement.textContent = descriptions[descIndex];
-                descElement.style.opacity = '1';
-                descIndex = (descIndex + 1) % descriptions.length;
+                    descElement.style.opacity = '1';
+                    descIndex = (descIndex + 1) % descriptions.length;
+                }, 300);
             }
         }, 3000);
     </script>
 </body>
-</html>'''
-
-# Guardar el archivo
-with open('/mnt/agents/output/ccshop_maintenance.html', 'w', encoding='utf-8') as f:
-    f.write(html_content)
-
-print("✅ Archivo guardado en: /mnt/agents/output/ccshop_maintenance.html")
-print("🎨 Características mejoradas:")
-print("   • Partículas de fondo animadas (50 partículas flotantes)")
-print("   • Logo con efecto 3D y glitch opcional")
-print("   • Grid tecnológico animado")
-print("   • Barra de progreso con efecto shimmer")
-print("   • Estados de tareas con colores diferenciados")
-print("   • Animación de progreso suave hasta 72%")
-print("   • Efecto typing en la descripción")
-print("   • Diseño responsive completo")
+</html>

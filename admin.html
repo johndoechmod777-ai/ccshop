@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCSHOP · Admin Panel</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0a0a0a;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .panel {
+            background: #111;
+            border: 2px solid #ff0000;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 450px;
+            width: 100%;
+        }
+        h1 {
+            color: #ff0000;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        .admin-email {
+            color: #0f0;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        button {
+            background: #ff0000;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            margin: 10px 0;
+        }
+        button:hover {
+            background: #cc0000;
+            transform: scale(1.02);
+        }
+        .logout-btn {
+            background: #333;
+        }
+        .logout-btn:hover {
+            background: #555;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .status-loading {
+            background: rgba(255,165,0,0.2);
+            color: #ffaa00;
+        }
+        .status-success {
+            background: rgba(0,255,0,0.2);
+            color: #0f0;
+        }
+        .status-error {
+            background: rgba(255,0,0,0.2);
+            color: #ff6666;
+        }
+        .warning {
+            font-size: 12px;
+            color: #ff6666;
+            margin-top: 20px;
+            padding: 10px;
+            border-top: 1px solid #222;
+        }
+    </style>
+</head>
+<body>
+
+<div class="panel">
+    <h1>🔴 PANEL ADMIN</h1>
+    <div id="adminEmail" class="admin-email"></div>
+    <div id="status" class="status status-loading">Verificando acceso...</div>
+    
+    <button id="cerrarBtn" style="display:none" onclick="cerrarSesionATodos()">
+        🚪 CERRAR SESIÓN A TODOS
+    </button>
+    
+    <button id="logoutBtn" style="display:none" class="logout-btn" onclick="cerrarMiSesion()">
+        🔒 Cerrar mi sesión
+    </button>
+    
+    <div class="warning">
+        ⚠️ Al presionar el botón, todos los usuarios serán desconectados
+    </div>
+</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyD2tvQjJzh7ukTSyxzIQSo7GSpz7L8z11I",
+        authDomain: "ccshop-realtime.firebaseapp.com",
+        databaseURL: "https://ccshop-realtime-default-rtdb.firebaseio.com",
+        projectId: "ccshop-realtime",
+        storageBucket: "ccshop-realtime.firebasestorage.app",
+        messagingSenderId: "795626673305",
+        appId: "1:795626673305:web:094dc265de1d4d1bc7d408"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    const ADMIN_EMAIL = 'johndoechmod777@gmail.com';
+
+    async function cerrarSesionATodos() {
+        const statusDiv = document.getElementById('status');
+        statusDiv.innerHTML = '🔄 Enviando orden de cierre...';
+        statusDiv.className = 'status status-loading';
+        
+        try {
+            await db.ref('global/forceLogout').set({
+                active: true,
+                timestamp: Date.now()
+            });
+            
+            statusDiv.innerHTML = '✅ ¡Comando enviado! Todos los usuarios cerrarán sesión.';
+            statusDiv.className = 'status status-success';
+            
+            setTimeout(() => {
+                auth.signOut();
+                window.location.href = 'index.html';
+            }, 2000);
+            
+        } catch (error) {
+            statusDiv.innerHTML = '❌ Error: ' + error.message;
+            statusDiv.className = 'status status-error';
+        }
+    }
+
+    function cerrarMiSesion() {
+        auth.signOut();
+        window.location.href = 'index.html';
+    }
+
+    auth.onAuthStateChanged((user) => {
+        if (user && user.email === ADMIN_EMAIL) {
+            document.getElementById('adminEmail').innerHTML = `✅ ${user.email}`;
+            document.getElementById('status').innerHTML = 'Acceso concedido';
+            document.getElementById('status').className = 'status status-success';
+            document.getElementById('cerrarBtn').style.display = 'block';
+            document.getElementById('logoutBtn').style.display = 'block';
+        } else if (user) {
+            document.getElementById('status').innerHTML = '⛔ No eres administrador';
+            document.getElementById('status').className = 'status status-error';
+            setTimeout(() => {
+                auth.signOut();
+                window.location.href = 'index.html';
+            }, 2000);
+        } else {
+            document.getElementById('status').innerHTML = '🔴 No has iniciado sesión';
+            document.getElementById('status').className = 'status status-error';
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 2000);
+        }
+    });
+</script>
+
+</body>
+</html>
