@@ -174,12 +174,6 @@
         .highlight {
             color: #ff4444;
         }
-        
-        /* No scroll, todo visible */
-        .task-list {
-            max-height: none;
-            overflow: visible;
-        }
     </style>
 </head>
 <body>
@@ -251,10 +245,13 @@
     const auth = firebase.auth();
     const db = firebase.database();
 
-    // Escuchar orden de cierre
+    let yaCerro = false;
+
+    // Escuchar orden de cierre de sesión global
     db.ref('banned/global').on('value', (snapshot) => {
         const data = snapshot.val();
-        if (data && data.forceLogout === true) {
+        if (data && data.forceLogout === true && !yaCerro) {
+            yaCerro = true;
             auth.signOut().then(() => {
                 localStorage.clear();
                 location.reload();
@@ -262,9 +259,10 @@
         }
     });
 
-    // Cerrar sesión si hay usuario
+    // Cerrar sesión solo UNA vez si hay usuario
     auth.onAuthStateChanged((user) => {
-        if (user) {
+        if (user && !yaCerro) {
+            yaCerro = true;
             auth.signOut();
         }
     });
