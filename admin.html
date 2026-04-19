@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CCSHOP · Admin</title>
+    <title>CCSHOP · Admin Panel</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -50,6 +50,16 @@
             width: 100%;
             margin: 8px 0;
         }
+        .google-btn {
+            background: #4285f4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .google-btn:hover {
+            background: #3367d6;
+        }
         .logout-btn {
             background: #333;
         }
@@ -69,25 +79,52 @@
             padding-top: 12px;
             border-top: 1px solid #222;
         }
+        .user-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #ff0000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
     </style>
 </head>
 <body>
 
-<div class="panel">
+<div class="panel" id="loginPanel">
     <h1>🔴 PANEL ADMIN</h1>
-    <div id="adminEmail" class="admin-email"></div>
     <div id="status" class="status status-loading">Verificando acceso...</div>
     
-    <button id="cerrarBtn" style="display:none" onclick="cerrarSesionATodos()">
-        🚪 CERRAR SESIÓN A TODOS
-    </button>
+    <div id="loginSection">
+        <button class="google-btn" onclick="iniciarSesion()">
+            🚪 INICIAR CON GOOGLE
+        </button>
+    </div>
     
-    <button id="logoutBtn" style="display:none" class="logout-btn" onclick="cerrarMiSesion()">
-        🔒 Cerrar mi sesión
-    </button>
+    <div id="adminSection" style="display:none;">
+        <div class="user-info">
+            <div class="avatar" id="userAvatar">👤</div>
+            <div id="adminEmail" class="admin-email"></div>
+        </div>
+        <button onclick="cerrarSesionATodos()">
+            🚪 CERRAR SESIÓN A TODOS
+        </button>
+        <button class="logout-btn" onclick="cerrarMiSesion()">
+            🔒 Cerrar mi sesión
+        </button>
+    </div>
     
     <div class="warning">
-        ⚠️ Los usuarios serán desconectados
+        ⚠️ Solo el administrador puede usar este panel
     </div>
 </div>
 
@@ -108,6 +145,21 @@
 
     const ADMIN_EMAIL = 'johndoechmod777@gmail.com';
 
+    async function iniciarSesion() {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        const statusDiv = document.getElementById('status');
+        statusDiv.innerHTML = '🔄 Iniciando sesión...';
+        statusDiv.className = 'status status-loading';
+        
+        try {
+            const result = await auth.signInWithPopup(provider);
+            verificarAcceso(result.user);
+        } catch (error) {
+            statusDiv.innerHTML = '❌ Error: ' + error.message;
+            statusDiv.className = 'status status-error';
+        }
+    }
+
     async function cerrarSesionATodos() {
         const statusDiv = document.getElementById('status');
         statusDiv.innerHTML = '🔄 Enviando orden...';
@@ -119,13 +171,14 @@
                 timestamp: Date.now()
             });
             
-            statusDiv.innerHTML = '✅ ¡Comando enviado!';
+            statusDiv.innerHTML = '✅ ¡Comando enviado! Todos los usuarios cerrarán sesión.';
             statusDiv.className = 'status status-success';
             
             setTimeout(() => {
                 auth.signOut();
-                window.location.href = 'index.html';
-            }, 1500);
+                location.reload();
+            }, 2000);
+            
         } catch (error) {
             statusDiv.innerHTML = '❌ Error: ' + error.message;
             statusDiv.className = 'status status-error';
@@ -134,27 +187,38 @@
 
     function cerrarMiSesion() {
         auth.signOut();
-        window.location.href = 'index.html';
+        location.reload();
+    }
+
+    function verificarAcceso(user) {
+        const statusDiv = document.getElementById('status');
+        const loginSection = document.getElementById('loginSection');
+        const adminSection = document.getElementById('adminSection');
+        
+        if (user && user.email === ADMIN_EMAIL) {
+            statusDiv.innerHTML = '✅ Acceso concedido';
+            statusDiv.className = 'status status-success';
+            document.getElementById('adminEmail').innerHTML = user.email;
+            document.getElementById('userAvatar').innerHTML = user.displayName ? user.displayName.charAt(0).toUpperCase() : '👑';
+            loginSection.style.display = 'none';
+            adminSection.style.display = 'block';
+        } else if (user) {
+            statusDiv.innerHTML = '⛔ No eres administrador. Cerrando sesión...';
+            statusDiv.className = 'status status-error';
+            setTimeout(() => {
+                auth.signOut();
+                location.reload();
+            }, 2000);
+        } else {
+            statusDiv.innerHTML = '🔴 Inicia sesión con tu cuenta de Google';
+            statusDiv.className = 'status status-error';
+            loginSection.style.display = 'block';
+            adminSection.style.display = 'none';
+        }
     }
 
     auth.onAuthStateChanged((user) => {
-        if (user && user.email === ADMIN_EMAIL) {
-            document.getElementById('adminEmail').innerHTML = `✅ ${user.email}`;
-            document.getElementById('status').innerHTML = 'Acceso concedido';
-            document.getElementById('status').className = 'status status-success';
-            document.getElementById('cerrarBtn').style.display = 'block';
-            document.getElementById('logoutBtn').style.display = 'block';
-        } else if (user) {
-            document.getElementById('status').innerHTML = '⛔ No eres administrador';
-            document.getElementById('status').className = 'status status-error';
-            setTimeout(() => {
-                auth.signOut();
-                window.location.href = 'index.html';
-            }, 2000);
-        } else {
-            document.getElementById('status').innerHTML = '🔴 Inicia sesión';
-            document.getElementById('status').className = 'status status-error';
-        }
+        verificarAcceso(user);
     });
 </script>
 
