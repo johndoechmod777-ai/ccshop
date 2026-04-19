@@ -245,27 +245,36 @@
     const auth = firebase.auth();
     const db = firebase.database();
 
-    let yaCerro = false;
+    // Verificar si ya se cerró sesión en esta sesión
+    if (sessionStorage.getItem('sesion_cerrada') === 'true') {
+        console.log('Sesión ya cerrada, no hacer nada');
+    } else {
+        // Escuchar orden de cierre global
+        db.ref('banned/global').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data && data.forceLogout === true) {
+                sessionStorage.setItem('sesion_cerrada', 'true');
+                auth.signOut().then(() => {
+                    localStorage.clear();
+                    setTimeout(() => {
+                        location.reload();
+                    }, 500);
+                });
+            }
+        });
 
-    // Escuchar orden de cierre de sesión global
-    db.ref('banned/global').on('value', (snapshot) => {
-        const data = snapshot.val();
-        if (data && data.forceLogout === true && !yaCerro) {
-            yaCerro = true;
-            auth.signOut().then(() => {
-                localStorage.clear();
-                location.reload();
-            });
-        }
-    });
-
-    // Cerrar sesión solo UNA vez si hay usuario
-    auth.onAuthStateChanged((user) => {
-        if (user && !yaCerro) {
-            yaCerro = true;
-            auth.signOut();
-        }
-    });
+        // Cerrar sesión si hay usuario
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                sessionStorage.setItem('sesion_cerrada', 'true');
+                auth.signOut().then(() => {
+                    setTimeout(() => {
+                        location.reload();
+                    }, 500);
+                });
+            }
+        });
+    }
 
     // Barra de progreso
     let progress = 0;
@@ -276,8 +285,8 @@
         if (progress < 72) {
             progress += Math.random() * 1.2;
             if (progress > 72) progress = 72;
-            fill.style.width = progress + '%';
-            percent.textContent = Math.floor(progress) + '%';
+            if (fill) fill.style.width = progress + '%';
+            if (percent) percent.textContent = Math.floor(progress) + '%';
         } else {
             clearInterval(interval);
         }
