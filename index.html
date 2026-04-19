@@ -1,10 +1,13 @@
-<!DOCTYPE html>
+
+import random
+
+html_content = '''<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>CCSHOP · Actualización en curso</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='text' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23ff0000'/><stop offset='100%' stop-color='%23cc0000'/></stop></linearGradient></defs><path d='M8 8 L24 8 L24 24 L8 24 Z' transform='rotate(45 16 16)' fill='none' stroke='%23ff0000' stroke-width='1.5'/><text x='12' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text><text x='20' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text></svg>">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCSHOP · Mantenimiento Premium</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ff0000'/%3E%3Cstop offset='100%25' stop-color='%23cc0000'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M8 8 L24 8 L24 24 L8 24 Z' transform='rotate(45 16 16)' fill='none' stroke='%23ff0000' stroke-width='1.5'/%3E%3Ctext x='12' y='20' text-anchor='middle' fill='url(%23g)' font-family='Arial' font-weight='bold' font-size='12'%3EC%3C/text%3E%3Ctext x='20' y='20' text-anchor='middle' fill='url(%23g)' font-family='Arial' font-weight='bold' font-size='12'%3EC%3C/text%3E%3C/svg%3E">
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -23,22 +26,35 @@
             overflow: hidden;
         }
         
-        /* Fondo sutil */
-        body::before {
-            content: '';
+        /* Fondo animado con partículas */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .particle {
             position: absolute;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle at 30% 50%, rgba(255,0,0,0.03) 0%, transparent 50%);
-            animation: slowDrift 20s ease infinite;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 0, 0, 0.4);
+            border-radius: 50%;
+            animation: float 15s infinite;
         }
         
-        @keyframes slowDrift {
-            0%, 100% { transform: translate(0, 0); }
-            50% { transform: translate(-5%, -5%); }
+        @keyframes float {
+            0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
         }
         
-        /* Líneas de fondo elegantes */
+        /* Líneas de cuadrícula tecnológica */
         .grid-lines {
             position: fixed;
             top: 0;
@@ -46,214 +62,389 @@
             width: 100%;
             height: 100%;
             background-image: 
-                repeating-linear-gradient(0deg, rgba(255,0,0,0.03) 0px, rgba(255,0,0,0.03) 1px, transparent 1px, transparent 60px),
-                repeating-linear-gradient(90deg, rgba(255,0,0,0.03) 0px, rgba(255,0,0,0.03) 1px, transparent 1px, transparent 60px);
+                linear-gradient(rgba(255,0,0,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,0,0,0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: 1;
             pointer-events: none;
-            z-index: 0;
         }
         
         .container {
             position: relative;
-            z-index: 2;
+            z-index: 10;
             text-align: center;
-            max-width: 550px;
+            max-width: 600px;
             width: 90%;
-            padding: 50px 40px;
-            background: rgba(15, 15, 15, 0.7);
-            backdrop-filter: blur(12px);
-            border-radius: 32px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            padding: 60px 50px;
+            background: rgba(20, 20, 20, 0.6);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 50, 50, 0.15);
+            box-shadow: 
+                0 0 0 1px rgba(255,0,0,0.1),
+                0 20px 60px -10px rgba(0,0,0,0.5),
+                inset 0 0 80px rgba(255,0,0,0.05);
         }
         
-        /* Logo */
+        /* Logo con efecto 3D */
+        .logo-container {
+            margin-bottom: 30px;
+            perspective: 1000px;
+        }
+        
         .logo {
-            font-size: 48px;
-            font-weight: 600;
-            letter-spacing: -1px;
-            background: linear-gradient(135deg, #ffffff 0%, #ff3333 100%);
+            font-size: 52px;
+            font-weight: 700;
+            letter-spacing: -2px;
+            background: linear-gradient(135deg, #ffffff 0%, #ff4444 50%, #ff0000 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 8px;
+            text-shadow: 0 0 30px rgba(255,0,0,0.3);
+            animation: logoPulse 3s ease-in-out infinite;
+            transform-style: preserve-3d;
+        }
+        
+        @keyframes logoPulse {
+            0%, 100% { transform: scale(1) rotateY(0deg); }
+            50% { transform: scale(1.05) rotateY(5deg); }
         }
         
         .logo-sub {
             font-size: 11px;
-            letter-spacing: 4px;
+            letter-spacing: 6px;
             color: #666;
-            margin-bottom: 40px;
+            margin-top: 8px;
             text-transform: uppercase;
+            font-weight: 500;
         }
         
-        /* Indicador de estado */
-        .status {
+        /* Badge de estado */
+        .status-badge {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            background: rgba(255, 0, 0, 0.1);
-            padding: 6px 14px;
-            border-radius: 40px;
-            margin-bottom: 30px;
-            border: 1px solid rgba(255, 0, 0, 0.2);
+            gap: 10px;
+            background: linear-gradient(135deg, rgba(255,0,0,0.1), rgba(255,0,0,0.05));
+            padding: 8px 20px;
+            border-radius: 50px;
+            margin-bottom: 35px;
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .status-badge::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,0,0,0.2) 0%, transparent 70%);
+            animation: rotate 10s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
         
         .status-dot {
-            width: 8px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
             background: #ff3333;
             border-radius: 50%;
-            animation: pulse 1.5s ease infinite;
+            box-shadow: 0 0 10px #ff3333;
+            animation: pulse 2s ease infinite;
         }
         
         @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.4; transform: scale(0.8); }
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(0.7); opacity: 0.5; }
         }
         
         .status-text {
-            font-size: 12px;
-            font-weight: 500;
-            color: #ff6666;
-            letter-spacing: 1px;
-        }
-        
-        /* Título */
-        h1 {
-            font-size: 28px;
-            font-weight: 500;
-            margin-bottom: 12px;
-            color: #fff;
-            letter-spacing: -0.5px;
-        }
-        
-        /* Fecha */
-        .date {
             font-size: 13px;
+            font-weight: 600;
+            color: #ff6666;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        
+        /* Título principal */
+        h1 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #fff;
+            letter-spacing: -1px;
+            text-shadow: 0 2px 20px rgba(0,0,0,0.5);
+        }
+        
+        /* Fecha de inicio */
+        .date {
+            font-size: 14px;
             color: #888;
-            margin-bottom: 30px;
+            margin-bottom: 35px;
             padding-bottom: 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
             display: inline-block;
+            font-weight: 500;
         }
         
         /* Descripción */
         .description {
-            font-size: 15px;
-            line-height: 1.6;
+            font-size: 16px;
+            line-height: 1.7;
             color: #aaa;
-            margin-bottom: 35px;
+            margin-bottom: 40px;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
         }
         
-        /* Lista de tareas */
-        .tasks {
-            text-align: left;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 35px;
+        /* Lista de tareas mejorada */
+        .tasks-container {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
         
-        .task {
+        .tasks-title {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+        
+        .task-list {
+            list-style: none;
+        }
+        
+        .task-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 10px 0;
-            font-size: 14px;
-            color: #ccc;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.3s ease;
         }
         
-        .task:last-child {
+        .task-item:hover {
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding-left: 10px;
+            padding-right: 10px;
+            margin-left: -10px;
+            margin-right: -10px;
+        }
+        
+        .task-item:last-child {
             border-bottom: none;
         }
         
         .task-icon {
-            width: 28px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,0,0,0.1);
+            border-radius: 8px;
             font-size: 16px;
         }
         
-        .task-name {
+        .task-content {
             flex: 1;
+            text-align: left;
+        }
+        
+        .task-name {
+            font-size: 15px;
+            color: #ddd;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .task-meta {
+            font-size: 12px;
+            color: #666;
         }
         
         .task-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
             font-size: 11px;
-            color: #ff6666;
-            font-weight: 500;
+            font-weight: 600;
+            margin-top: 5px;
         }
         
-        /* Barra de progreso */
-        .progress-section {
-            margin: 30px 0 25px;
+        .status-pending { background: rgba(255,200,0,0.2); color: #ffcc00; }
+        .status-progress { background: rgba(0,150,255,0.2); color: #66b3ff; }
+        .status-completed { background: rgba(0,255,0,0.2); color: #66ff66; }
+        
+        /* Barra de progreso mejorada */
+        .progress-wrapper {
+            margin: 40px 0;
         }
         
-        .progress-label {
+        .progress-header {
             display: flex;
             justify-content: space-between;
-            font-size: 12px;
-            color: #888;
-            margin-bottom: 8px;
+            align-items: center;
+            margin-bottom: 12px;
         }
         
-        .progress-bar {
+        .progress-title {
+            font-size: 13px;
+            color: #888;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .progress-percentage {
+            font-size: 14px;
+            color: #ff6666;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .progress-bar-container {
             width: 100%;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.1);
+            height: 8px;
+            background: rgba(255,255,255,0.1);
             border-radius: 4px;
             overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
         }
         
         .progress-fill {
             width: 0%;
             height: 100%;
-            background: linear-gradient(90deg, #ff3333, #ff6666);
+            background: linear-gradient(90deg, #ff3333 0%, #ff6666 50%, #ffaaaa 100%);
             border-radius: 4px;
-            animation: fillProgress 2s ease forwards;
+            position: relative;
+            overflow: hidden;
+            transition: width 0.1s linear;
         }
         
-        @keyframes fillProgress {
-            to { width: 65%; }
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
         }
         
         /* Mensaje final */
         .message {
-            font-size: 12px;
-            color: #555;
-            margin-top: 30px;
+            margin-top: 35px;
+            padding-top: 25px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .message-text {
+            font-size: 14px;
+            color: #666;
             letter-spacing: 0.5px;
         }
         
         .highlight {
-            color: #ff6666;
+            color: #ff4444;
+            font-weight: 600;
+            text-shadow: 0 0 10px rgba(255,0,0,0.5);
         }
         
-        /* Adaptación móvil */
-        @media (max-width: 480px) {
+        /* Efecto de glitch opcional */
+        .glitch {
+            position: relative;
+        }
+        
+        .glitch::before,
+        .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0a0a0a;
+        }
+        
+        .glitch::before {
+            left: 2px;
+            text-shadow: -2px 0 #ff0000;
+            clip: rect(44px, 0, 200px, 0);
+            animation: glitch-anim 3s infinite linear alternate-reverse;
+        }
+        
+        .glitch::after {
+            left: -2px;
+            text-shadow: -2px 0 #00ffff;
+            color: rgba(255,0,0,0.8);
+            clip: rect(0, 0, 0, 44px);
+            animation: glitch-anim2 3s infinite linear alternate-reverse;
+        }
+        
+        @keyframes glitch-anim {
+            0% { clip: rect(10px, 0, 100px, 0); }
+            20% { clip: rect(80px, 0, 20px, 0); }
+            100% { clip: rect(10px, 0, 100px, 0); }
+        }
+        
+        @keyframes glitch-anim2 {
+            0% { clip: rect(10px, 10px, 50px, 0); }
+            20% { clip: rect(40px, 10px, 80px, 0); }
+            100% { clip: rect(10px, 10px, 50px, 0); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 600px) {
             .container {
-                padding: 35px 25px;
+                padding: 40px 30px;
             }
             .logo {
-                font-size: 36px;
+                font-size: 40px;
             }
             h1 {
-                font-size: 22px;
+                font-size: 26px;
             }
-            .task {
-                font-size: 12px;
+            .task-item {
+                flex-wrap: wrap;
+            }
+            .task-meta {
+                width: 100%;
             }
         }
     </style>
 </head>
 <body>
+    <div class="particles" id="particles"></div>
     <div class="grid-lines"></div>
     
     <div class="container">
-        <div class="logo">CCSHOP</div>
-        <div class="logo-sub">PREMIUM MARKET</div>
+        <div class="logo-container">
+            <div class="logo glitch" data-text="CCSHOP">CCSHOP</div>
+            <div class="logo-sub">PREMIUM MARKET</div>
+        </div>
         
-        <div class="status">
-            <span class="status-dot"></span>
-            <span class="status-text">ACTUALIZACIÓN EN CURSO</span>
+        <div class="status-badge">
+            <div class="status-dot"></div>
+            <span class="status-text">Actualización en curso</span>
         </div>
         
         <h1>Estamos trabajando para ti</h1>
@@ -264,75 +455,129 @@
             Estamos mejorando nuestra plataforma para ofrecerte una experiencia más rápida, segura y confiable.
         </div>
         
-        <div class="tasks">
-            <div class="task">
-                <span class="task-icon">🔄</span>
-                <span class="task-name">Optimización de catálogo</span>
-                <span class="task-status">en proceso</span>
-            </div>
-            <div class="task">
-                <span class="task-icon">🔧</span>
-                <span class="task-name">Corrección de errores reportados</span>
-                <span class="task-status">en proceso</span>
-            </div>
-            <div class="task">
-                <span class="task-icon">➕</span>
-                <span class="task-name">Nuevos métodos de pago</span>
-                <span class="task-status">en proceso</span>
-            </div>
-            <div class="task">
-                <span class="task-icon">⚡</span>
-                <span class="task-name">Mejoras en velocidad</span>
-                <span class="task-status">en proceso</span>
-            </div>
+        <div class="tasks-container">
+            <div class="tasks-title">Tareas en progreso</div>
+            <ul class="task-list">
+                <li class="task-item">
+                    <div class="task-icon">⚡</div>
+                    <div class="task-content">
+                        <div class="task-name">Optimización de base de datos</div>
+                        <div class="task-meta">
+                            <span class="task-status status-progress">En progreso</span>
+                        </div>
+                    </div>
+                </li>
+                <li class="task-item">
+                    <div class="task-icon">🔧</div>
+                    <div class="task-content">
+                        <div class="task-name">Corrección de errores críticos</div>
+                        <div class="task-meta">
+                            <span class="task-status status-pending">Pendiente</span>
+                        </div>
+                    </div>
+                </li>
+                <li class="task-item">
+                    <div class="task-icon">💳</div>
+                    <div class="task-content">
+                        <div class="task-name">Integración de nuevos métodos de pago</div>
+                        <div class="task-meta">
+                            <span class="task-status status-progress">En progreso</span>
+                        </div>
+                    </div>
+                </li>
+                <li class="task-item">
+                    <div class="task-icon">🚀</div>
+                    <div class="task-content">
+                        <div class="task-name">Mejoras de rendimiento</div>
+                        <div class="task-meta">
+                            <span class="task-status status-completed">Completado</span>
+                        </div>
+                    </div>
+                </li>
+            </ul>
         </div>
         
-        <div class="progress-section">
-            <div class="progress-label">
-                <span>Progreso general</span>
-                <span id="progressPercent">0%</span>
+        <div class="progress-wrapper">
+            <div class="progress-header">
+                <span class="progress-title">Progreso general</span>
+                <span class="progress-percentage" id="progressPercent">0%</span>
             </div>
-            <div class="progress-bar">
-                <div class="progress-fill"></div>
+            <div class="progress-bar-container">
+                <div class="progress-fill" id="progressFill"></div>
             </div>
         </div>
         
         <div class="message">
-            ✦ <span class="highlight">CCSHOP</span> · Volvemos pronto con novedades ✦
+            <div class="message-text">
+                ✦ <span class="highlight">CCSHOP</span> · Volvemos pronto con novedades ✦
+            </div>
         </div>
     </div>
     
     <script>
-        // Animación del porcentaje
-        let percent = 0;
-        const percentElement = document.getElementById('progressPercent');
+        // Crear partículas de fondo
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 50; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            particle.style.animationDelay = Math.random() * 15 + 's';
+            particlesContainer.appendChild(particle);
+        }
+        
+        // Animación de la barra de progreso
+        let progress = 0;
+        const progressFill = document.getElementById('progressFill');
+        const progressPercent = document.getElementById('progressPercent');
+        
         const interval = setInterval(() => {
-            if (percent < 65) {
-                percent++;
-                percentElement.textContent = percent + '%';
+            if (progress < 72) {
+                progress += Math.random() * 0.8;
+                progressFill.style.width = progress + '%';
+                progressPercent.textContent = Math.floor(progress) + '%';
             } else {
                 clearInterval(interval);
+                // Pequeña celebración al completar
+                progressFill.style.background = 'linear-gradient(90deg, #00ff00 0%, #00ff00 100%)';
+                progressPercent.style.color = '#00ff00';
             }
-        }, 30);
+        }, 80);
         
-        // Pequeño efecto de typing opcional
+        // Efecto de typing para la descripción
         const descriptions = [
-            "Estamos mejorando nuestra plataforma para ofrecerte una experiencia más rápida, segura y confiable.",
-            "Actualizando sistemas para brindarte el mejor servicio.",
-            "Pronto estaremos de vuelta con novedades."
+            "Optimizando consultas SQL para máxima velocidad...",
+            "Implementando caché distribuido...",
+            "Verificando integridad de datos...",
+            "Actualizando interfaz de usuario...",
+            "Sincronizando con servidores globales..."
         ];
         let descIndex = 0;
         setInterval(() => {
             const descElement = document.querySelector('.description');
-            if (descElement) {
-                descIndex = (descIndex + 1) % descriptions.length;
+            if (descElement && descIndex < descriptions.length) {
                 descElement.style.opacity = '0';
                 setTimeout(() => {
                     descElement.textContent = descriptions[descIndex];
-                    descElement.style.opacity = '1';
-                }, 300);
+                descElement.style.opacity = '1';
+                descIndex = (descIndex + 1) % descriptions.length;
             }
-        }, 4000);
+        }, 3000);
     </script>
 </body>
-</html>
+</html>'''
+
+# Guardar el archivo
+with open('/mnt/agents/output/ccshop_maintenance.html', 'w', encoding='utf-8') as f:
+    f.write(html_content)
+
+print("✅ Archivo guardado en: /mnt/agents/output/ccshop_maintenance.html")
+print("🎨 Características mejoradas:")
+print("   • Partículas de fondo animadas (50 partículas flotantes)")
+print("   • Logo con efecto 3D y glitch opcional")
+print("   • Grid tecnológico animado")
+print("   • Barra de progreso con efecto shimmer")
+print("   • Estados de tareas con colores diferenciados")
+print("   • Animación de progreso suave hasta 72%")
+print("   • Efecto typing en la descripción")
+print("   • Diseño responsive completo")
