@@ -2,681 +2,337 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mantenimiento | J.Jimenez Studios</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='80' fill='%23D4AF37'>JN</text></svg>">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>CCSHOP · Actualización en curso</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='text' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23ff0000'/><stop offset='100%' stop-color='%23cc0000'/></stop></linearGradient></defs><path d='M8 8 L24 8 L24 24 L8 24 Z' transform='rotate(45 16 16)' fill='none' stroke='%23ff0000' stroke-width='1.5'/><text x='12' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text><text x='20' y='20' text-anchor='middle' fill='url(%23text)' font-family='Arial' font-weight='bold' font-size='12'>C</text></svg>">
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@300;400;500;600&display=swap');
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        :root {
-            --gold: #D4AF37;
-            --gold-light: #F4E4BC;
-            --gold-dark: #A67C00;
-            --black: #020202;
-            --white: #ffffff;
-            --gray: #888888;
-        }
-
-        html, body {
-            height: 100%;
+        
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            background: #0a0a0a;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
             overflow: hidden;
-            background: var(--black);
-            font-family: 'Montserrat', sans-serif;
-            color: var(--white);
         }
-
-        /* Fondo animado */
-        .bg-grid {
+        
+        /* Fondo sutil */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 50%, rgba(255,0,0,0.03) 0%, transparent 50%);
+            animation: slowDrift 20s ease infinite;
+        }
+        
+        @keyframes slowDrift {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(-5%, -5%); }
+        }
+        
+        /* Líneas de fondo elegantes */
+        .grid-lines {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background-image: 
-                linear-gradient(rgba(212, 175, 55, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(212, 175, 55, 0.03) 1px, transparent 1px);
-            background-size: 60px 60px;
-            z-index: 0;
-            animation: gridMove 20s linear infinite;
-        }
-
-        @keyframes gridMove {
-            0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
-            100% { transform: perspective(500px) rotateX(60deg) translateY(60px); }
-        }
-
-        .particles {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: 1;
+                repeating-linear-gradient(0deg, rgba(255,0,0,0.03) 0px, rgba(255,0,0,0.03) 1px, transparent 1px, transparent 60px),
+                repeating-linear-gradient(90deg, rgba(255,0,0,0.03) 0px, rgba(255,0,0,0.03) 1px, transparent 1px, transparent 60px);
             pointer-events: none;
+            z-index: 0;
         }
-
-        .particle {
-            position: absolute;
-            width: 2px; height: 2px;
-            background: var(--gold);
-            border-radius: 50%;
-            box-shadow: 0 0 10px var(--gold);
-            animation: float 15s infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0) translateX(0); opacity: 0.2; }
-            50% { transform: translateY(-100vh) translateX(50px); opacity: 0.8; }
-        }
-
-        /* Contenedor principal */
-        .maintenance-container {
+        
+        .container {
             position: relative;
-            z-index: 10;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-        }
-
-        .glass-card {
-            background: rgba(5, 5, 5, 0.95);
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            backdrop-filter: blur(20px);
-            box-shadow: 
-                0 25px 50px -12px rgba(0, 0, 0, 0.9),
-                0 0 0 1px rgba(212, 175, 55, 0.05) inset,
-                0 0 100px rgba(212, 175, 55, 0.05);
-            padding: 3rem 2.5rem;
-            max-width: 700px;
-            width: 100%;
+            z-index: 2;
             text-align: center;
-            position: relative;
-            overflow: hidden;
+            max-width: 550px;
+            width: 90%;
+            padding: 50px 40px;
+            background: rgba(15, 15, 15, 0.7);
+            backdrop-filter: blur(12px);
+            border-radius: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
-
-        .glass-card::before {
-            content: '';
-            position: absolute;
-            inset: -2px;
-            background: linear-gradient(90deg, var(--gold), transparent, var(--gold));
-            background-size: 200% 200%;
-            z-index: -1;
-            opacity: 0.15;
-            animation: shimmer 3s linear infinite;
-        }
-
-        @keyframes shimmer {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 200% 50%; }
-        }
-
-        /* Esquinas decorativas */
-        .corner {
-            position: absolute;
-            width: 24px; height: 24px;
-            border: 2px solid var(--gold);
-            opacity: 0.6;
-        }
-        .corner.tl { top: 10px; left: 10px; border-right: none; border-bottom: none; }
-        .corner.tr { top: 10px; right: 10px; border-left: none; border-bottom: none; }
-        .corner.bl { bottom: 10px; left: 10px; border-right: none; border-top: none; }
-        .corner.br { bottom: 10px; right: 10px; border-left: none; border-top: none; }
-
+        
         /* Logo */
-        .logo-box {
-            position: relative;
-            width: 140px;
-            height: 90px;
-            margin: 0 auto 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .logo-frame {
-            position: absolute;
-            inset: 0;
-            border: 1.5px solid var(--gold);
-            opacity: 0.6;
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
-        }
-
-        .monogram {
-            font-family: 'Cinzel', serif;
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--gold);
-            letter-spacing: -3px;
-            text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
-        }
-
-        .monogram .j { 
-            font-size: 2.8rem; 
-            color: var(--white); 
-            margin-right: -6px;
-            text-shadow: 0 0 20px rgba(255,255,255,0.6);
-        }
-
-        /* Engranajes animados */
-        .gears-container {
-            position: relative;
-            width: 120px;
-            height: 80px;
-            margin: 1.5rem auto;
-        }
-
-        .gear {
-            position: absolute;
-            color: var(--gold);
-            opacity: 0.8;
-            filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.4));
-        }
-
-        .gear-big {
-            width: 50px; height: 50px;
-            top: 10px; left: 20px;
-            animation: spin 8s linear infinite;
-        }
-
-        .gear-small {
-            width: 35px; height: 35px;
-            top: 30px; right: 15px;
-            animation: spin-reverse 6s linear infinite;
-        }
-
-        .gear-tiny {
-            width: 22px; height: 22px;
-            top: 5px; right: 25px;
-            animation: spin 4s linear infinite;
-        }
-
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        @keyframes spin-reverse { 100% { transform: rotate(-360deg); } }
-
-        /* Títulos */
-        .status-badge {
-            display: inline-block;
-            padding: 0.4rem 1.5rem;
-            background: rgba(212, 175, 55, 0.1);
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            border-radius: 30px;
-            font-family: 'Cinzel', serif;
-            font-size: 0.75rem;
-            color: var(--gold);
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            margin-bottom: 1.5rem;
-            animation: pulse-badge 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse-badge {
-            0%, 100% { box-shadow: 0 0 10px rgba(212, 175, 55, 0.1); }
-            50% { box-shadow: 0 0 25px rgba(212, 175, 55, 0.3); }
-        }
-
-        h1 {
-            font-family: 'Cinzel', serif;
-            font-size: clamp(1.5rem, 4vw, 2.5rem);
-            color: var(--white);
-            letter-spacing: 0.15em;
-            margin-bottom: 0.5rem;
-            line-height: 1.2;
-        }
-
-        .subtitle {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: clamp(1.1rem, 2.5vw, 1.4rem);
-            color: var(--gold-light);
-            font-style: italic;
-            margin-bottom: 2rem;
-            opacity: 0.9;
-        }
-
-        /* Fecha de inicio */
-        .start-date {
-            font-family: 'Cinzel', serif;
-            font-size: 0.85rem;
-            color: var(--gold);
-            letter-spacing: 2px;
-            margin-bottom: 2rem;
-            padding: 0.6rem 1.5rem;
-            border-top: 1px solid rgba(212, 175, 55, 0.2);
-            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-            display: inline-block;
-        }
-
-        .start-date strong {
-            color: var(--white);
-            font-weight: 400;
-        }
-
-        /* Lista de tareas */
-        .tasks-wrapper {
-            text-align: left;
-            max-width: 450px;
-            margin: 0 auto 2rem;
-        }
-
-        .task-item {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 0.8rem 0;
-            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
-            font-size: 0.9rem;
-            color: #ccc;
-            opacity: 0;
-            animation: slideIn 0.6s ease forwards;
-        }
-
-        .task-item:nth-child(1) { animation-delay: 0.5s; }
-        .task-item:nth-child(2) { animation-delay: 0.8s; }
-        .task-item:nth-child(3) { animation-delay: 1.1s; }
-        .task-item:nth-child(4) { animation-delay: 1.4s; }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        .task-icon {
-            width: 24px; height: 24px;
-            min-width: 24px;
-            border: 1.5px solid var(--gold);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-            color: var(--gold);
-            animation: taskPulse 2s ease-in-out infinite;
-        }
-
-        @keyframes taskPulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); }
-            50% { box-shadow: 0 0 0 8px rgba(212, 175, 55, 0); }
-        }
-
-        .task-text {
-            flex: 1;
-        }
-
-        .task-text strong {
-            color: var(--gold-light);
-            font-weight: 500;
-        }
-
-        /* Barra de progreso */
-        .progress-section {
-            margin: 2rem 0;
-        }
-
-        .progress-label {
-            font-size: 0.75rem;
-            color: var(--gray);
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin-bottom: 0.8rem;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .progress-label span { color: var(--gold); }
-
-        .progress-track {
-            width: 100%;
-            height: 3px;
-            background: rgba(212, 175, 55, 0.1);
-            border-radius: 3px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .progress-fill {
-            height: 100%;
-            width: 40%;
-            background: linear-gradient(90deg, var(--gold-dark), var(--gold), var(--gold-light));
-            background-size: 200% 100%;
-            animation: progressMove 2s ease-in-out infinite, progressShine 3s linear infinite;
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
-            position: relative;
-        }
-
-        .progress-fill::after {
-            content: '';
-            position: absolute;
-            right: 0; top: -3px;
-            width: 8px; height: 8px;
-            background: var(--white);
-            border-radius: 50%;
-            box-shadow: 0 0 10px var(--gold), 0 0 20px var(--gold);
-            animation: dotPulse 1s ease-in-out infinite;
-        }
-
-        @keyframes progressMove {
-            0% { width: 30%; }
-            50% { width: 70%; }
-            100% { width: 30%; }
-        }
-
-        @keyframes progressShine {
-            0% { background-position: 0% 0%; }
-            100% { background-position: 200% 0%; }
-        }
-
-        @keyframes dotPulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.5); opacity: 0.6; }
-        }
-
-        /* Timer */
-        .timer-box {
-            margin: 1.5rem 0;
-            padding: 1rem;
-            background: rgba(212, 175, 55, 0.05);
-            border-radius: 15px;
-            border: 1px solid rgba(212, 175, 55, 0.1);
-        }
-
-        .timer-label {
-            font-size: 0.7rem;
-            color: var(--gray);
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin-bottom: 0.5rem;
-        }
-
-        .timer-display {
-            font-family: 'Cinzel', serif;
-            font-size: 1.2rem;
-            color: var(--gold);
-            letter-spacing: 2px;
-        }
-
-        .timer-display span {
-            color: var(--white);
-            font-size: 0.8rem;
-        }
-
-        /* Footer mensaje */
-        .motivation {
-            font-family: 'Cormorant Garamond', serif;
-            font-style: italic;
-            font-size: 1rem;
-            color: var(--gold-light);
-            margin-top: 1.5rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid rgba(212, 175, 55, 0.15);
-            line-height: 1.5;
-        }
-
-        .motivation strong {
-            color: var(--gold);
-            font-family: 'Cinzel', serif;
-            font-style: normal;
+        .logo {
+            font-size: 48px;
             font-weight: 600;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, #ffffff 0%, #ff3333 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
         }
-
-        .copyright {
-            margin-top: 2rem;
-            font-size: 0.65rem;
-            color: #555;
+        
+        .logo-sub {
+            font-size: 11px;
+            letter-spacing: 4px;
+            color: #666;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+        }
+        
+        /* Indicador de estado */
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 0, 0, 0.1);
+            padding: 6px 14px;
+            border-radius: 40px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 0, 0, 0.2);
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #ff3333;
+            border-radius: 50%;
+            animation: pulse 1.5s ease infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.8); }
+        }
+        
+        .status-text {
+            font-size: 12px;
+            font-weight: 500;
+            color: #ff6666;
             letter-spacing: 1px;
         }
-
-        /* Typewriter */
-        .typewriter-line {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1rem;
-            color: var(--gold-light);
-            font-style: italic;
-            margin-top: 1rem;
-            min-height: 24px;
+        
+        /* Título */
+        h1 {
+            font-size: 28px;
+            font-weight: 500;
+            margin-bottom: 12px;
+            color: #fff;
+            letter-spacing: -0.5px;
         }
-
-        .cursor {
+        
+        /* Fecha */
+        .date {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             display: inline-block;
-            width: 2px;
-            height: 1em;
-            background: var(--gold);
-            margin-left: 4px;
-            animation: blink 1s step-end infinite;
-            vertical-align: middle;
         }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
+        
+        /* Descripción */
+        .description {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #aaa;
+            margin-bottom: 35px;
         }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .glass-card { padding: 2rem 1.5rem; }
-            .bg-grid { animation: none; opacity: 0.3; }
-            .gears-container { transform: scale(0.8); }
-            .tasks-wrapper { font-size: 0.85rem; }
+        
+        /* Lista de tareas */
+        .tasks {
+            text-align: left;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 35px;
         }
-
-        /* Bloqueo de selección como deterrent visual */
-        body {
-            user-select: none;
-            -webkit-user-select: none;
+        
+        .task {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            font-size: 14px;
+            color: #ccc;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
         }
-        .glass-card {
-            user-select: text;
-            -webkit-user-select: text;
+        
+        .task:last-child {
+            border-bottom: none;
+        }
+        
+        .task-icon {
+            width: 28px;
+            font-size: 16px;
+        }
+        
+        .task-name {
+            flex: 1;
+        }
+        
+        .task-status {
+            font-size: 11px;
+            color: #ff6666;
+            font-weight: 500;
+        }
+        
+        /* Barra de progreso */
+        .progress-section {
+            margin: 30px 0 25px;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #ff3333, #ff6666);
+            border-radius: 4px;
+            animation: fillProgress 2s ease forwards;
+        }
+        
+        @keyframes fillProgress {
+            to { width: 65%; }
+        }
+        
+        /* Mensaje final */
+        .message {
+            font-size: 12px;
+            color: #555;
+            margin-top: 30px;
+            letter-spacing: 0.5px;
+        }
+        
+        .highlight {
+            color: #ff6666;
+        }
+        
+        /* Adaptación móvil */
+        @media (max-width: 480px) {
+            .container {
+                padding: 35px 25px;
+            }
+            .logo {
+                font-size: 36px;
+            }
+            h1 {
+                font-size: 22px;
+            }
+            .task {
+                font-size: 12px;
+            }
         }
     </style>
 </head>
 <body>
-
-    <div class="bg-grid"></div>
-    <div class="particles" id="particles"></div>
-
-    <div class="maintenance-container">
-        <div class="glass-card">
-            <div class="corner tl"></div>
-            <div class="corner tr"></div>
-            <div class="corner bl"></div>
-            <div class="corner br"></div>
-
-            <div class="logo-box">
-                <div class="logo-frame"></div>
-                <div class="monogram"><span class="j">J</span><span class="n">N</span></div>
+    <div class="grid-lines"></div>
+    
+    <div class="container">
+        <div class="logo">CCSHOP</div>
+        <div class="logo-sub">PREMIUM MARKET</div>
+        
+        <div class="status">
+            <span class="status-dot"></span>
+            <span class="status-text">ACTUALIZACIÓN EN CURSO</span>
+        </div>
+        
+        <h1>Estamos trabajando para ti</h1>
+        
+        <div class="date">Iniciado: 19 de abril de 2026</div>
+        
+        <div class="description">
+            Estamos mejorando nuestra plataforma para ofrecerte una experiencia más rápida, segura y confiable.
+        </div>
+        
+        <div class="tasks">
+            <div class="task">
+                <span class="task-icon">🔄</span>
+                <span class="task-name">Optimización de catálogo</span>
+                <span class="task-status">en proceso</span>
             </div>
-
-            <div class="status-badge">⚡ En Mantenimiento</div>
-
-            <h1>MODO MANTENIMIENTO</h1>
-            <p class="subtitle">Transformando tu experiencia digital</p>
-
-            <div class="start-date">
-                🗓️ Iniciado el <strong>19 de abril de 2026</strong>
+            <div class="task">
+                <span class="task-icon">🔧</span>
+                <span class="task-name">Corrección de errores reportados</span>
+                <span class="task-status">en proceso</span>
             </div>
-
-            <div class="gears-container">
-                <svg class="gear gear-big" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <circle cx="12" cy="12" r="3"/>
-                    <path d="M12 2v4m0 12v4M2 12h4m12 0h4m-2.5-7.5l-2.8 2.8m-8.4 8.4l-2.8 2.8m0-14l2.8 2.8m8.4 8.4l2.8 2.8"/>
-                </svg>
-                <svg class="gear gear-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <circle cx="12" cy="12" r="3"/>
-                    <path d="M12 2v3m0 14v3M2 12h3m14 0h3m-2.5-7.5l-2.1 2.1m-7.8 7.8l-2.1 2.1m0-14l2.1 2.1m7.8 7.8l2.1 2.1"/>
-                </svg>
-                <svg class="gear gear-tiny" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <circle cx="12" cy="12" r="2.5"/>
-                    <path d="M12 3v2m0 14v2M3 12h2m14 0h2"/>
-                </svg>
+            <div class="task">
+                <span class="task-icon">➕</span>
+                <span class="task-name">Nuevos métodos de pago</span>
+                <span class="task-status">en proceso</span>
             </div>
-
-            <div class="tasks-wrapper">
-                <div class="task-item">
-                    <div class="task-icon">✦</div>
-                    <div class="task-text">
-                        <strong>Agregando nuevas funciones exclusivas</strong> para tu plataforma
-                    </div>
-                </div>
-                <div class="task-item">
-                    <div class="task-icon">✦</div>
-                    <div class="task-text">
-                        <strong>Revisando errores</strong> y vulnerabilidades de seguridad
-                    </div>
-                </div>
-                <div class="task-item">
-                    <div class="task-icon">✦</div>
-                    <div class="task-text">
-                        <strong>Optimizando rendimiento</strong> y tiempos de carga
-                    </div>
-                </div>
-                <div class="task-item">
-                    <div class="task-icon">✦</div>
-                    <div class="task-text">
-                        <strong>Diseñando nuevas experiencias</strong> de usuario premium
-                    </div>
-                </div>
-            </div>
-
-            <div class="progress-section">
-                <div class="progress-label">
-                    <span>Progreso del mantenimiento</span>
-                    <span id="progressPercent">En proceso...</span>
-                </div>
-                <div class="progress-track">
-                    <div class="progress-fill"></div>
-                </div>
-            </div>
-
-            <div class="timer-box">
-                <div class="timer-label">⏱️ Tiempo transcurrido desde el inicio</div>
-                <div class="timer-display" id="timer">00d 00h 00m 00s</div>
-            </div>
-
-            <div class="typewriter-line" id="typewriter"></div>
-
-            <div class="motivation">
-                <strong>J.Jimenez Studios</strong> está evolucionando.<br>
-                Volveremos más fuertes. Tu sitio web premium merece perfección.
-            </div>
-
-            <div class="copyright">
-                © 2026 J.Jimenez Studios. Todos los derechos reservados.<br>
-                Acceso restringido durante mantenimiento programado.
+            <div class="task">
+                <span class="task-icon">⚡</span>
+                <span class="task-name">Mejoras en velocidad</span>
+                <span class="task-status">en proceso</span>
             </div>
         </div>
+        
+        <div class="progress-section">
+            <div class="progress-label">
+                <span>Progreso general</span>
+                <span id="progressPercent">0%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+        </div>
+        
+        <div class="message">
+            ✦ <span class="highlight">CCSHOP</span> · Volvemos pronto con novedades ✦
+        </div>
     </div>
-
+    
     <script>
-        // ACTIVAR BANDERA DE MANTENIMIENTO - Anti-bypass
-        try {
-            localStorage.setItem('jjimenez_maintenance', 'true');
-            sessionStorage.setItem('jjimenez_maintenance', 'true');
-        } catch(e) {}
-
-        // Prevenir regreso al index u otras páginas
-        if (window.history && window.history.pushState) {
-            window.history.pushState(null, null, window.location.href);
-            window.onpopstate = function() {
-                window.history.pushState(null, null, window.location.href);
-            };
-        }
-
-        // Redirigir si intentan cambiar el hash
-        window.onhashchange = function() {
-            window.location.replace('maintenance.html');
-        };
-
-        // Crear partículas
-        const particlesContainer = document.getElementById('particles');
-        for (let i = 0; i < 20; i++) {
-            const p = document.createElement('div');
-            p.className = 'particle';
-            p.style.left = Math.random() * 100 + '%';
-            p.style.top = Math.random() * 100 + '%';
-            p.style.animationDelay = Math.random() * 15 + 's';
-            p.style.animationDuration = (10 + Math.random() * 10) + 's';
-            particlesContainer.appendChild(p);
-        }
-
-        // Timer desde el 19 de abril 2026 00:00:00
-        const startDate = new Date('2026-04-19T00:00:00').getTime();
-        
-        function updateTimer() {
-            const now = new Date().getTime();
-            const diff = now - startDate;
-            
-            if (diff < 0) {
-                document.getElementById('timer').innerHTML = 'Iniciando...';
-                return;
-            }
-            
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-            
-            document.getElementById('timer').innerHTML = 
-                `${String(days).padStart(2,'0')}d <span>:</span> ` +
-                `${String(hours).padStart(2,'0')}h <span>:</span> ` +
-                `${String(minutes).padStart(2,'0')}m <span>:</span> ` +
-                `${String(seconds).padStart(2,'0')}s`;
-        }
-        setInterval(updateTimer, 1000);
-        updateTimer();
-
-        // Typewriter messages
-        const messages = [
-            "Trabajando para terminar pronto...",
-            "Cada detalle cuenta...",
-            "Tu paciencia será recompensada con excelencia...",
-            "Revisando cada línea de código..."
-        ];
-        let msgIndex = 0, charIndex = 0, isDeleting = false;
-        const tw = document.getElementById('typewriter');
-        
-        function typeWrite() {
-            const msg = messages[msgIndex];
-            if (isDeleting) {
-                tw.textContent = msg.substring(0, charIndex - 1);
-                charIndex--;
+        // Animación del porcentaje
+        let percent = 0;
+        const percentElement = document.getElementById('progressPercent');
+        const interval = setInterval(() => {
+            if (percent < 65) {
+                percent++;
+                percentElement.textContent = percent + '%';
             } else {
-                tw.textContent = msg.substring(0, charIndex + 1);
-                charIndex++;
+                clearInterval(interval);
             }
-            
-            let speed = isDeleting ? 30 : 60;
-            
-            if (!isDeleting && charIndex === msg.length) {
-                isDeleting = true;
-                speed = 2000;
-            } else if (isDeleting && charIndex === 0) {
-                isDeleting = false;
-                msgIndex = (msgIndex + 1) % messages.length;
-                speed = 500;
-            }
-            
-            setTimeout(typeWrite, speed);
-        }
-        setTimeout(typeWrite, 1000);
-
-        // Anti-inspección básico (deterrent visual)
-        document.addEventListener('contextmenu', function(e) {
-            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-                e.preventDefault();
-            }
-        });
+        }, 30);
         
-        document.addEventListener('keydown', function(e) {
-            if (
-                e.key === 'F12' || 
-                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) ||
-                (e.ctrlKey && e.key === 'u')
-            ) {
-                e.preventDefault();
-                window.location.reload();
+        // Pequeño efecto de typing opcional
+        const descriptions = [
+            "Estamos mejorando nuestra plataforma para ofrecerte una experiencia más rápida, segura y confiable.",
+            "Actualizando sistemas para brindarte el mejor servicio.",
+            "Pronto estaremos de vuelta con novedades."
+        ];
+        let descIndex = 0;
+        setInterval(() => {
+            const descElement = document.querySelector('.description');
+            if (descElement) {
+                descIndex = (descIndex + 1) % descriptions.length;
+                descElement.style.opacity = '0';
+                setTimeout(() => {
+                    descElement.textContent = descriptions[descIndex];
+                    descElement.style.opacity = '1';
+                }, 300);
             }
-        });
+        }, 4000);
     </script>
 </body>
 </html>
-
