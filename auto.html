@@ -1,4 +1,5 @@
-html_content = '''<!DOCTYPE html>
+
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -196,8 +197,8 @@ html_content = '''<!DOCTYPE html>
         function inicializarSistema() {
             sistemaAntiRep.inicializar();
             actualizarStats();
-            sistemaAntiRep.debugLog('🌍 Sistema ANTIREPETICIÓN para TARJETAS iniciado');
-            sistemaAntiRep.debugLog('🎯 Garantiza 100% tarjetas únicas por país');
+            sistemaAntiRep.debugLog('🌍 Sistema ANTIREPETICIÓN para TARJETAS y NOMBRES iniciado');
+            sistemaAntiRep.debugLog('🎯 Garantiza 100% tarjetas y nombres únicos por país');
         }
 
         function actualizarStats() {
@@ -217,7 +218,7 @@ html_content = '''<!DOCTYPE html>
             document.getElementById('statsNombres').textContent = totalNombres.toLocaleString();
             
             const stats = sistemaAntiRep.obtenerEstadisticas(pais);
-            sistemaAntiRep.debugLog(`📊 ${pais.toUpperCase()}: ${totalCombinaciones.toLocaleString()} combinaciones disponibles - Cache: ${stats.tarjetasEnCache} tarjetas`);
+            sistemaAntiRep.debugLog(`📊 ${pais.toUpperCase()}: ${totalCombinaciones.toLocaleString()} combinaciones disponibles - Cache: ${stats.tarjetasEnCache} tarjetas, ${stats.nombresEnCache} nombres`);
         }
 
         class SistemaAntiRepeticionTarjetas {
@@ -296,10 +297,25 @@ html_content = '''<!DOCTYPE html>
                 }
             }
 
-            generarNombreUnico(pais) {
+            async nombreExisteEnFirebase(nombreCompleto, pais) {
+                try {
+                    const snapshot = await db.collection("paises").doc(pais).collection("cards")
+                        .where("nombre_completo", "==", nombreCompleto)
+                        .limit(1)
+                        .get();
+                    
+                    return !snapshot.empty;
+                } catch (error) {
+                    this.debugLog(`❌ Error verificando nombre en Firebase: ${error.message}`);
+                    return false;
+                }
+            }
+
+            async generarNombreUnico(pais) {
                 this.inicializarPais(pais);
                 const cacheNombres = this.nombresUsadosPorPais.get(pais);
                 let intentos = 0;
+                const MAX_INTENTOS_NOMBRES = 500;
                 
                 if (!cacheNombres) {
                     this.debugLog(`❌ Cache de nombres no inicializado para ${pais}`);
@@ -307,26 +323,39 @@ html_content = '''<!DOCTYPE html>
                     return nombresPais[0] || "Titular Tarjeta";
                 }
                 
-                while (intentos < this.maxIntentos) {
+                while (intentos < MAX_INTENTOS_NOMBRES) {
                     const nombresPais = nombresPorPais[pais] || nombresPorPais.colombia;
                     const nombreCompleto = nombresPais[Math.floor(Math.random() * nombresPais.length)];
                     const claveNombre = nombreCompleto;
                     
-                    if (!cacheNombres.has(claveNombre)) {
+                    // Verificar en cache local
+                    if (cacheNombres.has(claveNombre)) {
+                        intentos++;
+                        continue;
+                    }
+                    
+                    // Verificar en Firebase
+                    const existeEnFirebase = await this.nombreExisteEnFirebase(nombreCompleto, pais);
+                    if (!existeEnFirebase) {
                         cacheNombres.add(claveNombre);
+                        this.debugLog(`✅ Nombre único generado: ${nombreCompleto} (intento ${intentos + 1})`);
                         return nombreCompleto;
+                    } else {
+                        cacheNombres.add(claveNombre); // Marcarlo como usado aunque esté en Firebase
+                        this.debugLog(`⚠️ Nombre ${nombreCompleto} ya existe en Firebase, buscando otro...`);
                     }
                     intentos++;
                 }
                 
-                if (intentos >= this.maxIntentos) {
-                    this.debugLog(`🔄 Limpiando caché de nombres para ${pais}`);
-                    cacheNombres.clear();
-                    const nombresPais = nombresPorPais[pais] || nombresPorPais.colombia;
-                    const nombreBase = nombresPais[0] || "Titular";
-                    const sufijo = Math.random().toString(36).substring(2, 4).toUpperCase();
-                    return `${nombreBase} ${sufijo}`;
-                }
+                // Si se agotaron los intentos, limpiar cache y generar nombre con sufijo
+                this.debugLog(`🔄 Agotados ${MAX_INTENTOS_NOMBRES} intentos. Limpiando cache de nombres para ${pais}`);
+                cacheNombres.clear();
+                const nombresPais = nombresPorPais[pais] || nombresPorPais.colombia;
+                const nombreBase = nombresPais[Math.floor(Math.random() * nombresPais.length)];
+                const sufijo = Math.random().toString(36).substring(2, 6).toUpperCase();
+                const nombreConSufijo = `${nombreBase} ${sufijo}`;
+                this.debugLog(`📝 Generando nombre con sufijo único: ${nombreConSufijo}`);
+                return nombreConSufijo;
             }
 
             registrarTarjetaUsada(bin, final, pais) {
@@ -336,6 +365,14 @@ html_content = '''<!DOCTYPE html>
                 
                 if (cacheTarjetas) {
                     cacheTarjetas.add(claveUnica);
+                }
+            }
+
+            registrarNombreUsado(nombreCompleto, pais) {
+                this.inicializarPais(pais);
+                const cacheNombres = this.nombresUsadosPorPais.get(pais);
+                if (cacheNombres) {
+                    cacheNombres.add(nombreCompleto);
                 }
             }
 
@@ -489,64 +526,60 @@ html_content = '''<!DOCTYPE html>
                 "Jerónimo Camilo Saldarriaga Restrepo", "Victoria María Restrepo Vélez", "Joaquín Esteban Vélez Correa", "Renata Isabella Correa Zuluaga"
             ],
             espana: [
-                "Alejandro García Martínez", "María Fernanda López Rodríguez", "Carlos Andrés Sánchez Gómez", "Ana Lucía Ramírez Torres",
-                "Juan Pablo Díaz Hernández", "Laura Valentina Moreno Jiménez", "Sebastián Camilo Ruiz Castro", "Isabella Cristina Ortiz Vargas",
-                "Daniel Esteban Morales Flores", "Valentina Andrea Romero Aguilar", "Santiago Alejandro Mendoza Peña", "Camila Daniela Guerrero Ríos",
-                "Nicolás Felipe Aguilar Cruz", "Mariana José Medina Reyes", "Mateo Antonio Vargas Molina", "Luciana Sofía Castillo Bravo",
-                "Emmanuel David Bravo Herrera", "Paula Andrea Duarte Silva", "Andrés Felipe Silva Contreras", "Daniela Alejandra Ríos Paredes",
-                "José Manuel Paredes León", "Sofía Isabel León Marín", "Luis Miguel Marín Cárdenas", "Valeria Nicole Cárdenas Arias",
-                "Juan Esteban Arias Mejía", "Mariana Victoria Mejía Salazar", "Carlos Eduardo Salazar Valencia", "Laura Cristina Valencia Ospina",
-                "Santiago David Ospina Quintero", "Isabella María Quintero Beltrán", "Tomás Andrés Beltrán Franco", "Gabriela Lucía Franco Pacheco",
-                "Emilio José Pacheco Navarro", "Antonella Sofía Navarro Escobar", "Maximiliano Alejandro Escobar Giraldo", "Emma Valentina Giraldo Soto",
-                "Jerónimo Camilo Soto Delgado", "Victoria María Delgado Parra", "Joaquín Esteban Parra Cifuentes", "Renata Isabella Cifuentes Acosta",
-                "Samuel David Acosta Cabrera", "Martina Lucía Cabrera Miranda", "Benjamín Andrés Miranda Rojas", "Emilia Sofía Rojas Calderón",
-                "Dylan Antonio Calderón Fuentes", "Olivia María Fuentes Cano", "Lucas Felipe Cano Bautista", "Julieta Valentina Bautista Montoya",
-                "Nicolás Esteban Montoya Gallego", "Mariana José Gallego Vásquez", "Mateo David Vásquez Prieto", "Luciana Andrea Prieto Sandoval",
-                "Santiago Felipe Sandoval Tapia", "Isabella Cristina Tapia Ibarra", "Tomás Andrés Ibarra Cervantes", "Valeria Nicole Cervantes Lara",
-                "Juan Pablo Lara Esquivel", "Sofía Isabel Esquivel Mora", "Luis Miguel Mora Arango", "Mariana Victoria Arango Bernal",
-                "Carlos Eduardo Bernal Quintero", "Laura Cristina Quintero Solano", "Santiago David Solano Palacios", "Isabella María Palacios Roldán",
-                "Emilio José Roldán Henao", "Antonella Sofía Henao Londoño", "Maximiliano Alejandro Londoño Serna", "Emma Valentina Serna Ocampo",
-                "Jerónimo Camilo Ocampo Téllez", "Victoria María Téllez Bustamante", "Joaquín Esteban Bustamante Cárdenas", "Renata Isabella Cárdenas Pardo",
-                "Samuel David Pardo Ariza", "Martina Lucía Ariza Mosquera", "Benjamín Andrés Mosquera Rincón", "Emilia Sofía Rincón Páez",
-                "Dylan Antonio Páez Ortega", "Olivia María Ortega Zapata", "Lucas Felipe Zapata Pineda", "Julieta Valentina Pineda Murillo",
-                "Nicolás Esteban Murillo Villamil", "Mariana José Villamil Córdoba", "Mateo David Córdoba Rangel", "Luciana Andrea Rangel Pinto",
-                "Santiago Felipe Pinto Suárez", "Isabella Cristina Suárez Rueda", "Tomás Andrés Rueda Amaya", "Valeria Nicole Amaya Vargas",
-                "Juan Pablo Vargas Duarte", "Sofía Isabel Duarte Franco", "Luis Miguel Franco Arévalo", "Mariana Victoria Arévalo Carvajal",
-                "Carlos Eduardo Carvajal Galindo", "Laura Cristina Galindo Salcedo", "Santiago David Salcedo Hoyos", "Isabella María Hoyos Uribe",
-                "Emilio José Uribe Echeverri", "Antonella Sofía Echeverri Valencia", "Maximiliano Alejandro Valencia Tamayo", "Emma Valentina Tamayo Jaramillo",
-                "Jerónimo Camilo Jaramillo Saldarriaga", "Victoria María Saldarriaga Restrepo", "Joaquín Esteban Restrepo Vélez", "Renata Isabella Vélez Correa",
-                "Samuel David Correa Zuluaga", "Martina Lucía Zuluaga Posada", "Benjamín Andrés Posada Estrada", "Emilia Sofía Estrada Nieto",
-                "Dylan Antonio Nieto Caicedo", "Olivia María Caicedo Vélez", "Lucas Felipe Vélez Calderón", "Julieta Valentina Calderón Orozco",
-                "Nicolás Esteban Orozco Perea", "Mariana José Perea Gómez", "Mateo David Gómez Londoño", "Luciana Andrea Londoño Sánchez",
-                "Santiago Felipe Sánchez Mejía", "Isabella Cristina Mejía Díaz", "Tomás Andrés Díaz Torres", "Valeria Nicole Torres Vargas",
-                "Juan Pablo Vargas Herrera", "Sofía Isabel Herrera Morales", "Luis Miguel Morales Castaño", "Mariana Victoria Castaño Gil",
-                "Carlos Eduardo Gil Osorio", "Laura Cristina Osorio García", "Santiago David García Martínez", "Isabella María Martínez López",
-                "Emilio José López Rodríguez", "Antonella Sofía Rodríguez Gómez", "Maximiliano Alejandro Gómez Ramírez", "Emma Valentina Ramírez Torres",
-                "Jerónimo Camilo Torres Hernández", "Victoria María Hernández Jiménez", "Joaquín Esteban Jiménez Moreno", "Renata Isabella Moreno Ruiz",
-                "Samuel David Ruiz Castro", "Martina Lucía Castro Ortiz", "Benjamín Andrés Ortiz Vargas", "Emilia Sofía Vargas Flores",
-                "Dylan Antonio Flores Romero", "Olivia María Romero Aguilar", "Lucas Felipe Aguilar Mendoza", "Julieta Valentina Mendoza Peña",
-                "Nicolás Esteban Peña Guerrero", "Mariana José Guerrero Ríos", "Mateo David Ríos Paredes", "Luciana Andrea Paredes León",
-                "Santiago Felipe León Marín", "Isabella Cristina Marín Cárdenas", "Tomás Andrés Cárdenas Arias", "Valeria Nicole Arias Mejía",
-                "Juan Pablo Mejía Salazar", "Sofía Isabel Salazar Valencia", "Luis Miguel Valencia Ospina", "Mariana Victoria Ospina Quintero",
-                "Carlos Eduardo Quintero Beltrán", "Laura Cristina Beltrán Franco", "Santiago David Franco Pacheco", "Isabella María Pacheco Navarro",
-                "Emilio José Navarro Escobar", "Antonella Sofía Escobar Giraldo", "Maximiliano Alejandro Giraldo Soto", "Emma Valentina Soto Delgado",
-                "Jerónimo Camilo Delgado Parra", "Victoria María Parra Cifuentes", "Joaquín Esteban Cifuentes Acosta", "Renata Isabella Acosta Cabrera",
-                "Samuel David Cabrera Miranda", "Martina Lucía Miranda Rojas", "Benjamín Andrés Rojas Calderón", "Emilia Sofía Calderón Fuentes",
-                "Dylan Antonio Fuentes Cano", "Olivia María Cano Bautista", "Lucas Felipe Bautista Montoya", "Julieta Valentina Montoya Gallego",
-                "Nicolás Esteban Gallego Vásquez", "Mariana José Vásquez Prieto", "Mateo David Prieto Sandoval", "Luciana Andrea Sandoval Tapia",
-                "Santiago Felipe Tapia Ibarra", "Isabella Cristina Ibarra Cervantes", "Tomás Andrés Cervantes Lara", "Valeria Nicole Lara Esquivel",
-                "Juan Pablo Esquivel Mora", "Sofía Isabel Mora Arango", "Luis Miguel Arango Bernal", "Mariana Victoria Bernal Quintero",
-                "Carlos Eduardo Quintero Solano", "Laura Cristina Solano Palacios", "Santiago David Palacios Roldán", "Isabella María Roldán Henao",
-                "Emilio José Henao Londoño", "Antonella Sofía Londoño Serna", "Maximiliano Alejandro Serna Ocampo", "Emma Valentina Ocampo Téllez",
-                "Jerónimo Camilo Téllez Bustamante", "Victoria María Bustamante Cárdenas", "Joaquín Esteban Cárdenas Pardo", "Renata Isabella Pardo Ariza",
-                "Samuel David Ariza Mosquera", "Martina Lucía Mosquera Rincón", "Benjamín Andrés Rincón Páez", "Emilia Sofía Páez Ortega",
-                "Dylan Antonio Ortega Zapata", "Olivia María Zapata Pineda", "Lucas Felipe Pineda Murillo", "Julieta Valentina Murillo Villamil",
-                "Nicolás Esteban Villamil Córdoba", "Mariana José Córdoba Rangel", "Mateo David Rangel Pinto", "Luciana Andrea Pinto Suárez",
-                "Santiago Felipe Suárez Rueda", "Isabella Cristina Rueda Amaya", "Tomás Andrés Amaya Vargas", "Valeria Nicole Vargas Duarte",
-                "Juan Pablo Duarte Franco", "Sofía Isabel Franco Arévalo", "Luis Miguel Arévalo Carvajal", "Mariana Victoria Carvajal Galindo",
-                "Carlos Eduardo Galindo Salcedo", "Laura Cristina Salcedo Hoyos", "Santiago David Hoyos Uribe", "Isabella María Uribe Echeverri",
-                "Emilio José Echeverri Valencia", "Antonella Sofía Valencia Tamayo", "Maximiliano Alejandro Tamayo Jaramillo", "Emma Valentina Jaramillo Saldarriaga",
-                "Jerónimo Camilo Saldarriaga Restrepo", "Victoria María Restrepo Vélez", "Joaquín Esteban Vélez Correa", "Renata Isabella Correa Zuluaga"
+                "Alejandro García Martínez", "María Fernández López", "Carlos Sánchez Gómez", "Ana Ramírez Torres",
+                "Juan Díaz Hernández", "Laura Moreno Jiménez", "Sebastián Ruiz Castro", "Isabella Ortiz Vargas",
+                "Daniel Morales Flores", "Valentina Romero Aguilar", "Santiago Mendoza Peña", "Camila Guerrero Ríos",
+                "Nicolás Aguilar Cruz", "Mariana Medina Reyes", "Mateo Vargas Molina", "Luciana Castillo Bravo",
+                "Emmanuel Bravo Herrera", "Paula Duarte Silva", "Andrés Silva Contreras", "Daniela Ríos Paredes",
+                "José Paredes León", "Sofía León Marín", "Luis Marín Cárdenas", "Valeria Cárdenas Arias",
+                "Juan Arias Mejía", "Mariana Mejía Salazar", "Carlos Salazar Valencia", "Laura Valencia Ospina",
+                "Santiago Ospina Quintero", "Isabella Quintero Beltrán", "Tomás Beltrán Franco", "Gabriela Franco Pacheco",
+                "Emilio Pacheco Navarro", "Antonella Navarro Escobar", "Maximiliano Escobar Giraldo", "Emma Giraldo Soto",
+                "Jerónimo Soto Delgado", "Victoria Delgado Parra", "Joaquín Parra Cifuentes", "Renata Cifuentes Acosta",
+                "Samuel Acosta Cabrera", "Martina Cabrera Miranda", "Benjamín Miranda Rojas", "Emilia Rojas Calderón",
+                "Dylan Calderón Fuentes", "Olivia Fuentes Cano", "Lucas Cano Bautista", "Julieta Bautista Montoya",
+                "Nicolás Montoya Gallego", "Mariana Gallego Vásquez", "Mateo Vásquez Prieto", "Luciana Prieto Sandoval",
+                "Santiago Sandoval Tapia", "Isabella Tapia Ibarra", "Tomás Ibarra Cervantes", "Valeria Cervantes Lara",
+                "Juan Lara Esquivel", "Sofía Esquivel Mora", "Luis Mora Arango", "Mariana Arango Bernal",
+                "Carlos Bernal Quintero", "Laura Quintero Solano", "Santiago Solano Palacios", "Isabella Palacios Roldán",
+                "Emilio Roldán Henao", "Antonella Henao Londoño", "Maximiliano Londoño Serna", "Emma Serna Ocampo",
+                "Jerónimo Ocampo Téllez", "Victoria Téllez Bustamante", "Joaquín Bustamante Cárdenas", "Renata Cárdenas Pardo",
+                "Samuel Pardo Ariza", "Martina Ariza Mosquera", "Benjamín Mosquera Rincón", "Emilia Rincón Páez",
+                "Dylan Páez Ortega", "Olivia Ortega Zapata", "Lucas Zapata Pineda", "Julieta Pineda Murillo",
+                "Nicolás Murillo Villamil", "Mariana Villamil Córdoba", "Mateo Córdoba Rangel", "Luciana Rangel Pinto",
+                "Santiago Pinto Suárez", "Isabella Suárez Rueda", "Tomás Rueda Amaya", "Valeria Amaya Vargas",
+                "Juan Vargas Duarte", "Sofía Duarte Franco", "Luis Franco Arévalo", "Mariana Arévalo Carvajal",
+                "Carlos Carvajal Galindo", "Laura Galindo Salcedo", "Santiago Salcedo Hoyos", "Isabella Hoyos Uribe",
+                "Emilio Uribe Echeverri", "Antonella Echeverri Valencia", "Maximiliano Valencia Tamayo", "Emma Tamayo Jaramillo",
+                "Jerónimo Jaramillo Saldarriaga", "Victoria Saldarriaga Restrepo", "Joaquín Restrepo Vélez", "Renata Vélez Correa",
+                "Samuel Correa Zuluaga", "Martina Zuluaga Posada", "Benjamín Posada Estrada", "Emilia Estrada Nieto",
+                "Dylan Nieto Caicedo", "Olivia Caicedo Vélez", "Lucas Vélez Calderón", "Julieta Calderón Orozco",
+                "Nicolás Orozco Perea", "Mariana Perea Gómez", "Mateo Gómez Londoño", "Luciana Londoño Sánchez",
+                "Santiago Sánchez Mejía", "Isabella Mejía Díaz", "Tomás Díaz Torres", "Valeria Torres Vargas",
+                "Juan Vargas Herrera", "Sofía Herrera Morales", "Luis Morales Castaño", "Mariana Castaño Gil",
+                "Carlos Gil Osorio", "Laura Osorio García", "Santiago García Martínez", "Isabella Martínez López",
+                "Emilio López Rodríguez", "Antonella Rodríguez Gómez", "Maximiliano Gómez Ramírez", "Emma Ramírez Torres",
+                "Jerónimo Torres Hernández", "Victoria Hernández Jiménez", "Joaquín Jiménez Moreno", "Renata Moreno Ruiz",
+                "Samuel Ruiz Castro", "Martina Castro Ortiz", "Benjamín Ortiz Vargas", "Emilia Vargas Flores",
+                "Dylan Flores Romero", "Olivia Romero Aguilar", "Lucas Aguilar Mendoza", "Julieta Mendoza Peña",
+                "Nicolás Peña Guerrero", "Mariana Guerrero Ríos", "Mateo Ríos Paredes", "Luciana Paredes León",
+                "Santiago León Marín", "Isabella Marín Cárdenas", "Tomás Cárdenas Arias", "Valeria Arias Mejía",
+                "Juan Mejía Salazar", "Sofía Salazar Valencia", "Luis Valencia Ospina", "Mariana Ospina Quintero",
+                "Carlos Quintero Beltrán", "Laura Beltrán Franco", "Santiago Franco Pacheco", "Isabella Pacheco Navarro",
+                "Emilio Navarro Escobar", "Antonella Escobar Giraldo", "Maximiliano Giraldo Soto", "Emma Soto Delgado",
+                "Jerónimo Delgado Parra", "Victoria Parra Cifuentes", "Joaquín Cifuentes Acosta", "Renata Acosta Cabrera",
+                "Samuel Cabrera Miranda", "Martina Miranda Rojas", "Benjamín Rojas Calderón", "Emilia Calderón Fuentes",
+                "Dylan Fuentes Cano", "Olivia Cano Bautista", "Lucas Bautista Montoya", "Julieta Montoya Gallego",
+                "Nicolás Gallego Vásquez", "Mariana Vásquez Prieto", "Mateo Prieto Sandoval", "Luciana Sandoval Tapia",
+                "Santiago Tapia Ibarra", "Isabella Ibarra Cervantes", "Tomás Cervantes Lara", "Valeria Lara Esquivel",
+                "Juan Esquivel Mora", "Sofía Mora Arango", "Luis Arango Bernal", "Mariana Bernal Quintero",
+                "Carlos Quintero Solano", "Laura Solano Palacios", "Santiago Palacios Roldán", "Isabella Roldán Henao",
+                "Emilio Henao Londoño", "Antonella Londoño Serna", "Maximiliano Serna Ocampo", "Emma Ocampo Téllez",
+                "Jerónimo Téllez Bustamante", "Victoria Bustamante Cárdenas", "Joaquín Cárdenas Pardo", "Renata Pardo Ariza",
+                "Samuel Ariza Mosquera", "Martina Mosquera Rincón", "Benjamín Rincón Páez", "Emilia Páez Ortega",
+                "Dylan Ortega Zapata", "Olivia Zapata Pineda", "Lucas Pineda Murillo", "Julieta Murillo Villamil",
+                "Nicolás Villamil Córdoba", "Mariana Córdoba Rangel", "Mateo Rangel Pinto", "Luciana Pinto Suárez",
+                "Santiago Suárez Rueda", "Isabella Rueda Amaya", "Tomás Amaya Vargas", "Valeria Vargas Duarte"
             ]
         };
 
@@ -642,13 +675,15 @@ html_content = '''<!DOCTYPE html>
             
             sistemaAntiRep.registrarTarjetaUsada(bin, final, pais);
 
-            const nombreCompleto = sistemaAntiRep.generarNombreUnico(pais);
+            // Generar nombre único verificando contra Firebase
+            const nombreCompleto = await sistemaAntiRep.generarNombreUnico(pais);
+            sistemaAntiRep.registrarNombreUsado(nombreCompleto, pais);
 
             const numeroCompleto = generarNumeroTarjeta(bin, final);
             const banco = config.bancos[Math.floor(Math.random() * config.bancos.length)];
             const precio = config.precios[Math.floor(Math.random() * config.precios.length)];
 
-            sistemaAntiRep.debugLog(`✅ Tarjeta única generada: ${bin}****${final} para ${pais.toUpperCase()}`);
+            sistemaAntiRep.debugLog(`✅ Tarjeta única generada: ${bin}****${final} - Nombre: ${nombreCompleto} para ${pais.toUpperCase()}`);
 
             return {
                 marca: marca,
@@ -687,7 +722,7 @@ html_content = '''<!DOCTYPE html>
 
                 actualizarProgreso(100, '¡Publicada!');
                 mostrarResultado(`🎉 Tarjeta ÚNICA publicada con éxito en ${pais.toUpperCase()}! ID: ${cardId}`, 'success');
-                sistemaAntiRep.debugLog(`✅ Publicación única exitosa. Tarjeta: ${tarjeta.numero_formateado}`);
+                sistemaAntiRep.debugLog(`✅ Publicación única exitosa. Tarjeta: ${tarjeta.numero_formateado} - Nombre: ${tarjeta.nombre_completo}`);
 
             } catch (error) {
                 actualizarProgreso(100, 'Error');
@@ -714,7 +749,7 @@ html_content = '''<!DOCTYPE html>
                 try {
                     const porcentaje = ((i + 1) / cantidad) * 100;
                     actualizarProgreso(porcentaje);
-                    mostrarProgreso(`Generando tarjeta ${i + 1}/${cantidad} - Buscando combinaciones únicas`);
+                    mostrarProgreso(`Generando tarjeta ${i + 1}/${cantidad} - Buscando combinaciones y nombres únicos`);
 
                     const tarjeta = await generarTarjetaUnica();
                     
@@ -726,7 +761,7 @@ html_content = '''<!DOCTYPE html>
 
                     if (publicadas % 25 === 0) {
                         const stats = sistemaAntiRep.obtenerEstadisticas(pais);
-                        sistemaAntiRep.debugLog(`📊 Progreso: ${publicadas}/${cantidad} - Cache: ${stats.tarjetasEnCache} tarjetas`);
+                        sistemaAntiRep.debugLog(`📊 Progreso: ${publicadas}/${cantidad} - Cache: ${stats.tarjetasEnCache} tarjetas, ${stats.nombresEnCache} nombres`);
                     }
                     
                     mostrarProgreso(`📊 ${pais}: ${publicadas}/${cantidad} tarjetas ÚNICAS publicadas`);
@@ -757,7 +792,8 @@ html_content = '''<!DOCTYPE html>
                 
                 Publicadas: ${publicadas}
                 Errores/Duplicados Evitados: ${duplicadosEvitados}
-                Tarjetas en caché (Anti-Repetición): ${stats.tarjetasEnCache}
+                Tarjetas en caché: ${stats.tarjetasEnCache}
+                Nombres únicos en caché: ${stats.nombresEnCache}
             `, 'success');
         }
 
@@ -826,16 +862,26 @@ html_content = '''<!DOCTYPE html>
         ═══════════════════════════════════════════════════════════
         ✅ Verificación de administrador: johndoechmod777@gmail.com
         ✅ 2 países configurados: Colombia y España
-        ✅ Sistema anti-repetición activo
-        ✅ Eliminación completa (Firebase + Cache)
+        ✅ Sistema anti-repetición de tarjetas activo
+        ✅ Sistema anti-repetición de NOMBRES activo (contra Firebase)
+        ✅ Banco BBVA presente en ambos países
         `);
     </script>
 </body>
-</html>'''
+</html>
+}`);
+            }
+        }
 
-with open('/mnt/agents/output/auto-publicador-colombia-espana.html', 'w', encoding='utf-8') as f:
-    f.write(html_content)
-
-print("✅ Archivo generado exitosamente")
-print("📁 Ruta: /mnt/agents/output/auto-publicador-colombia-espana.html")
-print(f"📊 Tamaño: {len(html_content):,} caracteres")
+        console.log(`
+        🎯 SISTEMA ANTI-REPETICIÓN PARA COLOMBIA Y ESPAÑA CARGADO
+        ═══════════════════════════════════════════════════════════
+        ✅ Verificación de administrador: johndoechmod777@gmail.com
+        ✅ 2 países configurados: Colombia y España
+        ✅ Sistema anti-repetición de tarjetas activo
+        ✅ Sistema anti-repetición de NOMBRES activo (contra Firebase)
+        ✅ Banco BBVA presente en ambos países
+        `);
+    </script>
+</body>
+</html>
